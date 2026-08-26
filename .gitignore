@@ -1,0 +1,45 @@
+# ───────────────────────────────────────────
+#  Dependencias
+# ───────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+
+# ───────────────────────────────────────────
+#  Build output
+# ───────────────────────────────────────────
+frontend/dist/
+frontend/.vite/
+
+# ───────────────────────────────────────────
+#  Variables de entorno
+# ───────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ───────────────────────────────────────────
+#  Archivos de sistema operativo
+# ───────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ───────────────────────────────────────────
+#  IDEs y editores
+# ───────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ───────────────────────────────────────────
+#  Archivos generados por v0 / sandbox
+# ───────────────────────────────────────────
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+.snowflake/
+.v0-trash/
+.vercel/
+.next/
