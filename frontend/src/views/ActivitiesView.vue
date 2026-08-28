@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, reactive, computed } from 'vue';
 import { Plus, Pencil, Trash2, Target, PiggyBank, X } from 'lucide-vue-next';
 import {

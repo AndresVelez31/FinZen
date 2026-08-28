@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { Chart, registerables } from 'chart.js';
 import { store } from '@/store';

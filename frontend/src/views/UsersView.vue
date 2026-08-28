@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, computed, onMounted } from 'vue';
 import { ShieldCheck, User, UserCheck, UserX, Users as UsersIcon } from 'lucide-vue-next';
 import TablaGenerica from '@/components/shared/TablaGenerica.vue';

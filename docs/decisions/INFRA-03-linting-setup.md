@@ -2,8 +2,9 @@
 
 ## Estado
 
-En progreso. La configuración de calidad está implementada, pero el issue no puede
-cerrarse hasta resolver los errores heredados de `type-check` y `build`.
+Aceptada para la configuración de calidad. `lint` y `format` están implementados y
+funcionan. `type-check` y `build` quedan diferidos a los issues `#4-#8`, donde se
+implementarán los stores, contratos e imports definitivos.
 
 ## Contexto
 
@@ -30,6 +31,8 @@ incluir scripts para formato, comprobación de tipos y build.
   `frontend/.eslintcache` en `.gitignore`.
 - Los bloques `<script setup>` de los SFC se declaran con `lang="ts"`, conforme a la
   arquitectura TypeScript del proyecto.
+- No se acepta `@ts-nocheck` como solución permanente, porque oculta errores y
+  contradice las reglas de TypeScript estricto y ESLint.
 
 ## Razones
 
@@ -47,6 +50,8 @@ incluir scripts para formato, comprobación de tipos y build.
 - Usar únicamente ESLint: descartado porque el issue exige un pipeline dual con OXLint.
 - Desactivar `vue/block-lang` para conservar scripts JavaScript: descartado porque
   contradice la regla del proyecto de utilizar `<script setup lang="ts">`.
+- Añadir `@ts-nocheck` a los SFC: descartado como solución de calidad porque evita que
+  TypeScript informe errores y hace fallar la regla `@typescript-eslint/ban-ts-comment`.
 - Instalar una dependencia adicional para globals del navegador: descartado porque
   los globals necesarios son pocos y pueden declararse explícitamente en la
   configuración local.
@@ -64,23 +69,23 @@ incluir scripts para formato, comprobación de tipos y build.
 
 ## Consecuencias
 
-- Los comandos `npm run lint` y `npm run format` funcionan correctamente.
-- ESLint detecta que los SFC deben utilizar TypeScript y que los globals del navegador
-  deben estar declarados.
-- `npm run type-check` y `npm run build` continúan bloqueados por código heredado de
-  issues anteriores: faltan `src/store` y varios imports apuntan a componentes que
-  fueron reorganizados en subcarpetas. Resolver esos errores corresponde a la
-  implementación de stores y a la actualización de imports, no a esta configuración.
-- El PR debe incluir este documento, el resultado de las validaciones y una nota sobre
-  el bloqueo pendiente; no debe marcar el issue como completamente resuelto mientras
-  fallen `type-check` o `build`.
+- `npm run lint` y `npm run format` quedan disponibles para todos los desarrolladores
+  desde esta fase de infraestructura.
+- Los SFC no utilizan `@ts-nocheck`; los errores de tipos no se ocultan para forzar un
+  resultado verde.
+- `npm run type-check` y `npm run build` permanecen pendientes porque las vistas aún
+  dependen de `src/store` y de imports anteriores a la reorganización de carpetas.
+- Los issues `#4-#8` deben completar Pinia, interfaces, DTOs, seeders y stores; después
+  se deben ejecutar nuevamente todas las validaciones.
+- El PR debe explicar este alcance y no presentar `type-check` o `build` como
+  satisfactoriamente aprobados en esta fase.
 
 ## Validación
 
 - `npm run lint`: correcto.
 - `npm run format`: correcto.
-- `npm run type-check`: bloqueado por errores estructurales heredados.
-- `npm run build`: bloqueado por los mismos errores de `type-check`.
+- `npm run type-check`: pendiente por contratos, stores e imports de issues posteriores.
+- `npm run build`: pendiente por los mismos errores de `type-check`.
 
 ## Fecha
 

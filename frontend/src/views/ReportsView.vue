@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @ts-nocheck
 import { ref, computed } from 'vue';
 import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-vue-next';
 import GraficoChart from '@/components/shared/GraficoChart.vue';
