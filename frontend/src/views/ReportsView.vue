@@ -1,114 +1,145 @@
-<script setup>
-import { ref, computed } from "vue"
-import { TrendingUp, TrendingDown, Wallet, PiggyBank } from "lucide-vue-next"
-import GraficoChart from "@/components/GraficoChart.vue"
-import SelectorFiltro from "@/components/SelectorFiltro.vue"
-import TablaGenerica from "@/components/TablaGenerica.vue"
-import StatCard from "@/components/StatCard.vue"
-import { myTransactions, myActivities, formatMoney, monthKey } from "@/store"
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-vue-next';
+import GraficoChart from '@/components/shared/GraficoChart.vue';
+import SelectorFiltro from '@/components/shared/SelectorFiltro.vue';
+import TablaGenerica from '@/components/shared/TablaGenerica.vue';
+import StatCard from '@/components/shared/StatCard.vue';
+import { myTransactions, myActivities, formatMoney, monthKey } from '@/store';
 
-const now = new Date()
-const selYear = ref(String(now.getFullYear()))
-const selMonth = ref(String(now.getMonth() + 1).padStart(2, "0"))
+const now = new Date();
+const selYear = ref(String(now.getFullYear()));
+const selMonth = ref(String(now.getMonth() + 1).padStart(2, '0'));
 
 const years = computed(() => {
-  const set = new Set(myTransactions.value.map((t) => new Date(t.date).getFullYear()))
-  set.add(now.getFullYear())
-  return [...set].sort((a, b) => b - a).map((y) => ({ value: String(y), label: String(y) }))
-})
+  const set = new Set(myTransactions.value.map((t) => new Date(t.date).getFullYear()));
+  set.add(now.getFullYear());
+  return [...set].sort((a, b) => b - a).map((y) => ({ value: String(y), label: String(y) }));
+});
 const months = [
-  ["01", "Enero"], ["02", "Febrero"], ["03", "Marzo"], ["04", "Abril"], ["05", "Mayo"], ["06", "Junio"],
-  ["07", "Julio"], ["08", "Agosto"], ["09", "Septiembre"], ["10", "Octubre"], ["11", "Noviembre"], ["12", "Diciembre"],
-].map(([value, label]) => ({ value, label }))
+  ['01', 'Enero'],
+  ['02', 'Febrero'],
+  ['03', 'Marzo'],
+  ['04', 'Abril'],
+  ['05', 'Mayo'],
+  ['06', 'Junio'],
+  ['07', 'Julio'],
+  ['08', 'Agosto'],
+  ['09', 'Septiembre'],
+  ['10', 'Octubre'],
+  ['11', 'Noviembre'],
+  ['12', 'Diciembre'],
+].map(([value, label]) => ({ value, label }));
 
-const periodKey = computed(() => `${selYear.value}-${selMonth.value}`)
-const monthName = computed(() => months.find((m) => m.value === selMonth.value)?.label || "")
+const periodKey = computed(() => `${selYear.value}-${selMonth.value}`);
+const monthName = computed(() => months.find((m) => m.value === selMonth.value)?.label || '');
 
-const periodTx = computed(() => myTransactions.value.filter((t) => monthKey(t.date) === periodKey.value))
+const periodTx = computed(() =>
+  myTransactions.value.filter((t) => monthKey(t.date) === periodKey.value),
+);
 
 const summary = computed(() => {
-  const income = periodTx.value.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0)
-  const expense = periodTx.value.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0)
-  return { income, expense, net: income - expense }
-})
+  const income = periodTx.value
+    .filter((t) => t.type === 'income')
+    .reduce((s, t) => s + t.amount, 0);
+  const expense = periodTx.value
+    .filter((t) => t.type === 'expense')
+    .reduce((s, t) => s + t.amount, 0);
+  return { income, expense, net: income - expense };
+});
 
 /* ---- Line chart: monthly balance evolution for selected year ---- */
 const lineChart = computed(() => {
-  const labels = months.map((m) => m.label.slice(0, 3))
-  const net = []
-  let running = 0
+  const labels = months.map((m) => m.label.slice(0, 3));
+  const net = [];
+  let running = 0;
   for (let i = 1; i <= 12; i++) {
-    const key = `${selYear.value}-${String(i).padStart(2, "0")}`
-    const tx = myTransactions.value.filter((t) => monthKey(t.date) === key)
-    const inc = tx.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0)
-    const exp = tx.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0)
-    running += inc - exp
-    net.push(Math.round(running))
+    const key = `${selYear.value}-${String(i).padStart(2, '0')}`;
+    const tx = myTransactions.value.filter((t) => monthKey(t.date) === key);
+    const inc = tx.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+    const exp = tx.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+    running += inc - exp;
+    net.push(Math.round(running));
   }
   return {
     labels,
     datasets: [
       {
-        label: "Balance acumulado",
+        label: 'Balance acumulado',
         data: net,
-        borderColor: "#10b981",
-        backgroundColor: "rgba(16,185,129,0.12)",
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16,185,129,0.12)',
         fill: true,
         tension: 0.4,
         pointRadius: 3,
-        pointBackgroundColor: "#10b981",
+        pointBackgroundColor: '#10b981',
         borderWidth: 2.5,
       },
     ],
-  }
-})
+  };
+});
 
 /* ---- Bar chart: budget vs actual (expense activities) ---- */
-const expenseActs = computed(() => myActivities.value.filter((a) => a.type === "expense"))
+const expenseActs = computed(() => myActivities.value.filter((a) => a.type === 'expense'));
 const budgetChart = computed(() => {
-  const acts = expenseActs.value
+  const acts = expenseActs.value;
   const actual = acts.map((a) =>
-    periodTx.value.filter((t) => t.activityId === a.id && t.type === "expense").reduce((s, t) => s + t.amount, 0),
-  )
+    periodTx.value
+      .filter((t) => t.activityId === a.id && t.type === 'expense')
+      .reduce((s, t) => s + t.amount, 0),
+  );
   return {
     labels: acts.map((a) => a.name),
     datasets: [
-      { label: "Presupuesto", data: acts.map((a) => a.targetAmount), backgroundColor: "#cbd5e1", borderRadius: 6, maxBarThickness: 26 },
-      { label: "Gasto real", data: actual, backgroundColor: "#10b981", borderRadius: 6, maxBarThickness: 26 },
+      {
+        label: 'Presupuesto',
+        data: acts.map((a) => a.targetAmount),
+        backgroundColor: '#cbd5e1',
+        borderRadius: 6,
+        maxBarThickness: 26,
+      },
+      {
+        label: 'Gasto real',
+        data: actual,
+        backgroundColor: '#10b981',
+        borderRadius: 6,
+        maxBarThickness: 26,
+      },
     ],
-  }
-})
-const hasBudget = computed(() => budgetChart.value.labels.length > 0)
+  };
+});
+const hasBudget = computed(() => budgetChart.value.labels.length > 0);
 
 /* ---- Savings progress ---- */
 const savingsActs = computed(() =>
   myActivities.value
-    .filter((a) => a.type === "savings")
+    .filter((a) => a.type === 'savings')
     .map((a) => {
       const saved = myTransactions.value
-        .filter((t) => t.activityId === a.id && t.type === "expense")
-        .reduce((s, t) => s + t.amount, 0)
-      const pct = a.targetAmount > 0 ? Math.min(100, Math.round((saved / a.targetAmount) * 100)) : 0
-      return { ...a, saved, pct }
+        .filter((t) => t.activityId === a.id && t.type === 'expense')
+        .reduce((s, t) => s + t.amount, 0);
+      const pct =
+        a.targetAmount > 0 ? Math.min(100, Math.round((saved / a.targetAmount) * 100)) : 0;
+      return { ...a, saved, pct };
     }),
-)
+);
 
 /* ---- Summary table ---- */
 const summaryRows = computed(() =>
   expenseActs.value.map((a) => {
     const spent = periodTx.value
-      .filter((t) => t.activityId === a.id && t.type === "expense")
-      .reduce((s, t) => s + t.amount, 0)
-    const diff = a.targetAmount - spent
-    return { id: a.id, name: a.name, color: a.color, budget: a.targetAmount, spent, diff }
+      .filter((t) => t.activityId === a.id && t.type === 'expense')
+      .reduce((s, t) => s + t.amount, 0);
+    const diff = a.targetAmount - spent;
+    return { id: a.id, name: a.name, color: a.color, budget: a.targetAmount, spent, diff };
   }),
-)
+);
 const summaryColumns = [
-  { key: "name", label: "Actividad" },
-  { key: "budget", label: "Presupuesto", align: "right" },
-  { key: "spent", label: "Gasto real", align: "right" },
-  { key: "diff", label: "Diferencia", align: "right" },
-]
+  { key: 'name', label: 'Actividad' },
+  { key: 'budget', label: 'Presupuesto', align: 'right' },
+  { key: 'spent', label: 'Gasto real', align: 'right' },
+  { key: 'diff', label: 'Diferencia', align: 'right' },
+];
 </script>
 
 <template>
@@ -126,9 +157,29 @@ const summaryColumns = [
 
     <!-- KPIs -->
     <div class="grid-kpi mb">
-      <StatCard label="Ingresos del periodo" :value="formatMoney(summary.income)" :icon="TrendingUp" accent="var(--info)" :trend="`${monthName} ${selYear}`" />
-      <StatCard label="Gastos del periodo" :value="formatMoney(summary.expense)" :icon="TrendingDown" accent="var(--danger)" :trendUp="false" :trend="`${monthName} ${selYear}`" />
-      <StatCard label="Balance neto" :value="formatMoney(summary.net)" :icon="Wallet" :accent="summary.net >= 0 ? 'var(--primary)' : 'var(--danger)'" :trendUp="summary.net >= 0" :trend="summary.net >= 0 ? 'Ahorro positivo' : 'Gasto excesivo'" />
+      <StatCard
+        label="Ingresos del periodo"
+        :value="formatMoney(summary.income)"
+        :icon="TrendingUp"
+        accent="var(--info)"
+        :trend="`${monthName} ${selYear}`"
+      />
+      <StatCard
+        label="Gastos del periodo"
+        :value="formatMoney(summary.expense)"
+        :icon="TrendingDown"
+        accent="var(--danger)"
+        :trendUp="false"
+        :trend="`${monthName} ${selYear}`"
+      />
+      <StatCard
+        label="Balance neto"
+        :value="formatMoney(summary.net)"
+        :icon="Wallet"
+        :accent="summary.net >= 0 ? 'var(--primary)' : 'var(--danger)'"
+        :trendUp="summary.net >= 0"
+        :trend="summary.net >= 0 ? 'Ahorro positivo' : 'Gasto excesivo'"
+      />
     </div>
 
     <!-- Charts -->
@@ -138,8 +189,13 @@ const summaryColumns = [
           <h3>Evolución del balance</h3>
           <span class="badge badge-gray">{{ selYear }}</span>
         </div>
-        <GraficoChart type="line" :labels="lineChart.labels" :datasets="lineChart.datasets" :height="300"
-          :options="{ plugins: { legend: { display: false } } }" />
+        <GraficoChart
+          type="line"
+          :labels="lineChart.labels"
+          :datasets="lineChart.datasets"
+          :height="300"
+          :options="{ plugins: { legend: { display: false } } }"
+        />
       </section>
 
       <section class="card panel">
@@ -147,7 +203,13 @@ const summaryColumns = [
           <h3>Presupuesto vs. gasto real</h3>
           <span class="badge badge-gray">{{ monthName }}</span>
         </div>
-        <GraficoChart v-if="hasBudget" type="bar" :labels="budgetChart.labels" :datasets="budgetChart.datasets" :height="300" />
+        <GraficoChart
+          v-if="hasBudget"
+          type="bar"
+          :labels="budgetChart.labels"
+          :datasets="budgetChart.datasets"
+          :height="300"
+        />
         <div v-else class="empty-chart"><p class="muted">No hay actividades de gasto.</p></div>
       </section>
     </div>
@@ -155,7 +217,7 @@ const summaryColumns = [
     <!-- Savings progress -->
     <section class="card panel mb" v-if="savingsActs.length">
       <div class="panel-head">
-        <h3><PiggyBank :size="18" style="vertical-align:-3px" /> Progreso de metas de ahorro</h3>
+        <h3><PiggyBank :size="18" style="vertical-align: -3px" /> Progreso de metas de ahorro</h3>
       </div>
       <div class="savings">
         <div v-for="s in savingsActs" :key="s.id" class="saving">
@@ -172,15 +234,23 @@ const summaryColumns = [
     <!-- Summary table -->
     <section>
       <h3 class="section-title">Resumen por actividad · {{ monthName }} {{ selYear }}</h3>
-      <TablaGenerica :columns="summaryColumns" :rows="summaryRows"
-        emptyTitle="Sin datos" emptyText="No hay actividades de gasto para este periodo.">
+      <TablaGenerica
+        :columns="summaryColumns"
+        :rows="summaryRows"
+        emptyTitle="Sin datos"
+        emptyText="No hay actividades de gasto para este periodo."
+      >
         <template #cell-name="{ row }">
-          <div class="rn"><span class="dot" :style="{ background: row.color }"></span>{{ row.name }}</div>
+          <div class="rn">
+            <span class="dot" :style="{ background: row.color }"></span>{{ row.name }}
+          </div>
         </template>
         <template #cell-budget="{ value }">{{ formatMoney(value) }}</template>
         <template #cell-spent="{ value }">{{ formatMoney(value) }}</template>
         <template #cell-diff="{ value }">
-          <span :class="value >= 0 ? 'pos' : 'neg'">{{ value >= 0 ? "+" : "" }}{{ formatMoney(value) }}</span>
+          <span :class="value >= 0 ? 'pos' : 'neg'"
+            >{{ value >= 0 ? '+' : '' }}{{ formatMoney(value) }}</span
+          >
         </template>
       </TablaGenerica>
     </section>

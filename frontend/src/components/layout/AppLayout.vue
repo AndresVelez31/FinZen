@@ -124,11 +124,16 @@ async function handleLogout(): Promise<void> {
             <div class="user-name">{{ authenticatedUser?.name }}</div>
             <div class="user-role">
               <span class="chip" :class="isAdminUser ? 'badge-indigo' : 'badge-gray'">{{
-                isAdminUser ? "Administrador" : "Usuario"
+                isAdminUser ? 'Administrador' : 'Usuario'
               }}</span>
             </div>
           </div>
-          <button class="btn btn-ghost btn-icon" @click="handleLogout" aria-label="Cerrar sesión" title="Cerrar sesión">
+          <button
+            class="btn btn-ghost btn-icon"
+            @click="handleLogout"
+            aria-label="Cerrar sesión"
+            title="Cerrar sesión"
+          >
             <LogOut :size="17" />
           </button>
         </div>
@@ -143,9 +148,14 @@ async function handleLogout(): Promise<void> {
         <button class="menu-btn" @click="isMobileMenuOpen = true" aria-label="Abrir menú">
           <Menu :size="22" />
         </button>
-        <h1 class="topbar-title">{{ route.meta.title || "Resumen" }}</h1>
+        <h1 class="topbar-title">{{ route.meta.title || 'Resumen' }}</h1>
         <div class="topbar-actions">
-          <button class="btn btn-ghost btn-icon" @click="toggleAppTheme" aria-label="Cambiar tema" title="Cambiar tema">
+          <button
+            class="btn btn-ghost btn-icon"
+            @click="toggleAppTheme"
+            aria-label="Cambiar tema"
+            title="Cambiar tema"
+          >
             <Moon v-if="appTheme === 'light'" :size="18" />
             <Sun v-else :size="18" />
           </button>
@@ -232,7 +242,9 @@ async function handleLogout(): Promise<void> {
   color: var(--text-muted);
   font-size: 0.92rem;
   font-weight: 600;
-  transition: background 0.18s ease, color 0.18s ease;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
   text-align: left;
   width: 100%;
 }

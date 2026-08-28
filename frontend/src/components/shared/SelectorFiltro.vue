@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 /**
  * Reusable labelled dropdown filter.
  * Props:
@@ -11,18 +11,18 @@
  *  - change (value)
  */
 defineProps({
-  label: { type: String, default: "" },
-  modelValue: { type: [String, Number], default: "" },
+  label: { type: String, default: '' },
+  modelValue: { type: [String, Number], default: '' },
   options: { type: Array, default: () => [] },
-  placeholder: { type: String, default: "Todos" },
-})
+  placeholder: { type: String, default: 'Todos' },
+});
 
-const emit = defineEmits(["update:modelValue", "change"])
+const emit = defineEmits(['update:modelValue', 'change']);
 
 function onChange(e) {
-  const val = e.target.value
-  emit("update:modelValue", val)
-  emit("change", val)
+  const val = e.target.value;
+  emit('update:modelValue', val);
+  emit('change', val);
 }
 </script>
 

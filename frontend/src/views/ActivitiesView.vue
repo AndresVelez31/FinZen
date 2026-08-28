@@ -1,87 +1,115 @@
-<script setup>
-import { ref, reactive, computed } from "vue"
-import { Plus, Pencil, Trash2, Target, PiggyBank, X } from "lucide-vue-next"
-import { myActivities, myTransactions, saveActivity, deleteActivity, formatMoney, monthKey } from "@/store"
+<script setup lang="ts">
+import { ref, reactive, computed } from 'vue';
+import { Plus, Pencil, Trash2, Target, PiggyBank, X } from 'lucide-vue-next';
+import {
+  myActivities,
+  myTransactions,
+  saveActivity,
+  deleteActivity,
+  formatMoney,
+  monthKey,
+} from '@/store';
 
-const showModal = ref(false)
-const editingId = ref(null)
-const preset = ["#10b981", "#0ea5e9", "#f59e0b", "#6366f1", "#ec4899", "#8b5cf6", "#14b8a6", "#ef4444"]
+const showModal = ref(false);
+const editingId = ref(null);
+const preset = [
+  '#10b981',
+  '#0ea5e9',
+  '#f59e0b',
+  '#6366f1',
+  '#ec4899',
+  '#8b5cf6',
+  '#14b8a6',
+  '#ef4444',
+];
 
-const form = reactive({ name: "", color: "#10b981", type: "expense", targetAmount: "" })
-const errors = ref({})
+const form = reactive({ name: '', color: '#10b981', type: 'expense', targetAmount: '' });
+const errors = ref({});
 
-const nowKey = monthKey(new Date())
+const nowKey = monthKey(new Date());
 
 function spentThisMonth(activityId) {
   return myTransactions.value
-    .filter((t) => t.activityId === activityId && t.type === "expense" && monthKey(t.date) === nowKey)
-    .reduce((s, t) => s + t.amount, 0)
+    .filter(
+      (t) => t.activityId === activityId && t.type === 'expense' && monthKey(t.date) === nowKey,
+    )
+    .reduce((s, t) => s + t.amount, 0);
 }
 function savedTotal(activityId) {
   return myTransactions.value
-    .filter((t) => t.activityId === activityId && t.type === "expense")
-    .reduce((s, t) => s + t.amount, 0)
+    .filter((t) => t.activityId === activityId && t.type === 'expense')
+    .reduce((s, t) => s + t.amount, 0);
 }
 
 const cards = computed(() =>
   myActivities.value.map((a) => {
-    const used = a.type === "expense" ? spentThisMonth(a.id) : savedTotal(a.id)
-    const pct = a.targetAmount > 0 ? Math.min(100, Math.round((used / a.targetAmount) * 100)) : 0
-    return { ...a, used, pct, over: a.type === "expense" && used > a.targetAmount }
+    const used = a.type === 'expense' ? spentThisMonth(a.id) : savedTotal(a.id);
+    const pct = a.targetAmount > 0 ? Math.min(100, Math.round((used / a.targetAmount) * 100)) : 0;
+    return { ...a, used, pct, over: a.type === 'expense' && used > a.targetAmount };
   }),
-)
+);
 
 function openNew() {
-  editingId.value = null
-  Object.assign(form, { name: "", color: "#10b981", type: "expense", targetAmount: "" })
-  errors.value = {}
-  showModal.value = true
+  editingId.value = null;
+  Object.assign(form, { name: '', color: '#10b981', type: 'expense', targetAmount: '' });
+  errors.value = {};
+  showModal.value = true;
 }
 function openEdit(a) {
-  editingId.value = a.id
-  Object.assign(form, { name: a.name, color: a.color, type: a.type, targetAmount: String(a.targetAmount) })
-  errors.value = {}
-  showModal.value = true
+  editingId.value = a.id;
+  Object.assign(form, {
+    name: a.name,
+    color: a.color,
+    type: a.type,
+    targetAmount: String(a.targetAmount),
+  });
+  errors.value = {};
+  showModal.value = true;
 }
 
 function validate() {
-  const e = {}
-  if (!form.name.trim()) e.name = "El nombre es obligatorio."
-  const amt = Number(form.targetAmount)
-  if (!form.targetAmount || isNaN(amt) || amt <= 0) e.targetAmount = "Introduce un monto válido."
-  errors.value = e
-  return Object.keys(e).length === 0
+  const e = {};
+  if (!form.name.trim()) e.name = 'El nombre es obligatorio.';
+  const amt = Number(form.targetAmount);
+  if (!form.targetAmount || isNaN(amt) || amt <= 0) e.targetAmount = 'Introduce un monto válido.';
+  errors.value = e;
+  return Object.keys(e).length === 0;
 }
 
 async function save() {
-  if (!validate()) return
+  if (!validate()) return;
   saveActivity({
     id: editingId.value,
     name: form.name.trim(),
     color: form.color,
     type: form.type,
     targetAmount: Number(form.targetAmount),
-  })
-  showModal.value = false
-  const Swal = (await import("sweetalert2")).default
-  Swal.fire({ title: editingId.value ? "Actividad actualizada" : "Actividad creada", icon: "success", timer: 1200, showConfirmButton: false })
+  });
+  showModal.value = false;
+  const Swal = (await import('sweetalert2')).default;
+  Swal.fire({
+    title: editingId.value ? 'Actividad actualizada' : 'Actividad creada',
+    icon: 'success',
+    timer: 1200,
+    showConfirmButton: false,
+  });
 }
 
 async function remove(a) {
-  const Swal = (await import("sweetalert2")).default
+  const Swal = (await import('sweetalert2')).default;
   const res = await Swal.fire({
-    title: "¿Eliminar actividad?",
+    title: '¿Eliminar actividad?',
     html: `<b>${a.name}</b><br>Las transacciones asociadas no se eliminarán.`,
-    icon: "warning",
+    icon: 'warning',
     showCancelButton: true,
-    confirmButtonText: "Eliminar",
-    cancelButtonText: "Cancelar",
-    confirmButtonColor: "#ef4444",
-    cancelButtonColor: "#94a3b8",
-  })
+    confirmButtonText: 'Eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#94a3b8',
+  });
   if (res.isConfirmed) {
-    deleteActivity(a.id)
-    Swal.fire({ title: "Eliminada", icon: "success", timer: 1100, showConfirmButton: false })
+    deleteActivity(a.id);
+    Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
   }
 }
 </script>
@@ -104,24 +132,36 @@ async function remove(a) {
             <h3>{{ a.name }}</h3>
             <span class="badge" :class="a.type === 'expense' ? 'badge-red' : 'badge-green'">
               <component :is="a.type === 'expense' ? Target : PiggyBank" :size="12" />
-              {{ a.type === "expense" ? "Gasto" : "Ahorro" }}
+              {{ a.type === 'expense' ? 'Gasto' : 'Ahorro' }}
             </span>
           </div>
           <div class="act-actions">
-            <button class="btn btn-ghost btn-icon" @click="openEdit(a)" aria-label="Editar"><Pencil :size="15" /></button>
-            <button class="btn btn-danger btn-icon" @click="remove(a)" aria-label="Eliminar"><Trash2 :size="15" /></button>
+            <button class="btn btn-ghost btn-icon" @click="openEdit(a)" aria-label="Editar">
+              <Pencil :size="15" />
+            </button>
+            <button class="btn btn-danger btn-icon" @click="remove(a)" aria-label="Eliminar">
+              <Trash2 :size="15" />
+            </button>
           </div>
         </div>
 
         <div class="act-meta">
-          <span class="soft">{{ a.type === "expense" ? "Presupuesto mensual" : "Meta de ahorro" }}</span>
+          <span class="soft">{{
+            a.type === 'expense' ? 'Presupuesto mensual' : 'Meta de ahorro'
+          }}</span>
           <strong>{{ formatMoney(a.targetAmount) }}</strong>
         </div>
 
         <div class="progress">
-          <div class="bar"><span :style="{ width: a.pct + '%', background: a.over ? 'var(--danger)' : a.color }"></span></div>
+          <div class="bar">
+            <span
+              :style="{ width: a.pct + '%', background: a.over ? 'var(--danger)' : a.color }"
+            ></span>
+          </div>
           <div class="progress-foot">
-            <span :class="{ over: a.over }">{{ formatMoney(a.used) }} {{ a.type === "expense" ? "gastado" : "ahorrado" }}</span>
+            <span :class="{ over: a.over }"
+              >{{ formatMoney(a.used) }} {{ a.type === 'expense' ? 'gastado' : 'ahorrado' }}</span
+            >
             <span class="soft">{{ a.pct }}%</span>
           </div>
         </div>
@@ -140,8 +180,10 @@ async function remove(a) {
       <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
         <div class="modal card">
           <div class="modal-head">
-            <h3>{{ editingId ? "Editar actividad" : "Nueva actividad" }}</h3>
-            <button class="btn btn-ghost btn-icon" @click="showModal = false" aria-label="Cerrar"><X :size="18" /></button>
+            <h3>{{ editingId ? 'Editar actividad' : 'Nueva actividad' }}</h3>
+            <button class="btn btn-ghost btn-icon" @click="showModal = false" aria-label="Cerrar">
+              <X :size="18" />
+            </button>
           </div>
 
           <div class="modal-body">
@@ -154,20 +196,39 @@ async function remove(a) {
             <div class="field">
               <label>Tipo</label>
               <div class="type-toggle">
-                <button type="button" class="type-opt" :class="{ active: form.type === 'expense' }" @click="form.type = 'expense'">
+                <button
+                  type="button"
+                  class="type-opt"
+                  :class="{ active: form.type === 'expense' }"
+                  @click="form.type = 'expense'"
+                >
                   <Target :size="16" /> Gasto
                 </button>
-                <button type="button" class="type-opt save" :class="{ active: form.type === 'savings' }" @click="form.type = 'savings'">
+                <button
+                  type="button"
+                  class="type-opt save"
+                  :class="{ active: form.type === 'savings' }"
+                  @click="form.type = 'savings'"
+                >
                   <PiggyBank :size="16" /> Ahorro
                 </button>
               </div>
             </div>
 
             <div class="field">
-              <label>{{ form.type === "expense" ? "Presupuesto mensual" : "Meta de ahorro" }}</label>
+              <label>{{
+                form.type === 'expense' ? 'Presupuesto mensual' : 'Meta de ahorro'
+              }}</label>
               <div class="amount-wrap">
                 <span class="cur">$</span>
-                <input class="input amt" v-model="form.targetAmount" type="number" min="0" step="1000" placeholder="0" />
+                <input
+                  class="input amt"
+                  v-model="form.targetAmount"
+                  type="number"
+                  min="0"
+                  step="1000"
+                  placeholder="0"
+                />
               </div>
               <span v-if="errors.targetAmount" class="err">{{ errors.targetAmount }}</span>
             </div>
@@ -175,16 +236,31 @@ async function remove(a) {
             <div class="field">
               <label>Color</label>
               <div class="colors">
-                <button v-for="c in preset" :key="c" type="button" class="swatch" :class="{ sel: form.color === c }"
-                  :style="{ background: c }" @click="form.color = c" :aria-label="c"></button>
-                <input type="color" v-model="form.color" class="color-input" aria-label="Color personalizado" />
+                <button
+                  v-for="c in preset"
+                  :key="c"
+                  type="button"
+                  class="swatch"
+                  :class="{ sel: form.color === c }"
+                  :style="{ background: c }"
+                  @click="form.color = c"
+                  :aria-label="c"
+                ></button>
+                <input
+                  type="color"
+                  v-model="form.color"
+                  class="color-input"
+                  aria-label="Color personalizado"
+                />
               </div>
             </div>
           </div>
 
           <div class="modal-foot">
             <button class="btn btn-ghost" @click="showModal = false">Cancelar</button>
-            <button class="btn btn-primary" @click="save">{{ editingId ? "Guardar" : "Crear" }}</button>
+            <button class="btn btn-primary" @click="save">
+              {{ editingId ? 'Guardar' : 'Crear' }}
+            </button>
           </div>
         </div>
       </div>
@@ -208,7 +284,9 @@ async function remove(a) {
 }
 .act {
   padding: 20px;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
 .act:hover {
   transform: translateY(-3px);

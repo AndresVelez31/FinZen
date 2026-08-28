@@ -1,79 +1,86 @@
-<script setup>
-import { ref, reactive, onMounted } from "vue"
-import { useRoute, useRouter } from "vue-router"
-import { ArrowLeft, Save, Landmark, PiggyBank, Wallet, Smartphone } from "lucide-vue-next"
-import { myAccounts, saveAccount } from "@/store"
+<script setup lang="ts">
+import { ref, reactive, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { ArrowLeft, Save, Landmark, PiggyBank, Wallet, Smartphone } from 'lucide-vue-next';
+import { myAccounts, saveAccount } from '@/store';
 
-const route = useRoute()
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
 
 const TYPES = [
-  { value: "checking", label: "Corriente", icon: Landmark },
-  { value: "savings", label: "Ahorros", icon: PiggyBank },
-  { value: "cash", label: "Efectivo", icon: Wallet },
-  { value: "digital", label: "Digital", icon: Smartphone },
-]
+  { value: 'checking', label: 'Corriente', icon: Landmark },
+  { value: 'savings', label: 'Ahorros', icon: PiggyBank },
+  { value: 'cash', label: 'Efectivo', icon: Wallet },
+  { value: 'digital', label: 'Digital', icon: Smartphone },
+];
 
-const editing = ref(false)
-const form = reactive({ id: null, bank: "", type: "checking", accountNumber: "", initialBalance: "" })
-const errors = ref({})
-const saving = ref(false)
+const editing = ref(false);
+const form = reactive({
+  id: null,
+  bank: '',
+  type: 'checking',
+  accountNumber: '',
+  initialBalance: '',
+});
+const errors = ref({});
+const saving = ref(false);
 
 onMounted(() => {
-  if (route.name === "account-edit") {
-    const acc = myAccounts.value.find((a) => a.id === route.params.id)
+  if (route.name === 'account-edit') {
+    const acc = myAccounts.value.find((a) => a.id === route.params.id);
     if (!acc) {
-      router.replace({ name: "accounts" })
-      return
+      router.replace({ name: 'accounts' });
+      return;
     }
-    editing.value = true
+    editing.value = true;
     Object.assign(form, {
       id: acc.id,
       bank: acc.bank,
       type: acc.type,
       accountNumber: acc.accountNumber,
       initialBalance: String(acc.initialBalance),
-    })
+    });
   }
-})
+});
 
 function validate() {
-  const e = {}
-  if (!form.bank.trim()) e.bank = "El nombre del banco es obligatorio."
-  if (!form.accountNumber.trim()) e.accountNumber = "Añade una identificación de la cuenta."
-  const amt = Number(form.initialBalance)
-  if (form.initialBalance === "" || isNaN(amt)) e.initialBalance = "Introduce un saldo inicial válido."
-  errors.value = e
-  return Object.keys(e).length === 0
+  const e = {};
+  if (!form.bank.trim()) e.bank = 'El nombre del banco es obligatorio.';
+  if (!form.accountNumber.trim()) e.accountNumber = 'Añade una identificación de la cuenta.';
+  const amt = Number(form.initialBalance);
+  if (form.initialBalance === '' || isNaN(amt))
+    e.initialBalance = 'Introduce un saldo inicial válido.';
+  errors.value = e;
+  return Object.keys(e).length === 0;
 }
 
 async function submit() {
-  if (!validate()) return
-  saving.value = true
-  await new Promise((r) => setTimeout(r, 400))
+  if (!validate()) return;
+  saving.value = true;
+  await new Promise((r) => setTimeout(r, 400));
   saveAccount({
     id: form.id,
     bank: form.bank.trim(),
     type: form.type,
     accountNumber: form.accountNumber.trim(),
     initialBalance: Number(form.initialBalance),
-  })
-  saving.value = false
-  const Swal = (await import("sweetalert2")).default
+  });
+  saving.value = false;
+  const Swal = (await import('sweetalert2')).default;
   await Swal.fire({
-    title: editing.value ? "Cuenta actualizada" : "Cuenta creada",
-    icon: "success",
+    title: editing.value ? 'Cuenta actualizada' : 'Cuenta creada',
+    icon: 'success',
     timer: 1300,
     showConfirmButton: false,
-  })
-  router.push({ name: "accounts" })
+  });
+  router.push({ name: 'accounts' });
 }
 </script>
 
 <template>
   <div class="fade-up form-page">
     <button class="back" @click="router.back()"><ArrowLeft :size="17" /> Volver</button>
-    <h2 class="page-title">{{ editing ? "Editar cuenta" : "Nueva cuenta" }}</h2>
+    <h2 class="page-title">{{ editing ? 'Editar cuenta' : 'Nueva cuenta' }}</h2>
     <p class="muted">Completa los datos de la cuenta bancaria, efectivo o billetera.</p>
 
     <form class="card form" @submit.prevent="submit">
@@ -86,8 +93,14 @@ async function submit() {
       <div class="field">
         <label>Tipo de cuenta</label>
         <div class="type-grid">
-          <button v-for="t in TYPES" :key="t.value" type="button" class="type-opt"
-            :class="{ active: form.type === t.value }" @click="form.type = t.value">
+          <button
+            v-for="t in TYPES"
+            :key="t.value"
+            type="button"
+            class="type-opt"
+            :class="{ active: form.type === t.value }"
+            @click="form.type = t.value"
+          >
             <component :is="t.icon" :size="17" /> {{ t.label }}
           </button>
         </div>
@@ -95,7 +108,12 @@ async function submit() {
 
       <div class="field">
         <label for="number">Número / Identificación</label>
-        <input id="number" class="input" v-model="form.accountNumber" placeholder="Ej: **** 4821 o @usuario" />
+        <input
+          id="number"
+          class="input"
+          v-model="form.accountNumber"
+          placeholder="Ej: **** 4821 o @usuario"
+        />
         <span v-if="errors.accountNumber" class="err">{{ errors.accountNumber }}</span>
       </div>
 
@@ -103,16 +121,25 @@ async function submit() {
         <label for="balance">Saldo inicial</label>
         <div class="amount-wrap">
           <span class="currency">$</span>
-          <input id="balance" class="input amount" v-model="form.initialBalance" type="number" step="1000"
-            placeholder="0" />
+          <input
+            id="balance"
+            class="input amount"
+            v-model="form.initialBalance"
+            type="number"
+            step="1000"
+            placeholder="0"
+          />
         </div>
         <span v-if="errors.initialBalance" class="err">{{ errors.initialBalance }}</span>
       </div>
 
       <div class="actions">
-        <button type="button" class="btn btn-ghost" @click="router.push({ name: 'accounts' })">Cancelar</button>
+        <button type="button" class="btn btn-ghost" @click="router.push({ name: 'accounts' })">
+          Cancelar
+        </button>
         <button type="submit" class="btn btn-primary" :disabled="saving">
-          <Save :size="17" /> {{ saving ? "Guardando…" : editing ? "Guardar cambios" : "Crear cuenta" }}
+          <Save :size="17" />
+          {{ saving ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear cuenta' }}
         </button>
       </div>
     </form>
