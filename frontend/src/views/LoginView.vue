@@ -1,43 +1,53 @@
-<script setup>
-import { ref } from "vue"
-import { useRouter } from "vue-router"
-import { Wallet, Mail, Lock, Eye, EyeOff, ShieldCheck, TrendingUp, PieChart } from "lucide-vue-next"
-import { login } from "@/store"
+<script setup lang="ts">
+// @ts-nocheck
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import {
+  Wallet,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  TrendingUp,
+  PieChart,
+} from 'lucide-vue-next';
+import { login } from '@/store';
 
-const router = useRouter()
-const email = ref("")
-const password = ref("")
-const showPass = ref(false)
-const error = ref("")
-const loading = ref(false)
+const router = useRouter();
+const email = ref('');
+const password = ref('');
+const showPass = ref(false);
+const error = ref('');
+const loading = ref(false);
 
 const demos = [
-  { role: "Administrador", email: "admin@finzen.app", password: "admin123" },
-  { role: "Usuario", email: "user@finzen.app", password: "user123" },
-]
+  { role: 'Administrador', email: 'admin@finzen.app', password: 'admin123' },
+  { role: 'Usuario', email: 'user@finzen.app', password: 'user123' },
+];
 
 function useDemo(d) {
-  email.value = d.email
-  password.value = d.password
-  error.value = ""
+  email.value = d.email;
+  password.value = d.password;
+  error.value = '';
 }
 
 async function submit() {
-  error.value = ""
+  error.value = '';
   if (!email.value || !password.value) {
-    error.value = "Introduce email y contraseña."
-    return
+    error.value = 'Introduce email y contraseña.';
+    return;
   }
-  loading.value = true
+  loading.value = true;
   // small delay to show the loading state
-  await new Promise((r) => setTimeout(r, 450))
-  const res = login(email.value, password.value)
-  loading.value = false
+  await new Promise((r) => setTimeout(r, 450));
+  const res = login(email.value, password.value);
+  loading.value = false;
   if (!res.ok) {
-    error.value = res.error
-    return
+    error.value = res.error;
+    return;
   }
-  router.push({ name: "dashboard" })
+  router.push({ name: 'dashboard' });
 }
 </script>
 
@@ -52,13 +62,22 @@ async function submit() {
         </div>
         <h1 class="hero-title text-balance">Toma el control de tu dinero, sin esfuerzo.</h1>
         <p class="hero-sub">
-          Controla gastos, presupuestos y metas de ahorro en un panel claro e inteligente. Diseñado para que tus
-          finanzas personales por fin tengan sentido.
+          Controla gastos, presupuestos y metas de ahorro en un panel claro e inteligente. Diseñado
+          para que tus finanzas personales por fin tengan sentido.
         </p>
         <ul class="hero-feats">
-          <li><span class="hf-icon"><TrendingUp :size="16" /></span> Seguimiento de balance en tiempo real</li>
-          <li><span class="hf-icon"><PieChart :size="16" /></span> Presupuestos por actividad y categoría</li>
-          <li><span class="hf-icon"><ShieldCheck :size="16" /></span> Metas de ahorro con progreso visual</li>
+          <li>
+            <span class="hf-icon"><TrendingUp :size="16" /></span> Seguimiento de balance en tiempo
+            real
+          </li>
+          <li>
+            <span class="hf-icon"><PieChart :size="16" /></span> Presupuestos por actividad y
+            categoría
+          </li>
+          <li>
+            <span class="hf-icon"><ShieldCheck :size="16" /></span> Metas de ahorro con progreso
+            visual
+          </li>
         </ul>
       </div>
     </section>
@@ -78,7 +97,14 @@ async function submit() {
             <label for="email">Correo electrónico</label>
             <div class="input-icon">
               <Mail :size="17" class="ii" />
-              <input id="email" class="input" v-model="email" type="email" placeholder="tu@email.com" autocomplete="username" />
+              <input
+                id="email"
+                class="input"
+                v-model="email"
+                type="email"
+                placeholder="tu@email.com"
+                autocomplete="username"
+              />
             </div>
           </div>
 
@@ -94,7 +120,12 @@ async function submit() {
                 placeholder="••••••••"
                 autocomplete="current-password"
               />
-              <button type="button" class="toggle" @click="showPass = !showPass" :aria-label="showPass ? 'Ocultar' : 'Mostrar'">
+              <button
+                type="button"
+                class="toggle"
+                @click="showPass = !showPass"
+                :aria-label="showPass ? 'Ocultar' : 'Mostrar'"
+              >
                 <EyeOff v-if="showPass" :size="17" />
                 <Eye v-else :size="17" />
               </button>
@@ -105,7 +136,7 @@ async function submit() {
 
           <button class="btn btn-primary submit" type="submit" :disabled="loading">
             <span v-if="loading" class="spinner"></span>
-            {{ loading ? "Accediendo…" : "Iniciar sesión" }}
+            {{ loading ? 'Accediendo…' : 'Iniciar sesión' }}
           </button>
         </form>
 
@@ -141,7 +172,7 @@ async function submit() {
   overflow: hidden;
 }
 .hero::after {
-  content: "";
+  content: '';
   position: absolute;
   width: 460px;
   height: 460px;
@@ -151,7 +182,7 @@ async function submit() {
   right: -120px;
 }
 .hero::before {
-  content: "";
+  content: '';
   position: absolute;
   width: 320px;
   height: 320px;
@@ -330,7 +361,9 @@ async function submit() {
   border: 1px solid var(--border);
   background: var(--surface);
   font-size: 0.8rem;
-  transition: border-color 0.18s ease, transform 0.15s ease;
+  transition:
+    border-color 0.18s ease,
+    transform 0.15s ease;
 }
 .demo-btn:hover {
   border-color: var(--primary);

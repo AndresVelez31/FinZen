@@ -1,5 +1,6 @@
-<script setup>
-import { Inbox } from "lucide-vue-next"
+<script setup lang="ts">
+// @ts-nocheck
+import { Inbox } from 'lucide-vue-next';
 
 /**
  * Reusable data table.
@@ -17,9 +18,9 @@ defineProps({
   rows: { type: Array, default: () => [] },
   loading: { type: Boolean, default: false },
   hasActions: { type: Boolean, default: false },
-  emptyTitle: { type: String, default: "Sin resultados" },
-  emptyText: { type: String, default: "No hay datos para mostrar por ahora." },
-})
+  emptyTitle: { type: String, default: 'Sin resultados' },
+  emptyText: { type: String, default: 'No hay datos para mostrar por ahora.' },
+});
 </script>
 
 <template>

@@ -1,13 +1,13 @@
-<script setup>
-import { ref, computed, onMounted } from "vue"
-import { useRouter } from "vue-router"
-import { Wallet, TrendingDown, TrendingUp, Plus, ArrowRight } from "lucide-vue-next"
-import StatCard from "@/components/StatCard.vue"
-import GraficoChart from "@/components/GraficoChart.vue"
-import TablaGenerica from "@/components/TablaGenerica.vue"
+<script setup lang="ts">
+// @ts-nocheck
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { Wallet, TrendingDown, TrendingUp, Plus, ArrowRight } from 'lucide-vue-next';
+import StatCard from '@/components/shared/StatCard.vue';
+import GraficoChart from '@/components/shared/GraficoChart.vue';
+import TablaGenerica from '@/components/shared/TablaGenerica.vue';
 import {
   myTransactions,
-  myActivities,
   currentUser,
   totalBalance,
   formatMoney,
@@ -15,35 +15,35 @@ import {
   activityById,
   accountById,
   monthKey,
-} from "@/store"
+} from '@/store';
 
-const router = useRouter()
-const loading = ref(true)
-onMounted(() => setTimeout(() => (loading.value = false), 500))
+const router = useRouter();
+const loading = ref(true);
+onMounted(() => setTimeout(() => (loading.value = false), 500));
 
-const nowKey = monthKey(new Date())
+const nowKey = monthKey(new Date());
 
-const monthTx = computed(() => myTransactions.value.filter((t) => monthKey(t.date) === nowKey))
+const monthTx = computed(() => myTransactions.value.filter((t) => monthKey(t.date) === nowKey));
 const monthExpense = computed(() =>
-  monthTx.value.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0),
-)
+  monthTx.value.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
+);
 const monthIncome = computed(() =>
-  monthTx.value.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0),
-)
-const balance = computed(() => totalBalance())
+  monthTx.value.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0),
+);
+const balance = computed(() => totalBalance());
 
 // Doughnut: expense by activity this month
 const donut = computed(() => {
-  const map = {}
+  const map = {};
   monthTx.value
-    .filter((t) => t.type === "expense")
+    .filter((t) => t.type === 'expense')
     .forEach((t) => {
-      const ac = activityById(t.activityId)
-      const name = ac ? ac.name : "Otros"
-      map[name] = map[name] || { total: 0, color: ac?.color || "#94a3b8" }
-      map[name].total += t.amount
-    })
-  const entries = Object.entries(map).sort((a, b) => b[1].total - a[1].total)
+      const ac = activityById(t.activityId);
+      const name = ac ? ac.name : 'Otros';
+      map[name] = map[name] || { total: 0, color: ac?.color || '#94a3b8' };
+      map[name].total += t.amount;
+    });
+  const entries = Object.entries(map).sort((a, b) => b[1].total - a[1].total);
   return {
     labels: entries.map((e) => e[0]),
     datasets: [
@@ -54,24 +54,24 @@ const donut = computed(() => {
         hoverOffset: 6,
       },
     ],
-  }
-})
-const hasDonut = computed(() => donut.value.labels.length > 0)
+  };
+});
+const hasDonut = computed(() => donut.value.labels.length > 0);
 
-const recent = computed(() => myTransactions.value.slice(0, 5))
+const recent = computed(() => myTransactions.value.slice(0, 5));
 const columns = [
-  { key: "description", label: "Descripción" },
-  { key: "activityId", label: "Actividad" },
-  { key: "date", label: "Fecha" },
-  { key: "amount", label: "Importe", align: "right" },
-]
+  { key: 'description', label: 'Descripción' },
+  { key: 'activityId', label: 'Actividad' },
+  { key: 'date', label: 'Fecha' },
+  { key: 'amount', label: 'Importe', align: 'right' },
+];
 </script>
 
 <template>
   <div class="fade-up">
     <div class="head">
       <div>
-        <h2 class="page-title">Hola, {{ currentUser?.name?.split(" ")[0] }}</h2>
+        <h2 class="page-title">Hola, {{ currentUser?.name?.split(' ')[0] }}</h2>
         <p class="muted">Este es el resumen de tus finanzas de este mes.</p>
       </div>
       <button class="btn btn-primary" @click="router.push({ name: 'transaction-new' })">
@@ -81,12 +81,28 @@ const columns = [
 
     <!-- KPIs -->
     <div class="grid-kpi">
-      <StatCard label="Balance total" :value="formatMoney(balance)" :icon="Wallet" accent="var(--primary)"
-        trend="Suma de todas tus cuentas" />
-      <StatCard label="Gasto del mes" :value="formatMoney(monthExpense)" :icon="TrendingDown" accent="var(--danger)"
-        :trend="`${monthTx.filter(t=>t.type==='expense').length} movimientos`" :trendUp="false" />
-      <StatCard label="Ingresos del mes" :value="formatMoney(monthIncome)" :icon="TrendingUp" accent="var(--info)"
-        :trend="`${monthTx.filter(t=>t.type==='income').length} movimientos`" />
+      <StatCard
+        label="Balance total"
+        :value="formatMoney(balance)"
+        :icon="Wallet"
+        accent="var(--primary)"
+        trend="Suma de todas tus cuentas"
+      />
+      <StatCard
+        label="Gasto del mes"
+        :value="formatMoney(monthExpense)"
+        :icon="TrendingDown"
+        accent="var(--danger)"
+        :trend="`${monthTx.filter((t) => t.type === 'expense').length} movimientos`"
+        :trendUp="false"
+      />
+      <StatCard
+        label="Ingresos del mes"
+        :value="formatMoney(monthIncome)"
+        :icon="TrendingUp"
+        accent="var(--info)"
+        :trend="`${monthTx.filter((t) => t.type === 'income').length} movimientos`"
+      />
     </div>
 
     <!-- Charts + recent -->
@@ -96,8 +112,14 @@ const columns = [
           <h3>Gasto por actividad</h3>
           <span class="badge badge-gray">Mes actual</span>
         </div>
-        <GraficoChart v-if="hasDonut" type="doughnut" :labels="donut.labels" :datasets="donut.datasets" :height="300"
-          :options="{ cutout: '62%' }" />
+        <GraficoChart
+          v-if="hasDonut"
+          type="doughnut"
+          :labels="donut.labels"
+          :datasets="donut.datasets"
+          :height="300"
+          :options="{ cutout: '62%' }"
+        />
         <div v-else class="empty-chart">
           <p class="muted">Aún no hay gastos registrados este mes.</p>
         </div>
@@ -110,11 +132,19 @@ const columns = [
             Ver todas <ArrowRight :size="15" />
           </button>
         </div>
-        <TablaGenerica :columns="columns" :rows="recent" :loading="loading"
-          emptyTitle="Sin transacciones" emptyText="Crea tu primera transacción para verla aquí.">
+        <TablaGenerica
+          :columns="columns"
+          :rows="recent"
+          :loading="loading"
+          emptyTitle="Sin transacciones"
+          emptyText="Crea tu primera transacción para verla aquí."
+        >
           <template #cell-description="{ row }">
             <div class="tx-desc">
-              <span class="dot" :style="{ background: activityById(row.activityId)?.color || '#94a3b8' }"></span>
+              <span
+                class="dot"
+                :style="{ background: activityById(row.activityId)?.color || '#94a3b8' }"
+              ></span>
               <div>
                 <div class="tx-name">{{ row.description }}</div>
                 <div class="soft tx-acc">{{ accountById(row.accountId)?.bank }}</div>
@@ -122,12 +152,12 @@ const columns = [
             </div>
           </template>
           <template #cell-activityId="{ value }">
-            <span class="chip badge-gray">{{ activityById(value)?.name || "—" }}</span>
+            <span class="chip badge-gray">{{ activityById(value)?.name || '—' }}</span>
           </template>
           <template #cell-date="{ value }">{{ formatDate(value) }}</template>
           <template #cell-amount="{ row }">
             <span :class="row.type === 'income' ? 'amt-in' : 'amt-out'">
-              {{ row.type === "income" ? "+" : "−" }}{{ formatMoney(row.amount) }}
+              {{ row.type === 'income' ? '+' : '−' }}{{ formatMoney(row.amount) }}
             </span>
           </template>
         </TablaGenerica>

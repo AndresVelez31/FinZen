@@ -1,26 +1,21 @@
-<script setup>
-import { computed } from "vue"
-import { useRouter } from "vue-router"
-import { Plus, Pencil, Trash2, Landmark, Wallet, PiggyBank, Smartphone } from "lucide-vue-next"
-import {
-  myAccounts,
-  deleteAccount,
-  accountBalance,
-  accountTxCount,
-  formatMoney,
-} from "@/store"
+<script setup lang="ts">
+// @ts-nocheck
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { Plus, Pencil, Trash2, Landmark, Wallet, PiggyBank, Smartphone } from 'lucide-vue-next';
+import { myAccounts, deleteAccount, accountBalance, accountTxCount, formatMoney } from '@/store';
 
-const router = useRouter()
+const router = useRouter();
 
 const TYPES = [
-  { value: "checking", label: "Corriente", icon: Landmark },
-  { value: "savings", label: "Ahorros", icon: PiggyBank },
-  { value: "cash", label: "Efectivo", icon: Wallet },
-  { value: "digital", label: "Digital", icon: Smartphone },
-]
+  { value: 'checking', label: 'Corriente', icon: Landmark },
+  { value: 'savings', label: 'Ahorros', icon: PiggyBank },
+  { value: 'cash', label: 'Efectivo', icon: Wallet },
+  { value: 'digital', label: 'Digital', icon: Smartphone },
+];
 
 function typeMeta(t) {
-  return TYPES.find((x) => x.value === t) || TYPES[0]
+  return TYPES.find((x) => x.value === t) || TYPES[0];
 }
 
 const cards = computed(() =>
@@ -30,35 +25,35 @@ const cards = computed(() =>
     txCount: accountTxCount(a.id),
     meta: typeMeta(a.type),
   })),
-)
+);
 
 function openNew() {
-  router.push({ name: "account-new" })
+  router.push({ name: 'account-new' });
 }
 function openEdit(a) {
-  router.push({ name: "account-edit", params: { id: a.id } })
+  router.push({ name: 'account-edit', params: { id: a.id } });
 }
 
 async function remove(a) {
-  const Swal = (await import("sweetalert2")).default
-  const txCount = accountTxCount(a.id)
+  const Swal = (await import('sweetalert2')).default;
+  const txCount = accountTxCount(a.id);
   const res = await Swal.fire({
-    title: "¿Eliminar cuenta?",
+    title: '¿Eliminar cuenta?',
     html:
       `<b>${a.bank} · ${a.accountNumber}</b>` +
       (txCount > 0
         ? `<br>Se eliminarán también <b>${txCount}</b> transacción(es) asociada(s).`
-        : "<br>Esta acción no se puede deshacer."),
-    icon: "warning",
+        : '<br>Esta acción no se puede deshacer.'),
+    icon: 'warning',
     showCancelButton: true,
-    confirmButtonText: "Eliminar",
-    cancelButtonText: "Cancelar",
-    confirmButtonColor: "#ef4444",
-    cancelButtonColor: "#94a3b8",
-  })
+    confirmButtonText: 'Eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#94a3b8',
+  });
   if (res.isConfirmed) {
-    deleteAccount(a.id)
-    Swal.fire({ title: "Eliminada", icon: "success", timer: 1100, showConfirmButton: false })
+    deleteAccount(a.id);
+    Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
   }
 }
 </script>
@@ -82,8 +77,12 @@ async function remove(a) {
             <span class="soft">{{ a.accountNumber }}</span>
           </div>
           <div class="acc-actions">
-            <button class="btn btn-ghost btn-icon" @click="openEdit(a)" aria-label="Editar"><Pencil :size="15" /></button>
-            <button class="btn btn-danger btn-icon" @click="remove(a)" aria-label="Eliminar"><Trash2 :size="15" /></button>
+            <button class="btn btn-ghost btn-icon" @click="openEdit(a)" aria-label="Editar">
+              <Pencil :size="15" />
+            </button>
+            <button class="btn btn-danger btn-icon" @click="remove(a)" aria-label="Eliminar">
+              <Trash2 :size="15" />
+            </button>
           </div>
         </div>
 
@@ -94,7 +93,7 @@ async function remove(a) {
 
         <div class="acc-foot">
           <span class="badge badge-gray">{{ a.meta.label }}</span>
-          <span class="soft">{{ a.txCount }} movimiento{{ a.txCount === 1 ? "" : "s" }}</span>
+          <span class="soft">{{ a.txCount }} movimiento{{ a.txCount === 1 ? '' : 's' }}</span>
         </div>
       </article>
     </div>
@@ -124,7 +123,9 @@ async function remove(a) {
 }
 .acc {
   padding: 20px;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
 .acc:hover {
   transform: translateY(-3px);
