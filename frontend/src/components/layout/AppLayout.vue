@@ -1,6 +1,6 @@
-<script setup>
-import { ref, computed } from "vue"
-import { useRoute, useRouter } from "vue-router"
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -13,56 +13,77 @@ import {
   Moon,
   Sun,
   Wallet,
-} from "lucide-vue-next"
-import { store, currentUser, isAdmin, logout, toggleTheme } from "@/store"
+} from 'lucide-vue-next';
 
-const route = useRoute()
-const router = useRouter()
-const mobileOpen = ref(false)
-
-const nav = computed(() => [
-  { name: "dashboard", label: "Resumen", icon: LayoutDashboard },
-  { name: "accounts", label: "Cuentas", icon: Wallet },
-  { name: "transactions", label: "Transacciones", icon: ArrowLeftRight },
-  { name: "reports", label: "Reportes", icon: PieChart },
-  ...(isAdmin.value
-    ? [
-        { name: "activities", label: "Actividades", icon: Tags, tag: "Admin" },
-        { name: "users", label: "Usuarios", icon: Users, tag: "Admin" },
-      ]
-    : []),
-])
-
-const initials = computed(() => {
-  const n = currentUser.value?.name || "?"
-  return n
-    .split(" ")
-    .slice(0, 2)
-    .map((s) => s[0])
-    .join("")
-    .toUpperCase()
-})
-
-function go(name) {
-  router.push({ name })
-  mobileOpen.value = false
+// ── Interfaces ────────────────────────────────────────────────────────────────
+interface NavItem {
+  name: string;
+  label: string;
+  icon: unknown;
+  tag?: string;
 }
 
-async function handleLogout() {
-  const Swal = (await import("sweetalert2")).default
-  const res = await Swal.fire({
-    title: "¿Cerrar sesión?",
-    text: "Volverás a la pantalla de acceso.",
-    icon: "question",
+// ── Temporary stubs (replaced in Issue #4 + #8 with Pinia stores) ─────────────
+const appTheme = ref<'light' | 'dark'>('light');
+const authenticatedUser = ref<{ name: string; role: string } | null>(null);
+const isAdminUser = computed(() => authenticatedUser.value?.role === 'admin');
+
+function clearSession(): void {
+  authenticatedUser.value = null;
+}
+
+function toggleAppTheme(): void {
+  appTheme.value = appTheme.value === 'light' ? 'dark' : 'light';
+}
+
+// ── Router & navigation state ─────────────────────────────────────────────────
+const route = useRoute();
+const router = useRouter();
+const isMobileMenuOpen = ref(false);
+
+const navItems = computed<NavItem[]>(() => [
+  { name: 'dashboard', label: 'Resumen', icon: LayoutDashboard },
+  { name: 'accounts', label: 'Cuentas', icon: Wallet },
+  { name: 'transactions', label: 'Transacciones', icon: ArrowLeftRight },
+  { name: 'reports', label: 'Reportes', icon: PieChart },
+  ...(isAdminUser.value
+    ? [
+        { name: 'activities', label: 'Actividades', icon: Tags, tag: 'Admin' },
+        { name: 'users', label: 'Usuarios', icon: Users, tag: 'Admin' },
+      ]
+    : []),
+]);
+
+const userInitials = computed<string>(() => {
+  const fullName = authenticatedUser.value?.name ?? '?';
+  return fullName
+    .split(' ')
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase();
+});
+
+function navigateTo(routeName: string): void {
+  router.push({ name: routeName });
+  isMobileMenuOpen.value = false;
+}
+
+async function handleLogout(): Promise<void> {
+  const Swal = (await import('sweetalert2')).default;
+  const result = await Swal.fire({
+    title: '¿Cerrar sesión?',
+    text: 'Volverás a la pantalla de acceso.',
+    icon: 'question',
     showCancelButton: true,
-    confirmButtonText: "Cerrar sesión",
-    cancelButtonText: "Cancelar",
-    confirmButtonColor: "#ef4444",
-    cancelButtonColor: "#94a3b8",
-  })
-  if (res.isConfirmed) {
-    logout()
-    router.push({ name: "login" })
+    confirmButtonText: 'Cerrar sesión',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#94a3b8',
+  });
+  if (result.isConfirmed) {
+    clearSession();
+    router.push({ name: 'login' });
   }
 }
 </script>
@@ -70,25 +91,25 @@ async function handleLogout() {
 <template>
   <div class="shell">
     <!-- Sidebar -->
-    <aside class="sidebar" :class="{ open: mobileOpen }">
+    <aside class="sidebar" :class="{ open: isMobileMenuOpen }">
       <div class="brand">
         <div class="brand-mark"><Wallet :size="20" /></div>
         <div>
           <div class="brand-name">FinZen</div>
           <div class="brand-sub">Finanzas personales</div>
         </div>
-        <button class="close-btn" @click="mobileOpen = false" aria-label="Cerrar menú">
+        <button class="close-btn" @click="isMobileMenuOpen = false" aria-label="Cerrar menú">
           <X :size="20" />
         </button>
       </div>
 
       <nav class="nav">
         <button
-          v-for="item in nav"
+          v-for="item in navItems"
           :key="item.name"
           class="nav-item"
           :class="{ active: route.name === item.name }"
-          @click="go(item.name)"
+          @click="navigateTo(item.name)"
         >
           <component :is="item.icon" :size="19" />
           <span>{{ item.label }}</span>
@@ -98,12 +119,12 @@ async function handleLogout() {
 
       <div class="sidebar-foot">
         <div class="user-card">
-          <div class="avatar">{{ initials }}</div>
+          <div class="avatar">{{ userInitials }}</div>
           <div class="user-meta">
-            <div class="user-name">{{ currentUser?.name }}</div>
+            <div class="user-name">{{ authenticatedUser?.name }}</div>
             <div class="user-role">
-              <span class="chip" :class="isAdmin ? 'badge-indigo' : 'badge-gray'">{{
-                isAdmin ? "Administrador" : "Usuario"
+              <span class="chip" :class="isAdminUser ? 'badge-indigo' : 'badge-gray'">{{
+                isAdminUser ? "Administrador" : "Usuario"
               }}</span>
             </div>
           </div>
@@ -114,18 +135,18 @@ async function handleLogout() {
       </div>
     </aside>
 
-    <div v-if="mobileOpen" class="overlay" @click="mobileOpen = false"></div>
+    <div v-if="isMobileMenuOpen" class="overlay" @click="isMobileMenuOpen = false"></div>
 
     <!-- Main -->
     <div class="main">
       <header class="topbar">
-        <button class="menu-btn" @click="mobileOpen = true" aria-label="Abrir menú">
+        <button class="menu-btn" @click="isMobileMenuOpen = true" aria-label="Abrir menú">
           <Menu :size="22" />
         </button>
         <h1 class="topbar-title">{{ route.meta.title || "Resumen" }}</h1>
         <div class="topbar-actions">
-          <button class="btn btn-ghost btn-icon" @click="toggleTheme" aria-label="Cambiar tema" title="Cambiar tema">
-            <Moon v-if="store.theme === 'light'" :size="18" />
+          <button class="btn btn-ghost btn-icon" @click="toggleAppTheme" aria-label="Cambiar tema" title="Cambiar tema">
+            <Moon v-if="appTheme === 'light'" :size="18" />
             <Sun v-else :size="18" />
           </button>
         </div>
