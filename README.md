@@ -1,110 +1,113 @@
-# FinZen · Gestión de Gastos Personales
+# FinZen · Personal Expense Tracker
 
-> Aplicación web SPA para la gestión inteligente de finanzas personales.  
-> Proyecto universitario — Ingeniería de Software para Aplicaciones Web (6.º semestre).
-
----
-
-## ¿Qué es FinZen?
-
-FinZen es una Single Page Application (SPA) que permite a los usuarios:
-
-- Registrar y categorizar ingresos y gastos mediante **transacciones**.
-- Organizar el dinero en múltiples **cuentas** (corriente, ahorros, efectivo, digital).
-- Agrupar movimientos por **actividades** (alimentación, transporte, ocio, etc.).
-- Visualizar el estado financiero mediante **gráficos** y **reportes**.
-- Administrar **usuarios** y roles (administrador / usuario regular).
-
-Los datos se almacenan en `localStorage` del navegador (sin backend en esta versión).
+> SPA web application for smart personal finance management.  
+> University Project — Web Application Software Engineering (6th Semester).
 
 ---
 
-## Stack tecnológico
+## What is FinZen?
 
-| Capa | Tecnología |
-|------|-----------|
-| Framework | Vue 3 (Composition API) |
-| Build tool | Vite 5 |
-| Enrutamiento | Vue Router 4 |
-| Gráficos | Chart.js 4 |
-| Iconos | Lucide Vue Next |
-| Alertas | SweetAlert2 |
-| Persistencia | `localStorage` (navegador) |
+FinZen is a Single Page Application (SPA) designed to help users:
+
+- Record and categorize income and expenses through **transactions**.
+- Organize money across multiple **accounts** (checking, savings, cash, digital).
+- Group movements by **activities / categories** (food, transport, leisure, housing, etc.).
+- Visualize financial health using **charts** and **analytical reports**.
+- Manage **users** and roles (administrator / regular user).
+
+Data is persisted in the browser's `localStorage` (client-side persistence without external backend in Deliverable 1).
 
 ---
 
-## Estructura del repositorio
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Vue 3 (Composition API `<script setup lang="ts">`) |
+| Build Tool | Vite 5 |
+| Routing | Vue Router 4 |
+| State Management | Pinia |
+| Charts | Chart.js 4 |
+| Icons | Lucide Vue Next |
+| Alerts / Feedback | SweetAlert2 |
+| Persistence | `localStorage` (Browser) |
+| Language | TypeScript (Strict Mode) |
+
+---
+
+## Repository Structure
 
 ```
 FinZen/
-├── frontend/               ← Código fuente de la aplicación Vue
-│   ├── public/             ← Recursos estáticos (favicon, etc.)
+├── frontend/               ← Vue frontend source code
+│   ├── public/             ← Static assets
 │   ├── src/
-│   │   ├── assets/         ← CSS global
-│   │   ├── components/     ← Componentes reutilizables
-│   │   ├── data/           ← Datos semilla (seed)
-│   │   ├── router/         ← Configuración de rutas
-│   │   ├── store/          ← Estado global reactivo
-│   │   ├── views/          ← Páginas de la aplicación
-│   │   ├── App.vue
-│   │   ├── main.js
+│   │   ├── assets/         ← Global CSS
+│   │   ├── components/     ← Reusable UI components
+│   │   ├── data/           ← Demo seed data
+│   │   ├── dtos/           ← Data Transfer Objects
+│   │   ├── interfaces/     ← TypeScript domain contracts
+│   │   ├── router/         ← Route configurations & navigation guards
+│   │   ├── services/       ← Business logic layer (static classes)
+│   │   ├── stores/         ← Pinia state stores & seeders
+│   │   ├── utils/          ← Pure utility functions & formatters
+│   │   ├── views/          ← Application page views
+│   │   ├── App.vue         ← Root component (Layout Shell)
+│   │   ├── main.js / ts    ← Application entry point
 │   │   └── style.css
 │   ├── index.html
 │   ├── package.json
-│   └── vite.config.js
+│   └── vite.config.js / ts
+├── docs/                   ← Project documentation & wiki pages
 ├── .gitignore
-├── README.md               ← Este archivo
-└── CONTRIBUTING.md         ← Guía de contribución para el equipo
+├── README.md               ← This file
+└── CONTRIBUTING.md         ← Team contribution guide & PR workflow
 ```
 
 ---
 
-## Requisitos previos
+## Prerequisites
 
-Antes de comenzar, asegúrate de tener instalado:
+Before getting started, make sure you have installed:
 
-| Herramienta | Versión mínima | Verificar con |
-|-------------|---------------|---------------|
-| [Node.js](https://nodejs.org/) | 18.x o superior | `node --version` |
-| npm | 9.x o superior | `npm --version` |
+| Tool | Minimum Version | Verify with |
+|---|---|---|
+| [Node.js](https://nodejs.org/) | 18.x or higher | `node --version` |
+| npm | 9.x or higher | `npm --version` |
 
-> **¿Cómo instalar Node.js?**  
-> Descarga el instalador desde [nodejs.org](https://nodejs.org/) (elige la versión LTS).  
-> npm se instala automáticamente junto con Node.js.
+> **How to install Node.js:**  
+> Download the LTS installer from [nodejs.org](https://nodejs.org/). npm is included automatically.
 
 ---
 
-## Instalación y ejecución local
+## Local Installation and Execution
 
-### Paso 1 — Clonar el repositorio
+### Step 1 — Clone the repository
 
 ```bash
-git clone <URL-del-repositorio>
+git clone https://github.com/AndresVelez31/FinZen.git
 cd FinZen
 ```
 
-### Paso 2 — Entrar a la carpeta del frontend
+### Step 2 — Navigate to the frontend directory
 
 ```bash
 cd frontend
 ```
 
-### Paso 3 — Instalar dependencias
+### Step 3 — Install dependencies
 
 ```bash
 npm install
 ```
 
-> Esto descargará todas las dependencias listadas en `package.json` dentro de `frontend/node_modules/`.  
-> Solo necesitas hacerlo **una vez** (o cuando el `package.json` cambie).
-
-### Paso 4 — Iniciar el servidor de desarrollo
+### Step 4 — Start the local development server
 
 ```bash
 npm run dev
 ```
 
-Deberías ver una salida similar a:
+You should see output similar to:
 
 ```
   VITE v5.x.x  ready in Xms
@@ -113,62 +116,60 @@ Deberías ver una salida similar a:
   ➜  Network: http://XXX.XXX.X.XXX:5173/
 ```
 
-### Paso 5 — Abrir en el navegador
+### Step 5 — Open in your browser
 
-Abre [http://localhost:5173](http://localhost:5173) en tu navegador favorito.
-
----
-
-## Credenciales de prueba
-
-La aplicación carga datos de demostración automáticamente en el primer arranque.
-
-| Rol | Email | Contraseña | Acceso |
-|-----|-------|-----------|--------|
-| **Administrador** | `admin@finzen.app` | `admin123` | Todo el sistema |
-| **Usuario regular** | `user@finzen.app` | `user123` | Dashboard, Transacciones, Cuentas, Reportes |
-
-> El rol **administrador** desbloquea las páginas de **Actividades** y **Usuarios**.
+Visit [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
-## Páginas disponibles
+## Demo Credentials
 
-| Ruta | Vista | Descripción |
-|------|-------|-------------|
-| `/login` | Login | Autenticación |
-| `/` | Dashboard | Resumen financiero con gráficos |
-| `/transactions` | Transacciones | Listado y filtros |
-| `/transactions/new` | Nueva transacción | Formulario de creación |
-| `/transactions/:id/edit` | Editar transacción | Formulario de edición |
-| `/accounts` | Cuentas | Listado de cuentas |
-| `/accounts/new` | Nueva cuenta | Formulario de creación |
-| `/reports` | Reportes | Análisis con gráficos |
-| `/activities` | Actividades *(admin)* | Gestión de categorías |
-| `/users` | Usuarios *(admin)* | Administración de usuarios |
+The application automatically seeds demonstration data on the very first run.
+
+| Role | Email | Password | Access Scope |
+|---|---|---|---|
+| **Administrator** | `admin@finzen.app` | `admin123` | Full system access (including Activities & Users management) |
+| **Regular User** | `user@finzen.app` | `user123` | Dashboard, Transactions, Accounts, Reports |
 
 ---
 
-## Comandos disponibles
+## Available Pages
 
-Ejecutar desde la carpeta `frontend/`:
+| Route | View | Description |
+|---|---|---|
+| `/login` | LoginView | User authentication |
+| `/` | DashboardView | Financial overview with summary metrics and charts |
+| `/transactions` | TransactionsView | Filterable transaction table |
+| `/transactions/new` | TransactionFormView | Create transaction form |
+| `/transactions/:id/edit` | TransactionFormView | Edit transaction form |
+| `/accounts` | AccountsView | Accounts list with real-time balances |
+| `/accounts/new` | AccountFormView | Create account form |
+| `/reports` | ReportsView | Interactive Chart.js analytics |
+| `/activities` | ActivitiesView *(admin)* | Category / activity management |
+| `/users` | UsersView *(admin)* | User administration & role management |
+
+---
+
+## Available Scripts
+
+Run from the `frontend/` folder:
 
 ```bash
-# Iniciar servidor de desarrollo con hot-reload
+# Start development server with HMR
 npm run dev
 
-# Generar build de producción
+# Build for production
 npm run build
 
-# Previsualizar el build de producción
+# Preview production build
 npm run preview
 ```
 
 ---
 
-## Reiniciar datos de demostración
+## Reset Demo Data
 
-Si quieres volver al estado inicial (datos de ejemplo limpios), abre la consola del navegador (`F12 → Console`) y ejecuta:
+To reset the mock data to its initial clean seeded state, open the browser developer console (`F12` → `Console`) and run:
 
 ```javascript
 localStorage.clear()
@@ -177,7 +178,7 @@ location.reload()
 
 ---
 
-## Documentación adicional
+## Documentation Links
 
-- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — Guía de ramas, commits y Pull Requests para el equipo.
-- [`frontend/GUIA_ARQUITECTURA_CODIGO_LIMPIO_METODOLOGIA.md`](./frontend/GUIA_ARQUITECTURA_CODIGO_LIMPIO_METODOLOGIA.md) — Estándares de arquitectura y código limpio del proyecto.
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — Branching, commits, and Pull Request workflow.
+- [GitHub Wiki](https://github.com/AndresVelez31/FinZen/wiki) — Full project architecture, deliverable documentation, style guide, and programming rules.
