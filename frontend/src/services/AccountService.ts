@@ -20,7 +20,7 @@ export class AccountService {
   /**
    * Retrieves a specific account by its ID.
    */
-  static getAccountById(id: string): AccountInterface | undefined {
+  static getAccountById(id: number): AccountInterface | undefined {
     return useAccountStore().accounts.find((account) => account.id === id);
   }
 
@@ -35,8 +35,10 @@ export class AccountService {
 
     const newAccount: AccountInterface = {
       ...dto,
-      id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+      id: Date.now(),
       userId: currentUserId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
 
     useAccountStore().accounts.push(newAccount);
@@ -46,7 +48,7 @@ export class AccountService {
   /**
    * Updates an existing account.
    */
-  static updateAccount(id: string, dto: UpdateAccountDTO): AccountInterface | undefined {
+  static updateAccount(id: number, dto: UpdateAccountDTO): AccountInterface | undefined {
     const accountStore = useAccountStore();
     const index = accountStore.accounts.findIndex((account) => account.id === id);
     if (index === -1) {
@@ -60,6 +62,7 @@ export class AccountService {
     const updatedAccount: AccountInterface = {
       ...accountToUpdate,
       ...dto,
+      updatedAt: new Date().toISOString(),
     };
 
     accountStore.accounts[index] = updatedAccount;
@@ -69,7 +72,7 @@ export class AccountService {
   /**
    * Deletes an account and all its associated transactions.
    */
-  static deleteAccount(id: string): void {
+  static deleteAccount(id: number): void {
     const accountStore = useAccountStore();
     const transactionStore = useTransactionStore();
 
@@ -83,10 +86,9 @@ export class AccountService {
   }
 
   /**
-   * Calculates the current balance of a specific account.
-   * Logic: initialBalance + Σincome - Σexpenses(or savings)
+   * Calculates the current balance of a specific account based on transactions.
    */
-  static getAccountBalance(id: string): number {
+  static getAccountBalance(id: number): number {
     const account = this.getAccountById(id);
     if (!account) {
       return 0;
@@ -99,7 +101,7 @@ export class AccountService {
       return sum + (transaction.type === 'income' ? transaction.amount : -transaction.amount);
     }, 0);
 
-    return account.initialBalance + delta;
+    return account.balance + delta;
   }
 
   /**
