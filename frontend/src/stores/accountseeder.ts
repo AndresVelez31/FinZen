@@ -4,7 +4,7 @@ export const accountSeeder: AccountInterface[] = [
   {
     id: 1,
     userId: 1,
-    name: 'Cuenta Principal',
+    name: 'Bancolombia',
     type: 'Ahorros',
     balance: 5000000,
     createdAt: new Date().toISOString(),
@@ -13,7 +13,7 @@ export const accountSeeder: AccountInterface[] = [
   {
     id: 2,
     userId: 1,
-    name: 'Gastos Diarios',
+    name: 'Davivienda',
     type: 'Corriente',
     balance: 2500000,
     createdAt: new Date().toISOString(),
@@ -22,7 +22,7 @@ export const accountSeeder: AccountInterface[] = [
   {
     id: 3,
     userId: 1,
-    name: 'Fondo de Emergencia',
+    name: 'Nequi',
     type: 'Ahorros',
     balance: 800000,
     createdAt: new Date().toISOString(),
@@ -31,7 +31,7 @@ export const accountSeeder: AccountInterface[] = [
   {
     id: 4,
     userId: 1,
-    name: 'Inversiones a Largo Plazo',
+    name: 'Banco de Bogotá',
     type: 'Inversión',
     balance: 10000000,
     createdAt: new Date().toISOString(),
