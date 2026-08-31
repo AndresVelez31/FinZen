@@ -93,5 +93,4 @@ export class ActivityService {
       (transaction) => transaction.activityId !== id,
     );
   }
-
 }
