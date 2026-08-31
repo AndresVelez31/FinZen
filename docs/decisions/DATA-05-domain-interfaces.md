@@ -20,6 +20,12 @@ We explicitly chose to use **named exports** (`export interface UserInterface`) 
 ### 2. Separation of Concerns
 These files contain **only** TypeScript interfaces. They do not contain runtime logic, state management, or Vue dependencies. This ensures that the domain layer is completely decoupled from the framework (Vue) and state container (Pinia).
 
+### 3. Strict Domain Model Alignment (Update)
+In a subsequent refactor, the interfaces were strictly aligned with the documented domain model (Option A). This entails:
+- **Numeric IDs**: All `id` fields are strongly typed as `number` (instead of UUID `string`).
+- **Foreign Keys**: Using scalar relationships (`userId`, `accountId`) to avoid nested object circular references in local storage.
+- **Strict Fields**: System fields like `createdAt` and `updatedAt` were added across the board, and non-model fields (e.g., `bank`, `accountNumber`, `active`) were removed to enforce strict conformity to the architecture.
+
 ## Validation
 
 - Type checking passes successfully for these isolated files.

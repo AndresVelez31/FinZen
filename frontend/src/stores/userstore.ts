@@ -4,7 +4,7 @@ import type { UserInterface } from '@/interfaces/UserInterface.js';
 
 export const useUserStore = defineStore('user', () => {
   const users = ref<UserInterface[]>([]);
-  const currentUserId = ref<string | null>(null);
+  const currentUserId = ref<number | null>(null);
 
   return { users, currentUserId };
 });

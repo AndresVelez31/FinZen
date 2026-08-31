@@ -15,8 +15,8 @@ Following the tutorial architecture guide (`ARQUITECTURA.md`), seeders are typed
 
 This principle is enforced in all four seeders.
 
-### 2. Internal consistency of IDs
-All IDs in `transactionseeder.ts` reference valid IDs from `accountseeder.ts` (`acc-1` to `acc-4`) and `activityseeder.ts` (`act-1` to `act-7`). All data references `userId: '1'`, which matches the admin user in `userseeder.ts`.
+### 2. Internal consistency of IDs (Update)
+All IDs in `transactionseeder.ts` reference valid numeric IDs from `accountseeder.ts` (`1` to `4`) and `activityseeder.ts` (`1` to `7`). All data references `userId: 1`, which matches the admin user in `userseeder.ts`. Following the domain model alignment, all seeders strictly omit deprecated fields (e.g. `accountNumber`, `active`) and include `createdAt` and `updatedAt` timestamps.
 
 ### 3. PiniaConfig is the bridge
 The `PiniaConfig.ts` class is the only place that imports seeders and populates the initial Pinia state. No view, store, or service calls seeders directly. This respects the separation of responsibilities defined in the architecture.

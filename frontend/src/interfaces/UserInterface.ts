@@ -1,10 +1,9 @@
 export interface UserInterface {
-  id: string;
+  id: number;
   name: string;
   email: string;
   password?: string;
   role: string;
-  active: boolean;
   createdAt: string;
   updatedAt: string;
 }
