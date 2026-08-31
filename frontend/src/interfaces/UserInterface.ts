@@ -4,6 +4,7 @@ export interface UserInterface {
   email: string;
   password?: string;
   role: string;
+  active: boolean;
   createdAt: string;
   updatedAt: string;
 }

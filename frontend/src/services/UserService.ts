@@ -31,6 +31,13 @@ export class UserService {
       return { ok: false, error: 'Credenciales inválidas.' };
     }
 
+    if (!user.active) {
+      return {
+        ok: false,
+        error: 'Tu cuenta se encuentra inactiva.',
+      };
+    }
+
     store.currentUserId = user.id;
     return { ok: true, user };
   }
