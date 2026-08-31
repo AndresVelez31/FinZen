@@ -38,4 +38,18 @@ export class UserService {
   static logout(): void {
     useUserStore().currentUserId = null;
   }
+
+  static getCurrentUser(): UserInterface | undefined {
+    const store = useUserStore();
+
+    if (store.currentUserId === null) {
+      return undefined;
+    }
+
+    return store.users.find((user) => user.id === store.currentUserId);
+  }
+
+  static isAuthenticated(): boolean {
+    return UserService.getCurrentUser() !== undefined;
+  }
 }
