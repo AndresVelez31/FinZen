@@ -1,4 +1,4 @@
-import type { TransactionInterface } from '@/interfaces/TransactionInterface';
+import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 
 export const transactionSeeder: TransactionInterface[] = [
   // --- February 2026 ---

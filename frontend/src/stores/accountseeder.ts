@@ -1,4 +1,4 @@
-import type { AccountInterface } from '@/interfaces/AccountInterface';
+import type { AccountInterface } from '@/interfaces/AccountInterface.js';
 
 export const accountSeeder: AccountInterface[] = [
   {

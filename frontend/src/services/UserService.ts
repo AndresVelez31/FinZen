@@ -1,5 +1,5 @@
-import type { UserInterface } from '@/interfaces/UserInterface';
-import { useUserStore } from '@/stores/userstore';
+import type { UserInterface } from '@/interfaces/UserInterface.js';
+import { useUserStore } from '@/stores/userstore.js';
 
 export class UserService {
   static getUsers(): UserInterface[] {
