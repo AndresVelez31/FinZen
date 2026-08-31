@@ -1,4 +1,4 @@
-import type { ActivityInterface } from '@/interfaces/ActivityInterface';
+import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 
 export const activitySeeder: ActivityInterface[] = [
   {
