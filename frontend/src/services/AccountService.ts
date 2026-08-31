@@ -33,8 +33,13 @@ export class AccountService {
       throw new Error('Cannot create account: No active user session.');
     }
 
+    const cleanName = dto.name.trim();
+    if (!cleanName) throw new Error('Account name is required.');
+    if (!dto.type) throw new Error('Account type is required.');
+
     const newAccount: AccountInterface = {
       ...dto,
+      name: cleanName,
       id: Date.now(),
       userId: currentUserId,
       createdAt: new Date().toISOString(),
@@ -59,9 +64,14 @@ export class AccountService {
     const accountToUpdate = accountStore.accounts[index];
     if (!accountToUpdate) return undefined;
 
+    const cleanName = dto.name !== undefined ? dto.name.trim() : accountToUpdate.name;
+    if (dto.name !== undefined && !cleanName) throw new Error('Account name cannot be empty.');
+    if (dto.type !== undefined && !dto.type) throw new Error('Account type cannot be empty.');
+
     const updatedAccount: AccountInterface = {
       ...accountToUpdate,
       ...dto,
+      name: cleanName,
       updatedAt: new Date().toISOString(),
     };
 
