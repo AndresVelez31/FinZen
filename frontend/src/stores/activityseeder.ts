@@ -1,0 +1,60 @@
+import type { ActivityInterface } from '@/interfaces/ActivityInterface';
+
+export const activitySeeder: ActivityInterface[] = [
+  {
+    id: 'act-1',
+    userId: '1',
+    name: 'Alimentación',
+    color: '#EF4444',
+    type: 'expense',
+    targetAmount: 800000,
+  },
+  {
+    id: 'act-2',
+    userId: '1',
+    name: 'Transporte',
+    color: '#F97316',
+    type: 'expense',
+    targetAmount: 300000,
+  },
+  {
+    id: 'act-3',
+    userId: '1',
+    name: 'Salud',
+    color: '#EC4899',
+    type: 'expense',
+    targetAmount: 200000,
+  },
+  {
+    id: 'act-4',
+    userId: '1',
+    name: 'Entretenimiento',
+    color: '#A855F7',
+    type: 'expense',
+    targetAmount: 400000,
+  },
+  {
+    id: 'act-5',
+    userId: '1',
+    name: 'Servicios públicos',
+    color: '#6366F1',
+    type: 'expense',
+    targetAmount: 250000,
+  },
+  {
+    id: 'act-6',
+    userId: '1',
+    name: 'Fondo de emergencias',
+    color: '#22C55E',
+    type: 'savings',
+    targetAmount: 5000000,
+  },
+  {
+    id: 'act-7',
+    userId: '1',
+    name: 'Vacaciones',
+    color: '#14B8A6',
+    type: 'savings',
+    targetAmount: 3000000,
+  },
+];
