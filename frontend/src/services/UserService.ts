@@ -5,9 +5,17 @@ export class UserService {
   static getUsers(): UserInterface[] {
     return useUserStore().users;
   }
-
+  
   static getUserById(id: string): UserInterface | undefined {
     return useUserStore().users.find((user) => user.id === id);
+  }
+
+  static getCurrentUser(): UserInterface | undefined {
+  const store = useUserStore();
+  if (!store.currentUserId) {
+    return undefined;
+  }
+  return store.users.find((user) => user.id === store.currentUserId);
   }
 
   static updateUserRole(id: string, role: string): void {

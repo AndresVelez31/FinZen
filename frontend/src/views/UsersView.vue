@@ -4,7 +4,9 @@ import { ShieldCheck, User, UserCheck, UserX, Users as UsersIcon } from 'lucide-
 import TablaGenerica from '@/components/shared/TablaGenerica.vue';
 import SelectorFiltro from '@/components/shared/SelectorFiltro.vue';
 import StatCard from '@/components/shared/StatCard.vue';
-import { store, currentUser, updateUserRole, toggleUserActive, formatDate } from '@/store';
+import type { UserInterface } from '@/interfaces/UserInterface';
+import { UserService } from '@/services/UserService';
+import { formatDate } from '@/utils/formatDate';
 
 const loading = ref(true);
 onMounted(() => setTimeout(() => (loading.value = false), 450));
@@ -15,15 +17,20 @@ const roleOptions = [
   { value: 'user', label: 'Usuario' },
 ];
 
+const currentUser = computed(() => UserService.getCurrentUser());
+
 const rows = computed(() =>
-  store.users.filter((u) => (fRole.value ? u.role === fRole.value : true)),
+  UserService.getUsers().filter((u) => (fRole.value ? u.role === fRole.value : true)),
 );
 
-const stats = computed(() => ({
-  total: store.users.length,
-  admins: store.users.filter((u) => u.role === 'admin').length,
-  active: store.users.filter((u) => u.active).length,
-}));
+const stats = computed(() => {
+  const users = UserService.getUsers();
+  return {
+    total: users.length,
+    admins: users.filter((u) => u.role === 'admin').length,
+    active: users.filter((u) => u.active).length,
+  };
+});
 
 const columns = [
   { key: 'name', label: 'Usuario' },
@@ -32,7 +39,7 @@ const columns = [
   { key: 'createdAt', label: 'Registro' },
 ];
 
-function initials(name) {
+function initials(name: string): string {
   return name
     .split(' ')
     .slice(0, 2)
@@ -41,7 +48,7 @@ function initials(name) {
     .toUpperCase();
 }
 
-async function changeRole(u) {
+async function changeRole(u: UserInterface) {
   const Swal = (await import('sweetalert2')).default;
   const newRole = u.role === 'admin' ? 'user' : 'admin';
   const res = await Swal.fire({
@@ -55,12 +62,12 @@ async function changeRole(u) {
     cancelButtonColor: '#94a3b8',
   });
   if (res.isConfirmed) {
-    updateUserRole(u.id, newRole);
+    UserService.updateUserRole(u.id, newRole);
     Swal.fire({ title: 'Rol actualizado', icon: 'success', timer: 1100, showConfirmButton: false });
   }
 }
 
-async function toggleActive(u) {
+async function toggleActive(u: UserInterface) {
   const Swal = (await import('sweetalert2')).default;
   const action = u.active ? 'desactivar' : 'activar';
   const res = await Swal.fire({
@@ -74,7 +81,7 @@ async function toggleActive(u) {
     cancelButtonColor: '#94a3b8',
   });
   if (res.isConfirmed) {
-    toggleUserActive(u.id);
+    UserService.toggleUserActive(u.id);
     Swal.fire({
       title: u.active ? 'Cuenta desactivada' : 'Cuenta activada',
       icon: 'success',

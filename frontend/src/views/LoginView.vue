@@ -1,17 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import {
-  Wallet,
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  ShieldCheck,
-  TrendingUp,
-  PieChart,
-} from 'lucide-vue-next';
-import { login } from '@/store';
+import { Wallet, Mail, Lock, Eye, EyeOff, ShieldCheck, TrendingUp, PieChart, } from 'lucide-vue-next';
+import { UserService } from '@/services/UserService';
 
 const router = useRouter();
 const email = ref('');
@@ -20,12 +11,18 @@ const showPass = ref(false);
 const error = ref('');
 const loading = ref(false);
 
-const demos = [
+interface DemoAccount {
+  role: string;
+  email: string;
+  password: string;
+}
+
+const demos: DemoAccount[] = [
   { role: 'Administrador', email: 'admin@finzen.app', password: 'admin123' },
   { role: 'Usuario', email: 'user@finzen.app', password: 'user123' },
 ];
 
-function useDemo(d) {
+function useDemo(d: DemoAccount) {
   email.value = d.email;
   password.value = d.password;
   error.value = '';
@@ -40,7 +37,7 @@ async function submit() {
   loading.value = true;
   // small delay to show the loading state
   await new Promise((r) => setTimeout(r, 450));
-  const res = login(email.value, password.value);
+  const res = UserService.login(email.value, password.value);
   loading.value = false;
   if (!res.ok) {
     error.value = res.error;
