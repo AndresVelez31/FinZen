@@ -1,8 +1,10 @@
 export interface ActivityInterface {
-  id: string;
-  userId: string;
+  id: number;
+  userId: number;
   name: string;
   color: string;
   type: string;
   targetAmount: number;
+  createdAt: string;
+  updatedAt: string;
 }

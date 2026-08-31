@@ -28,4 +28,5 @@ By using `Omit<EntityInterface, 'id'>` and `Partial<Omit<EntityInterface, 'id'>>
 ## Validation
 
 - Type checking passes successfully for these isolated files.
-- The `CreateUserDTO` specifically omits `createdAt` and `updatedAt` alongside `id`, as users shouldn't provide timestamps on creation.
+- The `CreateXxxDTO` interfaces specifically omit `createdAt` and `updatedAt` alongside `id`.
+- Additionally, `CreateAccountDTO` and `CreateActivityDTO` omit `userId` as this is implicitly supplied by the session context rather than the client payload.

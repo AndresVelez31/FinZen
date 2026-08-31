@@ -4,7 +4,7 @@ import { ShieldCheck, User, UserCheck, UserX, Users as UsersIcon } from 'lucide-
 import TablaGenerica from '@/components/shared/TablaGenerica.vue';
 import SelectorFiltro from '@/components/shared/SelectorFiltro.vue';
 import StatCard from '@/components/shared/StatCard.vue';
-import { store, currentUser, updateUserRole, toggleUserActive, formatDate } from '@/store';
+import { store, currentUser, updateUserRole, formatDate } from '@/store';
 
 const loading = ref(true);
 onMounted(() => setTimeout(() => (loading.value = false), 450));
@@ -22,13 +22,11 @@ const rows = computed(() =>
 const stats = computed(() => ({
   total: store.users.length,
   admins: store.users.filter((u) => u.role === 'admin').length,
-  active: store.users.filter((u) => u.active).length,
 }));
 
 const columns = [
   { key: 'name', label: 'Usuario' },
   { key: 'role', label: 'Rol' },
-  { key: 'active', label: 'Estado' },
   { key: 'createdAt', label: 'Registro' },
 ];
 
@@ -60,29 +58,7 @@ async function changeRole(u) {
   }
 }
 
-async function toggleActive(u) {
-  const Swal = (await import('sweetalert2')).default;
-  const action = u.active ? 'desactivar' : 'activar';
-  const res = await Swal.fire({
-    title: `¿${action.charAt(0).toUpperCase() + action.slice(1)} cuenta?`,
-    html: `Vas a ${action} la cuenta de <b>${u.name}</b>.`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Confirmar',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: u.active ? '#ef4444' : '#10b981',
-    cancelButtonColor: '#94a3b8',
-  });
-  if (res.isConfirmed) {
-    toggleUserActive(u.id);
-    Swal.fire({
-      title: u.active ? 'Cuenta desactivada' : 'Cuenta activada',
-      icon: 'success',
-      timer: 1100,
-      showConfirmButton: false,
-    });
-  }
-}
+
 </script>
 
 <template>
@@ -106,12 +82,6 @@ async function toggleActive(u) {
         :value="String(stats.admins)"
         :icon="ShieldCheck"
         accent="var(--primary)"
-      />
-      <StatCard
-        label="Cuentas activas"
-        :value="String(stats.active)"
-        :icon="UserCheck"
-        accent="var(--info)"
       />
     </div>
 
@@ -152,12 +122,7 @@ async function toggleActive(u) {
           {{ value === 'admin' ? 'Administrador' : 'Usuario' }}
         </span>
       </template>
-      <template #cell-active="{ value }">
-        <span class="badge" :class="value ? 'badge-green' : 'badge-red'">
-          <span class="status-dot" :class="{ on: value }"></span>
-          {{ value ? 'Activo' : 'Inactivo' }}
-        </span>
-      </template>
+
       <template #cell-createdAt="{ value }">{{ formatDate(value) }}</template>
       <template #actions="{ row }">
         <button
@@ -167,17 +132,6 @@ async function toggleActive(u) {
           title="Cambiar rol"
         >
           {{ row.role === 'admin' ? 'A usuario' : 'A admin' }}
-        </button>
-        <button
-          class="btn btn-icon"
-          :class="row.active ? 'btn-danger' : 'btn-ghost'"
-          @click="toggleActive(row)"
-          :disabled="row.id === currentUser?.id"
-          :aria-label="row.active ? 'Desactivar' : 'Activar'"
-          :title="row.active ? 'Desactivar' : 'Activar'"
-        >
-          <UserX v-if="row.active" :size="15" />
-          <UserCheck v-else :size="15" />
         </button>
       </template>
     </TablaGenerica>
