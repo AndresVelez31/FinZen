@@ -2,6 +2,7 @@ import type { TransactionInterface } from '@/interfaces/TransactionInterface.js'
 import { useTransactionStore } from '@/stores/transactionstore.js';
 import { ActivityService } from '@/services/ActivityService.js';
 import { AccountService } from '@/services/AccountService.js';
+import { monthKey } from '@/utils/formatters.js';
 
 export class ReportService {
   /**
@@ -63,7 +64,7 @@ export class ReportService {
     const monthlyTotals: { month: string; income: number; expense: number }[] = [];
 
     transactions.forEach((transaction) => {
-      const month = transaction.date.slice(0, 7);
+      const month = monthKey(transaction.date);
       let monthEntry = monthlyTotals.find((total) => total.month === month);
       if (!monthEntry) {
         monthEntry = { month, income: 0, expense: 0 };
