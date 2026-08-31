@@ -1,5 +1,6 @@
 import { createPinia } from 'pinia';
 import { watch } from 'vue';
+import { userSeeder } from '@/stores/userseeder';
 
 // TODO (Issues 5-7): import seeders and stores here
 
@@ -15,6 +16,12 @@ export default class PiniaConfig {
     } else {
       // TODO (Issues 5-7): Load seeders after pinia is ready
       // (done inside app.use callback or via nextTick)
+      pinia.state.value = {
+        user: {
+          users: userSeeder,
+          currentUserId: null,
+        },
+      };
     }
 
     watch(
@@ -26,4 +33,3 @@ export default class PiniaConfig {
     return pinia;
   }
 }
-
