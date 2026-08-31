@@ -11,11 +11,11 @@ const editing = computed(() => route.name === 'transaction-edit');
 const today = new Date().toISOString().slice(0, 10);
 
 const form = ref({
-  id: null,
+  id: null as number | null,
   type: 'expense',
   amount: '',
-  accountId: '',
-  activityId: '',
+  accountId: null as number | null,
+  activityId: null as number | null,
   date: today,
   description: '',
 });
@@ -134,7 +134,7 @@ async function submit() {
           <select id="account" class="select" v-model="form.accountId">
             <option value="" disabled>Selecciona cuenta</option>
             <option v-for="a in myAccounts" :key="a.id" :value="a.id">
-              {{ a.bank }} · {{ a.accountNumber }}
+              {{ a.name }} ({{ a.type }})
             </option>
           </select>
           <span v-if="errors.accountId" class="err">{{ errors.accountId }}</span>

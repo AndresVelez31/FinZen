@@ -1,8 +1,9 @@
 export interface AccountInterface {
-  id: string;
-  userId: string;
+  id: number;
+  userId: number;
+  name: string;
   type: string;
-  accountNumber: string;
-  bank: string;
-  initialBalance: number;
+  balance: number;
+  createdAt: string;
+  updatedAt: string;
 }
