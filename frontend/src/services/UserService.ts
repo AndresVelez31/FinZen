@@ -31,11 +31,32 @@ export class UserService {
       return { ok: false, error: 'Credenciales inválidas.' };
     }
 
+    if (!user.active) {
+      return {
+        ok: false,
+        error: 'Tu cuenta se encuentra inactiva.',
+      };
+    }
+
     store.currentUserId = user.id;
     return { ok: true, user };
   }
 
   static logout(): void {
     useUserStore().currentUserId = null;
+  }
+
+  static getCurrentUser(): UserInterface | undefined {
+    const store = useUserStore();
+
+    if (store.currentUserId === null) {
+      return undefined;
+    }
+
+    return store.users.find((user) => user.id === store.currentUserId);
+  }
+
+  static isAuthenticated(): boolean {
+    return UserService.getCurrentUser() !== undefined;
   }
 }
