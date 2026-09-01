@@ -101,11 +101,6 @@ watch(
   () => nextTick(render),
   { deep: true },
 );
-// re-render on theme change so colors adapt
-watch(
-  () => store.theme,
-  () => nextTick(render),
-);
 </script>
 
 <template>

@@ -2,16 +2,24 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft, TrendingUp, TrendingDown, Save } from 'lucide-vue-next';
-import { myTransactions, myActivities, myAccounts, saveTransaction } from '@/services/';
+import { TransactionService } from '@/services/TransactionService.js';
+import { AccountService } from '@/services/AccountService.js';
+import { ActivityService } from '@/services/ActivityService.js';
+import type { CreateTransactionDTO } from '@/dtos/CreateTransactionDTO.js';
+import type { UpdateTransactionDTO } from '@/dtos/UpdateTransactionDTO.js';
 
 const route = useRoute();
 const router = useRouter();
 
 const editing = computed(() => route.name === 'transaction-edit');
+const transactionId = computed(() => (route.params.id ? Number(route.params.id) : null));
+
+const accounts = computed(() => AccountService.getAccounts());
+const activities = computed(() => ActivityService.getActivities());
+
 const today = new Date().toISOString().slice(0, 10);
 
 const form = ref({
-  id: null as number | null,
   type: 'expense',
   amount: '',
   accountId: null as number | null,
@@ -19,64 +27,117 @@ const form = ref({
   date: today,
   description: '',
 });
-const errors = ref({});
+
+interface FormErrors {
+  amount?: string;
+  accountId?: string;
+  activityId?: string;
+  date?: string;
+  description?: string;
+}
+
+const errors = ref<FormErrors>({});
 const saving = ref(false);
 
 onMounted(() => {
   if (editing.value) {
-    const tx = myTransactions.value.find((t) => t.id === route.params.id);
-    if (!tx) {
+    const transaction = transactionId.value
+      ? TransactionService.getTransactionById(transactionId.value)
+      : undefined;
+    if (!transaction) {
       router.replace({ name: 'transactions' });
       return;
     }
-    form.value = { ...tx, amount: String(tx.amount) };
-  } else {
-    if (myAccounts.value[0]) form.value.accountId = myAccounts.value[0].id;
-    if (myActivities.value[0]) form.value.activityId = myActivities.value[0].id;
+
+    form.value = {
+      type: transaction.type,
+      amount: String(transaction.amount),
+      accountId: transaction.accountId,
+      activityId: transaction.activityId,
+      date: transaction.date,
+      description: transaction.description,
+    };
+    return;
   }
+
+  const firstAccount = accounts.value[0];
+  const firstActivity = activities.value[0];
+  if (firstAccount) form.value.accountId = firstAccount.id;
+  if (firstActivity) form.value.activityId = firstActivity.id;
 });
 
-const filteredActivities = computed(() =>
-  form.value.type === 'income'
-    ? myActivities.value
-    : myActivities.value.filter((a) => a.type === 'expense' || true),
-);
+function validate(): boolean {
+  const validationErrors: FormErrors = {};
 
-function validate() {
-  const e = {};
-  const amt = Number(form.value.amount);
-  if (!form.value.amount || isNaN(amt) || amt <= 0)
-    e.amount = 'Introduce un importe válido mayor que 0.';
-  if (!form.value.accountId) e.accountId = 'Selecciona una cuenta.';
-  if (!form.value.activityId) e.activityId = 'Selecciona una actividad.';
-  if (!form.value.date) e.date = 'Selecciona una fecha.';
-  if (!form.value.description.trim()) e.description = 'Añade una descripción.';
-  errors.value = e;
-  return Object.keys(e).length === 0;
+  const amount = Number(form.value.amount);
+  if (!form.value.amount || Number.isNaN(amount) || amount <= 0) {
+    validationErrors.amount = 'Introduce un importe válido mayor que 0.';
+  }
+  if (!form.value.accountId) {
+    validationErrors.accountId = 'Selecciona una cuenta.';
+  }
+  if (!form.value.activityId) {
+    validationErrors.activityId = 'Selecciona una actividad.';
+  }
+  if (!form.value.date) {
+    validationErrors.date = 'Selecciona una fecha.';
+  }
+  if (!form.value.description.trim()) {
+    validationErrors.description = 'Añade una descripción.';
+  }
+
+  errors.value = validationErrors;
+  return Object.keys(validationErrors).length === 0;
 }
 
 async function submit() {
-  if (!validate()) return;
+  if (!validate() || !form.value.accountId || !form.value.activityId) {
+    return;
+  }
+
   saving.value = true;
-  await new Promise((r) => setTimeout(r, 400));
-  saveTransaction({
-    id: form.value.id,
-    type: form.value.type,
-    amount: Number(form.value.amount),
-    accountId: form.value.accountId,
-    activityId: form.value.activityId,
-    date: form.value.date,
-    description: form.value.description.trim(),
-  });
-  saving.value = false;
   const Swal = (await import('sweetalert2')).default;
-  await Swal.fire({
-    title: editing.value ? 'Transacción actualizada' : 'Transacción creada',
-    icon: 'success',
-    timer: 1300,
-    showConfirmButton: false,
-  });
-  router.push({ name: 'transactions' });
+
+  try {
+    if (editing.value && transactionId.value) {
+      const dto: UpdateTransactionDTO = {
+        type: form.value.type,
+        amount: Number(form.value.amount),
+        accountId: form.value.accountId,
+        activityId: form.value.activityId,
+        date: form.value.date,
+        description: form.value.description.trim(),
+      };
+      TransactionService.updateTransaction(transactionId.value, dto);
+    } else {
+      const dto: CreateTransactionDTO = {
+        type: form.value.type,
+        amount: Number(form.value.amount),
+        accountId: form.value.accountId,
+        activityId: form.value.activityId,
+        date: form.value.date,
+        description: form.value.description.trim(),
+      };
+      TransactionService.createTransaction(dto);
+    }
+
+    await Swal.fire({
+      title: editing.value ? 'Transacción actualizada' : 'Transacción creada',
+      icon: 'success',
+      timer: 1300,
+      showConfirmButton: false,
+    });
+    router.push({ name: 'transactions' });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Ocurrió un error inesperado.';
+    await Swal.fire({
+      title: 'No se pudo guardar la transacción',
+      text: message,
+      icon: 'error',
+    });
+  } finally {
+    saving.value = false;
+  }
 }
 </script>
 
@@ -93,16 +154,16 @@ async function submit() {
         <div class="type-toggle">
           <button
             type="button"
-            class="type-opt"
-            :class="{ active: form.type === 'expense', expense: true }"
+            class="type-opt expense"
+            :class="{ active: form.type === 'expense' }"
             @click="form.type = 'expense'"
           >
             <TrendingDown :size="18" /> Gasto
           </button>
           <button
             type="button"
-            class="type-opt"
-            :class="{ active: form.type === 'income', income: true }"
+            class="type-opt income"
+            :class="{ active: form.type === 'income' }"
             @click="form.type = 'income'"
           >
             <TrendingUp :size="18" /> Ingreso
@@ -117,8 +178,8 @@ async function submit() {
           <span class="currency">$</span>
           <input
             id="amount"
-            class="input amount"
             v-model="form.amount"
+            class="input amount"
             type="number"
             step="1000"
             min="0"
@@ -131,10 +192,10 @@ async function submit() {
       <div class="row-2">
         <div class="field">
           <label for="account">Cuenta</label>
-          <select id="account" class="select" v-model="form.accountId">
-            <option value="" disabled>Selecciona cuenta</option>
-            <option v-for="a in myAccounts" :key="a.id" :value="a.id">
-              {{ a.name }} ({{ a.type }})
+          <select id="account" v-model="form.accountId" class="select">
+            <option :value="null" disabled>Selecciona cuenta</option>
+            <option v-for="account in accounts" :key="account.id" :value="account.id">
+              {{ account.name }} ({{ account.type }})
             </option>
           </select>
           <span v-if="errors.accountId" class="err">{{ errors.accountId }}</span>
@@ -142,10 +203,10 @@ async function submit() {
 
         <div class="field">
           <label for="activity">Actividad</label>
-          <select id="activity" class="select" v-model="form.activityId">
-            <option value="" disabled>Selecciona actividad</option>
-            <option v-for="a in filteredActivities" :key="a.id" :value="a.id">
-              {{ a.name }} ({{ a.type === 'expense' ? 'Gasto' : 'Ahorro' }})
+          <select id="activity" v-model="form.activityId" class="select">
+            <option :value="null" disabled>Selecciona actividad</option>
+            <option v-for="activity in activities" :key="activity.id" :value="activity.id">
+              {{ activity.name }} ({{ activity.type === 'expense' ? 'Gasto' : 'Ahorro' }})
             </option>
           </select>
           <span v-if="errors.activityId" class="err">{{ errors.activityId }}</span>
@@ -154,7 +215,7 @@ async function submit() {
 
       <div class="field">
         <label for="date">Fecha</label>
-        <input id="date" class="input" type="date" v-model="form.date" />
+        <input id="date" v-model="form.date" class="input" type="date" />
         <span v-if="errors.date" class="err">{{ errors.date }}</span>
       </div>
 
@@ -162,9 +223,9 @@ async function submit() {
         <label for="desc">Descripción</label>
         <textarea
           id="desc"
+          v-model="form.description"
           class="input"
           rows="2"
-          v-model="form.description"
           placeholder="Ej: Compra en supermercado"
         ></textarea>
         <span v-if="errors.description" class="err">{{ errors.description }}</span>

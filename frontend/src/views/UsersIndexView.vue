@@ -101,7 +101,7 @@ function toggleActive(user: UserInterface): void {
     </div>
 
     <div class="card toolbar">
-      <SelectorFiltro
+      <SelectorFilter
         label="Filtrar por rol"
         v-model="fRole"
         :options="roleOptions"
