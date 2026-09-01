@@ -51,7 +51,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/accounts',
     name: 'accounts',
-    component: () => import('@/views/AccountsView.vue'),
+    component: () => import('@/views/AccountsIndexView.vue'),
     meta: { title: 'Cuentas | FinZen' },
   },
   {

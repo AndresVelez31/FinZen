@@ -17,7 +17,7 @@ export const userSeeder: UserInterface[] = [
     email: 'user@finzen.app',
     password: 'user123',
     role: 'user',
-    active: false,
+    active: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
