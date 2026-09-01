@@ -1,17 +1,6 @@
 <script setup lang="ts">
 import { Inbox } from 'lucide-vue-next';
 
-/**
- * Reusable data table.
- * Props:
- *  - columns: [{ key, label, align?, width? }]
- *  - rows: array of objects
- *  - loading: boolean -> shows skeleton rows
- *  - emptyTitle / emptyText: empty-state copy
- * Slots:
- *  - cell-<key>: custom rendering per column ({ row, value })
- *  - actions: per-row action buttons ({ row })
- */
 defineProps({
   columns: { type: Array, required: true },
   rows: { type: Array, default: () => [] },

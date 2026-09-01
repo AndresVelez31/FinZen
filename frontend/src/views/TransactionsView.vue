@@ -2,42 +2,37 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Plus, Pencil, Trash2, Filter, RotateCcw } from 'lucide-vue-next';
-import TablaGenerica from '@/components/shared/TablaGenerica.vue';
-import SelectorFiltro from '@/components/shared/SelectorFiltro.vue';
+import GenericTable from '@/components/shared/GenericTable.vue';
+import SelectorFiltro from '@/components/shared/SelectorFilter.vue';
 import GraficoChart from '@/components/shared/GraficoChart.vue';
-import {
-  myTransactions,
-  myActivities,
-  myAccounts,
-  deleteTransaction,
-  formatMoney,
-  formatDate,
-  activityById,
-  accountById,
-} from '@/store';
+import { TransactionService } from '@/services/TransactionService.js';
+import { AccountService } from '@/services/AccountService.js';
+import { ActivityService } from '@/services/ActivityService.js';
+import { formatToCOP, formatDate } from '@/utils/formatters.js';
+import type { TransactionInterface } from '@/interfaces/TransactionInterface';
 
 const router = useRouter();
 const loading = ref(true);
-onMounted(() => setTimeout(() => (loading.value = false), 450));
 
-const fActivity = ref('');
-const fAccount = ref('');
-const fType = ref('');
-const fMonth = ref('');
-const fFrom = ref('');
-const fTo = ref('');
+onMounted(() => {
+  setTimeout(() => (loading.value = false), 450);
+});
 
-const activityOptions = computed(() =>
-  myActivities.value.map((activity) => ({
-    value: String(activity.id),
-    label: activity.name,
-  })),
+const fActivity = ref<string>('');
+const fAccount = ref<string>('');
+const fType = ref<string>('');
+const fMonth = ref<string>('');
+const fFrom = ref<string>('');
+const fTo = ref<string>('');
+
+const activityOptions = computed<{ value: string; label: string }[]>(() =>
+  ActivityService.getActivities().map((a) => ({ value: String(a.id), label: a.name })),
 );
 
-const accountOptions = computed(() =>
-  myAccounts.value.map((account) => ({
-    value: String(account.id),
-    label: `${account.name} · ${account.type}`,
+const accountOptions = computed<{ value: string; label: string }[]>(() =>
+  AccountService.getAccounts().map((a) => ({
+    value: String(a.id),
+    label: `${a.name} · ${a.type}`,
   })),
 );
 
@@ -61,43 +56,25 @@ const monthOptions = [
   { value: '12', label: 'Diciembre' },
 ];
 
-const filtered = computed(() =>
-  myTransactions.value.filter((transaction) => {
-    if (fActivity.value && String(transaction.activityId) !== fActivity.value) {
-      return false;
-    }
-
-    if (fAccount.value && String(transaction.accountId) !== fAccount.value) {
-      return false;
-    }
-
-    if (fType.value && transaction.type !== fType.value) {
-      return false;
-    }
-
-    if (fMonth.value && transaction.date.slice(5, 7) !== fMonth.value) {
-      return false;
-    }
-
-    if (fFrom.value && transaction.date < fFrom.value) {
-      return false;
-    }
-
-    if (fTo.value && transaction.date > fTo.value) {
-      return false;
-    }
-
+const filtered = computed<TransactionInterface[]>(() =>
+  TransactionService.getTransactions().filter((t: TransactionInterface) => {
+    if (fActivity.value && String(t.activityId) !== fActivity.value) return false;
+    if (fAccount.value && String(t.accountId) !== fAccount.value) return false;
+    if (fType.value && t.type !== fType.value) return false;
+    if (fMonth.value && t.date.slice(5, 7) !== fMonth.value) return false;
+    if (fFrom.value && t.date < fFrom.value) return false;
+    if (fTo.value && t.date > fTo.value) return false;
     return true;
   }),
 );
 
-function resetFilters(): void {
-  ((fActivity.value = ''),
-    (fAccount.value = ''),
-    (fType.value = ''),
-    (fMonth.value = ''),
-    (fFrom.value = ''),
-    (fTo.value = ''));
+function resetFilters() {
+  fActivity.value = '';
+  fAccount.value = '';
+  fType.value = '';
+  fMonth.value = '';
+  fFrom.value = '';
+  fTo.value = '';
 }
 
 const activeFilters = computed(
@@ -109,15 +86,18 @@ const activeFilters = computed(
 
 // Bar chart: expense by activity for the filtered set
 const bar = computed(() => {
-  const map = {};
+  const map: Record<string, { total: number; color: string }> = {};
   filtered.value
-    .filter((t) => t.type === 'expense')
-    .forEach((t) => {
-      const ac = activityById(t.activityId);
+    .filter((t: TransactionInterface) => t.type === 'expense')
+    .forEach((t: TransactionInterface) => {
+      const ac = ActivityService.getActivityById(t.activityId);
       const name = ac ? ac.name : 'Otros';
-      map[name] = map[name] || { total: 0, color: ac?.color || '#94a3b8' };
+      if (!map[name]) {
+        map[name] = { total: 0, color: ac?.color || '#94a3b8' };
+      }
       map[name].total += t.amount;
     });
+
   const entries = Object.entries(map).sort((a, b) => b[1].total - a[1].total);
   return {
     labels: entries.map((e) => e[0]),
@@ -132,15 +112,16 @@ const bar = computed(() => {
     ],
   };
 });
+
 const hasBar = computed(() => bar.value.labels.length > 0);
 
 const totals = computed(() => {
   const income = filtered.value
-    .filter((t) => t.type === 'income')
-    .reduce((s, t) => s + t.amount, 0);
+    .filter((t: TransactionInterface) => t.type === 'income')
+    .reduce((s: number, t: TransactionInterface) => s + t.amount, 0);
   const expense = filtered.value
-    .filter((t) => t.type === 'expense')
-    .reduce((s, t) => s + t.amount, 0);
+    .filter((t: TransactionInterface) => t.type === 'expense')
+    .reduce((s: number, t: TransactionInterface) => s + t.amount, 0);
   return { income, expense };
 });
 
@@ -153,11 +134,23 @@ const columns = [
   { key: 'amount', label: 'Importe', align: 'right' },
 ];
 
-async function removeTx(row) {
+function asTx(row: unknown): TransactionInterface {
+  return row as TransactionInterface;
+}
+
+function getActivity(id: number) {
+  return ActivityService.getActivityById(id);
+}
+
+function getAccount(id: number) {
+  return AccountService.getAccountById(id);
+}
+
+async function removeTx(row: TransactionInterface) {
   const Swal = (await import('sweetalert2')).default;
   const res = await Swal.fire({
     title: '¿Eliminar transacción?',
-    html: `<b>${row.description}</b><br>${formatMoney(row.amount)}`,
+    html: `<b>${row.description}</b><br>${formatToCOP(row.amount)}`,
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: 'Eliminar',
@@ -166,7 +159,7 @@ async function removeTx(row) {
     cancelButtonColor: '#94a3b8',
   });
   if (res.isConfirmed) {
-    deleteTransaction(row.id);
+    TransactionService.deleteTransaction(row.id);
     Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1200, showConfirmButton: false });
   }
 }
@@ -178,8 +171,8 @@ async function removeTx(row) {
       <div>
         <h2 class="page-title">Transacciones</h2>
         <p class="muted">
-          {{ filtered.length }} movimientos · Ingresos {{ formatMoney(totals.income) }} · Gastos
-          {{ formatMoney(totals.expense) }}
+          {{ filtered.length }} movimientos · Ingresos {{ formatToCOP(totals.income) }} · Gastos
+          {{ formatToCOP(totals.expense) }}
         </p>
       </div>
       <button class="btn btn-primary" @click="router.push({ name: 'transaction-new' })">
@@ -194,24 +187,22 @@ async function removeTx(row) {
         <span v-if="activeFilters" class="badge badge-green">{{ activeFilters }} activos</span>
       </div>
       <div class="filters-grid">
-        <SelectorFiltro
+        <SelectorFilter
           label="Actividad"
           v-model="fActivity"
           :options="activityOptions"
           placeholder="Todas"
         />
 
-        <SelectorFiltro
+        <SelectorFilter
           label="Cuenta"
           v-model="fAccount"
           :options="accountOptions"
           placeholder="Todas"
         />
 
-        <SelectorFiltro label="Tipo" v-model="fType" :options="typeOptions" placeholder="Todos" />
-
-        <SelectorFiltro label="Mes" v-model="fMonth" :options="monthOptions" placeholder="Todos" />
-
+        <SelectorFilter label="Tipo" v-model="fType" :options="typeOptions" placeholder="Todos" />
+        <SelectorFilter label="Mes" v-model="fMonth" :options="monthOptions" placeholder="Todos" />
         <div class="field">
           <label>Desde</label>
           <input v-model="fFrom" type="date" class="input" />
@@ -258,46 +249,58 @@ async function removeTx(row) {
       emptyText="Ajusta los filtros o crea una nueva transacción."
     >
       <template #cell-description="{ row }">
-        <div class="tx-desc">
+        <div class="tx-desc" v-if="row">
           <span
             class="dot"
-            :style="{ background: activityById(row.activityId)?.color || '#94a3b8' }"
+            :style="{ background: getActivity(asTx(row).activityId)?.color || '#94a3b8' }"
           ></span>
-          <span class="tx-name">{{ row.description }}</span>
+          <span class="tx-name">{{ asTx(row).description }}</span>
         </div>
       </template>
+
       <template #cell-activityId="{ value }">
-        <span class="chip badge-gray">{{ activityById(value)?.name || '—' }}</span>
+        <span class="chip badge-gray">{{ getActivity(Number(value))?.name || '—' }}</span>
       </template>
-      <template #cell-accountId="{ value }">{{ accountById(value)?.name || '—' }}</template>
-      <template #cell-date="{ value }">{{ formatDate(value) }}</template>
+
+      <template #cell-accountId="{ value }">
+        {{ getAccount(Number(value))?.name || '—' }}
+      </template>
+
+      <template #cell-date="{ value }">
+        {{ formatDate(String(value)) }}
+      </template>
+
       <template #cell-type="{ value }">
         <span class="badge" :class="value === 'income' ? 'badge-green' : 'badge-red'">
           {{ value === 'income' ? 'Ingreso' : 'Gasto' }}
         </span>
       </template>
+
       <template #cell-amount="{ row }">
-        <span :class="row.type === 'income' ? 'amt-in' : 'amt-out'">
-          {{ row.type === 'income' ? '+' : '−' }}{{ formatMoney(row.amount) }}
+        <span v-if="row" :class="asTx(row).type === 'income' ? 'amt-in' : 'amt-out'">
+          {{ asTx(row).type === 'income' ? '+' : '−' }}{{ formatToCOP(asTx(row).amount) }}
         </span>
       </template>
+
       <template #actions="{ row }">
-        <button
-          class="btn btn-ghost btn-icon"
-          @click="router.push({ name: 'transaction-edit', params: { id: row.id } })"
-          aria-label="Editar"
-          title="Editar"
-        >
-          <Pencil :size="15" />
-        </button>
-        <button
-          class="btn btn-danger btn-icon"
-          @click="removeTx(row)"
-          aria-label="Eliminar"
-          title="Eliminar"
-        >
-          <Trash2 :size="15" />
-        </button>
+        <div v-if="row">
+          <button
+            class="btn btn-ghost btn-icon"
+            @click="router.push({ name: 'transaction-edit', params: { id: asTx(row).id } })"
+            aria-label="Editar"
+            title="Editar"
+          >
+            <Pencil :size="15" />
+          </button>
+          <button
+            class="btn btn-danger btn-icon"
+            @click="removeTx(asTx(row))"
+            aria-label="Eliminar"
+            title="Eliminar"
+          >
+            <Trash2 :size="15" />
+          </button>
+        </div>
       </template>
     </TablaGenerica>
   </div>
