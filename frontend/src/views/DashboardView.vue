@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { Wallet, TrendingDown, TrendingUp, List } from 'lucide-vue-next';
+import { useRouter } from 'vue-router';
+import { Wallet, TrendingDown, TrendingUp, List, Plus } from 'lucide-vue-next';
 
 import StatCard from '@/components/shared/StatCard.vue';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
@@ -11,6 +12,7 @@ import { UserService } from '@/services/UserService.js';
 
 import { formatToCOP, formatDate } from '@/utils/formatters.js';
 
+const router = useRouter();
 const currentUser = computed(() => UserService.getCurrentUser());
 
 const transactions = computed(() => TransactionService.getTransactions());
@@ -102,6 +104,11 @@ const transactionColumns = [
 
         <p class="muted">Este es el resumen de tus finanzas de este mes.</p>
       </div>
+
+      <button class="btn btn-primary" @click="router.push({ name: 'transaction-new' })">
+        <Plus :size="18" />
+        Nueva transacción
+      </button>
     </div>
 
     <div class="grid-kpi">
