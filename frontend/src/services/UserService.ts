@@ -19,6 +19,15 @@ export class UserService {
     user.updatedAt = new Date().toISOString();
   }
 
+  static toggleUserActive(id: number): void {
+    const user = UserService.getUserById(id);
+    if (!user) {
+      return;
+    }
+    user.active = !user.active;
+    user.updatedAt = new Date().toISOString();
+  }
+
   static login(
     email: string,
     password: string,

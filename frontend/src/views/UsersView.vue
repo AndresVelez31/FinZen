@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { ShieldCheck, User, UserCheck, UserX, Users as UsersIcon } from 'lucide-vue-next';
+import { ShieldCheck, User, Users as UsersIcon } from 'lucide-vue-next';
 import TablaGenerica from '@/components/shared/TablaGenerica.vue';
 import SelectorFiltro from '@/components/shared/SelectorFiltro.vue';
 import StatCard from '@/components/shared/StatCard.vue';
-import { store, currentUser, updateUserRole, formatDate } from '@/store';
+import { UserService } from '@/services/UserService.js';
+import { formatDate } from '@/utils/formatters.js';
+import type { UserInterface } from '@/interfaces/UserInterface.js';
 
 const loading = ref(true);
 onMounted(() => setTimeout(() => (loading.value = false), 450));
@@ -15,14 +17,19 @@ const roleOptions = [
   { value: 'user', label: 'Usuario' },
 ];
 
+const currentUser = computed(() => UserService.getCurrentUser());
+
 const rows = computed(() =>
-  store.users.filter((u) => (fRole.value ? u.role === fRole.value : true)),
+  UserService.getUsers().filter((u) => (fRole.value ? u.role === fRole.value : true)),
 );
 
-const stats = computed(() => ({
-  total: store.users.length,
-  admins: store.users.filter((u) => u.role === 'admin').length,
-}));
+const stats = computed(() => {
+  const users = UserService.getUsers();
+  return {
+    total: users.length,
+    admins: users.filter((u) => u.role === 'admin').length,
+  };
+});
 
 const columns = [
   { key: 'name', label: 'Usuario' },
@@ -30,7 +37,8 @@ const columns = [
   { key: 'createdAt', label: 'Registro' },
 ];
 
-function initials(name) {
+function initials(name: string): string {
+  if (!name) return '';
   return name
     .split(' ')
     .slice(0, 2)
@@ -39,7 +47,12 @@ function initials(name) {
     .toUpperCase();
 }
 
-async function changeRole(u) {
+// Helper para tipar la fila directamente en el script
+function asUser(row: unknown): UserInterface {
+  return row as UserInterface;
+}
+
+async function changeRole(u: UserInterface) {
   const Swal = (await import('sweetalert2')).default;
   const newRole = u.role === 'admin' ? 'user' : 'admin';
   const res = await Swal.fire({
@@ -53,12 +66,10 @@ async function changeRole(u) {
     cancelButtonColor: '#94a3b8',
   });
   if (res.isConfirmed) {
-    updateUserRole(u.id, newRole);
+    UserService.updateUserRole(u.id, newRole);
     Swal.fire({ title: 'Rol actualizado', icon: 'success', timer: 1100, showConfirmButton: false });
   }
 }
-
-
 </script>
 
 <template>
@@ -103,19 +114,20 @@ async function changeRole(u) {
       emptyText="No hay usuarios que coincidan con el filtro."
     >
       <template #cell-name="{ row }">
-        <div class="u">
-          <span class="u-avatar" :class="{ admin: row.role === 'admin' }">{{
-            initials(row.name)
-          }}</span>
+        <div class="u" v-if="row">
+          <span class="u-avatar" :class="{ admin: asUser(row).role === 'admin' }">
+            {{ initials(asUser(row).name) }}
+          </span>
           <div>
             <div class="u-name">
-              {{ row.name }}
-              <span v-if="row.id === currentUser?.id" class="badge badge-green">Tú</span>
+              {{ asUser(row).name }}
+              <span v-if="asUser(row).id === currentUser?.id" class="badge badge-green">Tú</span>
             </div>
-            <div class="soft u-mail">{{ row.email }}</div>
+            <div class="soft u-mail">{{ asUser(row).email }}</div>
           </div>
         </div>
       </template>
+
       <template #cell-role="{ value }">
         <span class="badge" :class="value === 'admin' ? 'badge-indigo' : 'badge-gray'">
           <component :is="value === 'admin' ? ShieldCheck : User" :size="12" />
@@ -123,15 +135,16 @@ async function changeRole(u) {
         </span>
       </template>
 
-      <template #cell-createdAt="{ value }">{{ formatDate(value) }}</template>
+      <template #cell-createdAt="{ value }">{{ formatDate(String(value)) }}</template>
+
       <template #actions="{ row }">
         <button
           class="btn btn-ghost btn-sm"
-          @click="changeRole(row)"
-          :disabled="row.id === currentUser?.id"
+          @click="changeRole(asUser(row))"
+          :disabled="asUser(row).id === currentUser?.id"
           title="Cambiar rol"
         >
-          {{ row.role === 'admin' ? 'A usuario' : 'A admin' }}
+          {{ asUser(row).role === 'admin' ? 'A usuario' : 'A admin' }}
         </button>
       </template>
     </TablaGenerica>
