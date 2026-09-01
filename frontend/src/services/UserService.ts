@@ -21,9 +21,11 @@ export class UserService {
 
   static toggleUserActive(id: number): void {
     const user = UserService.getUserById(id);
+
     if (!user) {
       return;
     }
+
     user.active = !user.active;
     user.updatedAt = new Date().toISOString();
   }

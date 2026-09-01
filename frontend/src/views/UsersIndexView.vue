@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { ShieldCheck, User, Users as UsersIcon } from 'lucide-vue-next';
-import TablaGenerica from '@/components/shared/TablaGenerica.vue';
-import SelectorFilter from '@/components/shared/SelectorFilter.vue';
+import GenericTable from '@/components/shared/GenericTable.vue';
+import SelectorFiltro from '@/components/shared/SelectorFilter.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import { UserService } from '@/services/UserService.js';
 import { formatDate } from '@/utils/formatters.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
-
-const loading = ref(true);
-onMounted(() => setTimeout(() => (loading.value = false), 450));
 
 const fRole = ref('');
 const roleOptions = [
@@ -32,8 +29,10 @@ const stats = computed(() => {
 });
 
 const columns = [
-  { key: 'name', label: 'Usuario' },
+  { key: 'name', label: 'Nombre' },
+  { key: 'email', label: 'Correo' },
   { key: 'role', label: 'Rol' },
+  { key: 'active', label: 'Estado' },
   { key: 'createdAt', label: 'Registro' },
 ];
 
@@ -52,23 +51,28 @@ function asUser(row: unknown): UserInterface {
   return row as UserInterface;
 }
 
-async function changeRole(u: UserInterface) {
-  const Swal = (await import('sweetalert2')).default;
-  const newRole = u.role === 'admin' ? 'user' : 'admin';
-  const res = await Swal.fire({
-    title: 'Cambiar rol',
-    html: `Cambiar a <b>${u.name}</b> a rol <b>${newRole === 'admin' ? 'Administrador' : 'Usuario'}</b>.`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Confirmar',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#10b981',
-    cancelButtonColor: '#94a3b8',
-  });
-  if (res.isConfirmed) {
-    UserService.updateUserRole(u.id, newRole);
-    Swal.fire({ title: 'Rol actualizado', icon: 'success', timer: 1100, showConfirmButton: false });
+function changeRole(user: UserInterface): void {
+  const newRole = user.role === 'admin' ? 'user' : 'admin';
+
+  const confirmed = confirm(`¿Desea cambiar el rol de ${user.name}?`);
+
+  if (!confirmed) {
+    return;
   }
+
+  UserService.updateUserRole(user.id, newRole);
+}
+
+function toggleActive(user: UserInterface): void {
+  const action = user.active ? 'desactivar' : 'activar';
+
+  const confirmed = confirm(`¿Desea ${action} al usuario ${user.name}?`);
+
+  if (!confirmed) {
+    return;
+  }
+
+  UserService.toggleUserActive(user.id);
 }
 </script>
 
@@ -105,7 +109,7 @@ async function changeRole(u: UserInterface) {
       />
     </div>
 
-    <TablaGenerica
+    <GenericTable
       :columns="columns"
       :rows="rows"
       :loading="loading"
@@ -118,14 +122,19 @@ async function changeRole(u: UserInterface) {
           <span class="u-avatar" :class="{ admin: asUser(row).role === 'admin' }">
             {{ initials(asUser(row).name) }}
           </span>
-          <div>
-            <div class="u-name">
-              {{ asUser(row).name }}
-              <span v-if="asUser(row).id === currentUser?.id" class="badge badge-green">Tú</span>
-            </div>
-            <div class="soft u-mail">{{ asUser(row).email }}</div>
+
+          <div class="u-name">
+            {{ asUser(row).name }}
+
+            <span v-if="asUser(row).id === currentUser?.id" class="badge badge-green"> Tú </span>
           </div>
         </div>
+      </template>
+
+      <template #cell-active="{ value }">
+        <span class="badge" :class="value ? 'badge-green' : 'badge-gray'">
+          {{ value ? 'Activo' : 'Inactivo' }}
+        </span>
       </template>
 
       <template #cell-role="{ value }">
@@ -138,16 +147,25 @@ async function changeRole(u: UserInterface) {
       <template #cell-createdAt="{ value }">{{ formatDate(String(value)) }}</template>
 
       <template #actions="{ row }">
-        <button
-          class="btn btn-ghost btn-sm"
-          @click="changeRole(asUser(row))"
-          :disabled="asUser(row).id === currentUser?.id"
-          title="Cambiar rol"
-        >
-          {{ asUser(row).role === 'admin' ? 'A usuario' : 'A admin' }}
-        </button>
+        <div class="user-actions">
+          <button
+            class="btn btn-ghost btn-sm"
+            :disabled="asUser(row).id === currentUser?.id"
+            @click="changeRole(asUser(row))"
+          >
+            {{ asUser(row).role === 'admin' ? 'A usuario' : 'A admin' }}
+          </button>
+
+          <button
+            class="btn btn-ghost btn-sm"
+            :disabled="asUser(row).id === currentUser?.id"
+            @click="toggleActive(asUser(row))"
+          >
+            {{ asUser(row).active ? 'Desactivar' : 'Activar' }}
+          </button>
+        </div>
       </template>
-    </TablaGenerica>
+    </GenericTable>
   </div>
 </template>
 
@@ -206,5 +224,10 @@ async function changeRole(u: UserInterface) {
 .btn[disabled] {
   opacity: 0.4;
   cursor: not-allowed;
+}
+.user-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 </style>

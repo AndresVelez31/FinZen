@@ -8,7 +8,7 @@ import {
   deleteActivity,
   formatMoney,
   monthKey,
-} from '@/store';
+} from '@/services/ActivityService.js';
 
 const showModal = ref(false);
 const editingId = ref(null);
