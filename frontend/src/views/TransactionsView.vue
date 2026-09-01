@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Plus, Pencil, Trash2, Filter, RotateCcw } from 'lucide-vue-next';
 import GenericTable from '@/components/shared/GenericTable.vue';
-import SelectorFiltro from '@/components/shared/SelectorFilter.vue';
+import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import { TransactionService } from '@/services/TransactionService.js';
 import { AccountService } from '@/services/AccountService.js';
@@ -240,7 +240,7 @@ async function removeTx(row: TransactionInterface) {
     </section>
 
     <!-- Table -->
-    <TablaGenerica
+    <GenericTable
       :columns="columns"
       :rows="filtered"
       :loading="loading"
@@ -302,7 +302,7 @@ async function removeTx(row: TransactionInterface) {
           </button>
         </div>
       </template>
-    </TablaGenerica>
+    </GenericTable>
   </div>
 </template>
 

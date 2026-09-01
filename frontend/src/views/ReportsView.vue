@@ -3,39 +3,43 @@ import { ref, computed } from 'vue';
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-vue-next';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import SelectorFilter from '@/components/shared/SelectorFilter.vue';
-import GenericTable from '@/components/shared/GenericTable.vue';
 import StatCard from '@/components/shared/StatCard.vue';
-import { myTransactions, myActivities, formatMoney, monthKey } from '@/store';
+import { ReportService } from '@/services/ReportService.js';
+import { formatToCOP } from '@/utils/formatters.js';
 
 interface FilterOption {
   label: string;
   value: string;
 }
 
-const now = new Date();
-const selYear = ref(String(now.getFullYear()));
-const selMonth = ref(String(now.getMonth() + 1).padStart(2, '0'));
-
-const years = computed(() => {
-  const set = new Set(myTransactions.value.map((t) => new Date(t.date).getFullYear()));
-  set.add(now.getFullYear());
-  return [...set].sort((a, b) => b - a).map((y) => ({ value: String(y), label: String(y) }));
-});
-
-const months: FilterOption[] = [
-  { value: '01', label: 'Enero' },
-  { value: '02', label: 'Febrero' },
-  { value: '03', label: 'Marzo' },
-  { value: '04', label: 'Abril' },
-  { value: '05', label: 'Mayo' },
-  { value: '06', label: 'Junio' },
-  { value: '07', label: 'Julio' },
-  { value: '08', label: 'Agosto' },
-  { value: '09', label: 'Septiembre' },
-  { value: '10', label: 'Octubre' },
-  { value: '11', label: 'Noviembre' },
-  { value: '12', label: 'Diciembre' },
+const PERIOD_OPTIONS: FilterOption[] = [
+  { value: 'current', label: 'Mes actual' },
+  { value: '3m', label: 'Últimos 3 meses' },
+  { value: '6m', label: 'Últimos 6 meses' },
+  { value: 'all', label: 'Todo el tiempo' },
 ];
+
+const period = ref('current');
+
+function isoDate(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+// "Mes actual" = desde el día 1 del mes actual hasta hoy.
+// "Últimos 3/6 meses" = ventana móvil del mes actual + los 2/5 anteriores, hasta hoy.
+// "Todo el tiempo" = sin límites (ReportService los trata como no acotados).
+const dateRange = computed<{ start?: string; end?: string }>(() => {
+  const today = new Date();
+
+  if (period.value === 'all') {
+    return { start: undefined, end: undefined };
+  }
+
+  const monthsBack = period.value === '3m' ? 2 : period.value === '6m' ? 5 : 0;
+  const start = new Date(today.getFullYear(), today.getMonth() - monthsBack, 1);
+
+  return { start: isoDate(start), end: isoDate(today) };
+});
 
 const summary = computed(() =>
   ReportService.getPeriodSummary(dateRange.value.start, dateRange.value.end),
