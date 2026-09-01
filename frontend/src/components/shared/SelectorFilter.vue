@@ -4,51 +4,41 @@ interface FilterOption {
   value: string;
 }
 
-interface Props {
+const props = defineProps<{
   label?: string;
   modelValue: string;
   options: FilterOption[];
   placeholder?: string;
-}
-
-withDefaults(defineProps<Props>(), {
-  label: '',
-  placeholder: 'Todos',
-});
+}>();
 
 const emit = defineEmits<{
   'update:modelValue': [value: string];
 }>();
 
 function onChange(event: Event): void {
-  const target = event.target;
+  const select = event.target as HTMLSelectElement;
 
-  if (!(target instanceof HTMLSelectElement)) {
-    return;
-  }
-
-  emit('update:modelValue', target.value);
+  emit('update:modelValue', select.value);
 }
 </script>
 
 <template>
   <div class="field selector">
-    <label v-if="label">
-      {{ label }}
+    <label v-if="props.label">
+      {{ props.label }}
     </label>
 
     <select
       class="select"
-      :value="modelValue"
-      :aria-label="label || placeholder"
+      :value="props.modelValue"
       @change="onChange"
     >
       <option value="">
-        {{ placeholder }}
+        {{ props.placeholder || 'Todos' }}
       </option>
 
       <option
-        v-for="option in options"
+        v-for="option in props.options"
         :key="option.value"
         :value="option.value"
       >
