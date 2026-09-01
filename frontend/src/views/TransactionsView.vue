@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { Plus, Pencil, Trash2, Filter, RotateCcw } from 'lucide-vue-next';
 import GenericTable from '@/components/shared/GenericTable.vue';
 import SelectorFiltro from '@/components/shared/SelectorFilter.vue';
-import GraficoChart from '@/components/shared/GraficoChart.vue';
+import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import { TransactionService } from '@/services/TransactionService.js';
 import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
@@ -226,7 +226,7 @@ async function removeTx(row: TransactionInterface) {
         <h3>Gasto por actividad</h3>
         <span class="badge badge-gray">Según filtros</span>
       </div>
-      <GraficoChart
+      <ChartGraphic
         v-if="hasBar"
         type="bar"
         :labels="bar.labels"

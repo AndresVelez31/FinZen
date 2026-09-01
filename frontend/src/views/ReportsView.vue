@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-vue-next';
-import GraficoChart from '@/components/shared/GraficoChart.vue';
+import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import GenericTable from '@/components/shared/GenericTable.vue';
 import StatCard from '@/components/shared/StatCard.vue';
@@ -140,7 +140,7 @@ const trendChart = computed(() => ({
         <div class="panel-head">
           <h3>Gastos por actividad</h3>
         </div>
-        <GraficoChart
+        <ChartGraphic
           v-if="hasExpensesByActivity"
           type="doughnut"
           :labels="activityChart.labels"
@@ -154,7 +154,7 @@ const trendChart = computed(() => ({
         <div class="panel-head">
           <h3>Tendencia mensual</h3>
         </div>
-        <GraficoChart
+        <ChartGraphic
           v-if="hasMonthlyTotals"
           type="line"
           :labels="trendChart.labels"
