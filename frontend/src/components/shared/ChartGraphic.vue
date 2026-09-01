@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { Chart, registerables } from 'chart.js';
-import { store } from '@/services/';
 
 Chart.register(...registerables);
 
