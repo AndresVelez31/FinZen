@@ -159,14 +159,16 @@ async function submit() {
         <span v-if="errors.type" class="err">{{ errors.type }}</span>
       </div>
 
+      <!-- Saldo -->
+      <div class="field">
+        <label for="balance">Saldo inicial</label>
         <div class="amount-wrap">
           <span class="currency">$</span>
 
           <input
             id="balance"
-            v-model.number="form.balance"
-            class="input amount"
             v-model="form.balance"
+            class="input amount"
             type="number"
             min="0"
             step="1000"
