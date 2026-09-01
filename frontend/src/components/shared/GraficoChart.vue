@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue';
 import { Chart, registerables } from 'chart.js';
-import { store } from '@/store';
 
 Chart.register(...registerables);
 
@@ -100,11 +99,6 @@ watch(
   () => [props.labels, props.datasets, props.type],
   () => nextTick(render),
   { deep: true },
-);
-// re-render on theme change so colors adapt
-watch(
-  () => store.theme,
-  () => nextTick(render),
 );
 </script>
 
