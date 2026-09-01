@@ -75,7 +75,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/activities',
     name: 'activities',
-    component: () => import('@/views/ActivitiesView.vue'),
+    component: () => import('@/views/ActivitiesIndexView.vue'),
     meta: { title: 'Actividades | FinZen', admin: true },
   },
   {
