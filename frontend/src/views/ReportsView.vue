@@ -109,33 +109,30 @@ const trendChart = computed(() => ({
         <p class="muted">Analiza tus ingresos, gastos y hábitos de gasto por actividad.</p>
       </div>
       <div class="period card">
-        <SelectorFilter
-          label="Periodo"
-          v-model="period"
-          :options="PERIOD_OPTIONS"
-          placeholder=""
-        />
+        <SelectorFilter label="Periodo" v-model="period" :options="PERIOD_OPTIONS" placeholder="" />
       </div>
     </div>
 
     <div class="grid-kpi mb">
       <StatCard
-        label="Ingresos totales"
+        title="Ingresos totales"
         :value="formatToCOP(summary.totalIncome)"
         :icon="TrendingUp"
-        accent="var(--info)"
+        variant="income"
       />
+
       <StatCard
-        label="Gastos totales"
+        title="Gastos totales"
         :value="formatToCOP(summary.totalExpense)"
         :icon="TrendingDown"
-        accent="var(--danger)"
+        variant="expense"
       />
+
       <StatCard
-        label="Balance neto"
+        title="Balance neto"
         :value="formatToCOP(summary.netBalance)"
         :icon="Wallet"
-        :accent="summary.netBalance >= 0 ? 'var(--primary)' : 'var(--danger)'"
+        :variant="summary.netBalance >= 0 ? 'income' : 'expense'"
       />
     </div>
 

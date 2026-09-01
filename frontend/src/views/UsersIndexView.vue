@@ -86,18 +86,9 @@ function toggleActive(user: UserInterface): void {
     </div>
 
     <div class="grid-kpi mb">
-      <StatCard
-        label="Usuarios totales"
-        :value="String(stats.total)"
-        :icon="UsersIcon"
-        accent="var(--accent)"
-      />
-      <StatCard
-        label="Administradores"
-        :value="String(stats.admins)"
-        :icon="ShieldCheck"
-        accent="var(--primary)"
-      />
+      <StatCard title="Usuarios totales" :value="String(stats.total)" :icon="UsersIcon" />
+
+      <StatCard title="Administradores" :value="String(stats.admins)" :icon="ShieldCheck" />
     </div>
 
     <div class="card toolbar">
