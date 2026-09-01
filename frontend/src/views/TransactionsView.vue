@@ -23,38 +23,88 @@ onMounted(() => setTimeout(() => (loading.value = false), 450));
 const fActivity = ref('');
 const fAccount = ref('');
 const fType = ref('');
+const fMonth = ref('');
 const fFrom = ref('');
 const fTo = ref('');
 
 const activityOptions = computed(() =>
-  myActivities.value.map((a) => ({ value: a.id, label: a.name })),
+  myActivities.value.map((activity) => ({
+    value: String(activity.id),
+    label: activity.name,
+  })),
 );
+
 const accountOptions = computed(() =>
-  myAccounts.value.map((a) => ({ value: a.id, label: `${a.name} · ${a.type}` })),
+  myAccounts.value.map((account) => ({
+    value: String(account.id),
+    label: `${account.name} · ${account.type}`,
+  })),
 );
+
 const typeOptions = [
   { value: 'income', label: 'Ingreso' },
   { value: 'expense', label: 'Gasto' },
 ];
 
+const monthOptions = [
+  { value: '01', label: 'Enero' },
+  { value: '02', label: 'Febrero' },
+  { value: '03', label: 'Marzo' },
+  { value: '04', label: 'Abril' },
+  { value: '05', label: 'Mayo' },
+  { value: '06', label: 'Junio' },
+  { value: '07', label: 'Julio' },
+  { value: '08', label: 'Agosto' },
+  { value: '09', label: 'Septiembre' },
+  { value: '10', label: 'Octubre' },
+  { value: '11', label: 'Noviembre' },
+  { value: '12', label: 'Diciembre' },
+];
+
 const filtered = computed(() =>
-  myTransactions.value.filter((t) => {
-    if (fActivity.value && t.activityId !== fActivity.value) return false;
-    if (fAccount.value && t.accountId !== fAccount.value) return false;
-    if (fType.value && t.type !== fType.value) return false;
-    if (fFrom.value && t.date < fFrom.value) return false;
-    if (fTo.value && t.date > fTo.value) return false;
+  myTransactions.value.filter((transaction) => {
+    if (fActivity.value && String(transaction.activityId) !== fActivity.value) {
+      return false;
+    }
+
+    if (fAccount.value && String(transaction.accountId) !== fAccount.value) {
+      return false;
+    }
+
+    if (fType.value && transaction.type !== fType.value) {
+      return false;
+    }
+
+    if (fMonth.value && transaction.date.slice(5, 7) !== fMonth.value) {
+      return false;
+    }
+
+    if (fFrom.value && transaction.date < fFrom.value) {
+      return false;
+    }
+
+    if (fTo.value && transaction.date > fTo.value) {
+      return false;
+    }
+
     return true;
   }),
 );
 
-function resetFilters() {
-  fActivity.value = fAccount.value = fType.value = fFrom.value = fTo.value = '';
+function resetFilters(): void {
+  ((fActivity.value = ''),
+    (fAccount.value = ''),
+    (fType.value = ''),
+    (fMonth.value = ''),
+    (fFrom.value = ''),
+    (fTo.value = ''));
 }
 
 const activeFilters = computed(
   () =>
-    [fActivity.value, fAccount.value, fType.value, fFrom.value, fTo.value].filter(Boolean).length,
+    [fActivity.value, fAccount.value, fType.value, fMonth.value, fFrom.value, fTo.value].filter(
+      Boolean,
+    ).length,
 );
 
 // Bar chart: expense by activity for the filtered set
@@ -150,23 +200,31 @@ async function removeTx(row) {
           :options="activityOptions"
           placeholder="Todas"
         />
+
         <SelectorFiltro
           label="Cuenta"
           v-model="fAccount"
           :options="accountOptions"
           placeholder="Todas"
         />
+
         <SelectorFiltro label="Tipo" v-model="fType" :options="typeOptions" placeholder="Todos" />
+
+        <SelectorFiltro label="Mes" v-model="fMonth" :options="monthOptions" placeholder="Todos" />
+
         <div class="field">
           <label>Desde</label>
-          <input type="date" class="input" v-model="fFrom" />
+          <input v-model="fFrom" type="date" class="input" />
         </div>
+
         <div class="field">
           <label>Hasta</label>
-          <input type="date" class="input" v-model="fTo" />
+          <input v-model="fTo" type="date" class="input" />
         </div>
+
         <button class="btn btn-ghost reset" @click="resetFilters">
-          <RotateCcw :size="15" /> Limpiar
+          <RotateCcw :size="15" />
+          Limpiar
         </button>
       </div>
     </div>

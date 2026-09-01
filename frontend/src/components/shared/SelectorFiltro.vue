@@ -1,38 +1,58 @@
 <script setup lang="ts">
-/**
- * Reusable labelled dropdown filter.
- * Props:
- *  - label: field label
- *  - modelValue: current value (v-model)
- *  - options: [{ value, label }]
- *  - placeholder: text for the "all/none" default option
- * Emits:
- *  - update:modelValue
- *  - change (value)
- */
-defineProps({
-  label: { type: String, default: '' },
-  modelValue: { type: [String, Number], default: '' },
-  options: { type: Array, default: () => [] },
-  placeholder: { type: String, default: 'Todos' },
+interface FilterOption {
+  label: string;
+  value: string;
+}
+
+interface Props {
+  label?: string;
+  modelValue: string;
+  options: FilterOption[];
+  placeholder?: string;
+}
+
+withDefaults(defineProps<Props>(), {
+  label: '',
+  placeholder: 'Todos',
 });
 
-const emit = defineEmits(['update:modelValue', 'change']);
+const emit = defineEmits<{
+  'update:modelValue': [value: string];
+}>();
 
-function onChange(e) {
-  const val = e.target.value;
-  emit('update:modelValue', val);
-  emit('change', val);
+function onChange(event: Event): void {
+  const target = event.target;
+
+  if (!(target instanceof HTMLSelectElement)) {
+    return;
+  }
+
+  emit('update:modelValue', target.value);
 }
 </script>
 
 <template>
   <div class="field selector">
-    <label v-if="label">{{ label }}</label>
-    <select class="select" :value="modelValue" @change="onChange">
-      <option value="">{{ placeholder }}</option>
-      <option v-for="opt in options" :key="opt.value" :value="opt.value">
-        {{ opt.label }}
+    <label v-if="label">
+      {{ label }}
+    </label>
+
+    <select
+      class="select"
+      :value="modelValue"
+      :aria-label="label || placeholder"
+      @change="onChange"
+    >
+      <option value="">
+        {{ placeholder }}
+      </option>
+
+      <option
+        v-for="option in options"
+        :key="option.value"
+        :value="option.value"
+      >
+        {{ option.label }}
       </option>
     </select>
   </div>

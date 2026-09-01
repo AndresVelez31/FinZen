@@ -7,6 +7,11 @@ import TablaGenerica from '@/components/shared/TablaGenerica.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import { myTransactions, myActivities, formatMoney, monthKey } from '@/store';
 
+interface FilterOption {
+  label: string;
+  value: string;
+}
+
 const now = new Date();
 const selYear = ref(String(now.getFullYear()));
 const selMonth = ref(String(now.getMonth() + 1).padStart(2, '0'));
@@ -16,20 +21,21 @@ const years = computed(() => {
   set.add(now.getFullYear());
   return [...set].sort((a, b) => b - a).map((y) => ({ value: String(y), label: String(y) }));
 });
-const months = [
-  ['01', 'Enero'],
-  ['02', 'Febrero'],
-  ['03', 'Marzo'],
-  ['04', 'Abril'],
-  ['05', 'Mayo'],
-  ['06', 'Junio'],
-  ['07', 'Julio'],
-  ['08', 'Agosto'],
-  ['09', 'Septiembre'],
-  ['10', 'Octubre'],
-  ['11', 'Noviembre'],
-  ['12', 'Diciembre'],
-].map(([value, label]) => ({ value, label }));
+
+const months: FilterOption[] = [
+  { value: '01', label: 'Enero' },
+  { value: '02', label: 'Febrero' },
+  { value: '03', label: 'Marzo' },
+  { value: '04', label: 'Abril' },
+  { value: '05', label: 'Mayo' },
+  { value: '06', label: 'Junio' },
+  { value: '07', label: 'Julio' },
+  { value: '08', label: 'Agosto' },
+  { value: '09', label: 'Septiembre' },
+  { value: '10', label: 'Octubre' },
+  { value: '11', label: 'Noviembre' },
+  { value: '12', label: 'Diciembre' },
+];
 
 const periodKey = computed(() => `${selYear.value}-${selMonth.value}`);
 const monthName = computed(() => months.find((m) => m.value === selMonth.value)?.label || '');
