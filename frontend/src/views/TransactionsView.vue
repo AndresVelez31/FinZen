@@ -193,24 +193,29 @@ async function removeTx(row: TransactionInterface) {
           :options="activityOptions"
           placeholder="Todas"
         />
+
         <SelectorFiltro
           label="Cuenta"
           v-model="fAccount"
           :options="accountOptions"
           placeholder="Todas"
         />
+
         <SelectorFiltro label="Tipo" v-model="fType" :options="typeOptions" placeholder="Todos" />
         <SelectorFiltro label="Mes" v-model="fMonth" :options="monthOptions" placeholder="Todos" />
         <div class="field">
           <label>Desde</label>
-          <input type="date" class="input" v-model="fFrom" />
+          <input v-model="fFrom" type="date" class="input" />
         </div>
+
         <div class="field">
           <label>Hasta</label>
-          <input type="date" class="input" v-model="fTo" />
+          <input v-model="fTo" type="date" class="input" />
         </div>
+
         <button class="btn btn-ghost reset" @click="resetFilters">
-          <RotateCcw :size="15" /> Limpiar
+          <RotateCcw :size="15" />
+          Limpiar
         </button>
       </div>
     </div>

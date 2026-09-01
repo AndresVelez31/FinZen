@@ -2,10 +2,15 @@
 import { ref, computed } from 'vue';
 import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-vue-next';
 import GraficoChart from '@/components/shared/GraficoChart.vue';
-import SelectorFiltro from '@/components/shared/SelectorFiltro.vue';
+import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import TablaGenerica from '@/components/shared/TablaGenerica.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import { myTransactions, myActivities, formatMoney, monthKey } from '@/store';
+
+interface FilterOption {
+  label: string;
+  value: string;
+}
 
 const now = new Date();
 const selYear = ref(String(now.getFullYear()));
@@ -16,20 +21,21 @@ const years = computed(() => {
   set.add(now.getFullYear());
   return [...set].sort((a, b) => b - a).map((y) => ({ value: String(y), label: String(y) }));
 });
-const months = [
-  ['01', 'Enero'],
-  ['02', 'Febrero'],
-  ['03', 'Marzo'],
-  ['04', 'Abril'],
-  ['05', 'Mayo'],
-  ['06', 'Junio'],
-  ['07', 'Julio'],
-  ['08', 'Agosto'],
-  ['09', 'Septiembre'],
-  ['10', 'Octubre'],
-  ['11', 'Noviembre'],
-  ['12', 'Diciembre'],
-].map(([value, label]) => ({ value, label }));
+
+const months: FilterOption[] = [
+  { value: '01', label: 'Enero' },
+  { value: '02', label: 'Febrero' },
+  { value: '03', label: 'Marzo' },
+  { value: '04', label: 'Abril' },
+  { value: '05', label: 'Mayo' },
+  { value: '06', label: 'Junio' },
+  { value: '07', label: 'Julio' },
+  { value: '08', label: 'Agosto' },
+  { value: '09', label: 'Septiembre' },
+  { value: '10', label: 'Octubre' },
+  { value: '11', label: 'Noviembre' },
+  { value: '12', label: 'Diciembre' },
+];
 
 const periodKey = computed(() => `${selYear.value}-${selMonth.value}`);
 const monthName = computed(() => months.find((m) => m.value === selMonth.value)?.label || '');
@@ -150,8 +156,8 @@ const summaryColumns = [
         <p class="muted">Analiza tu evolución financiera y el cumplimiento de presupuestos.</p>
       </div>
       <div class="period card">
-        <SelectorFiltro label="Mes" v-model="selMonth" :options="months" placeholder="" />
-        <SelectorFiltro label="Año" v-model="selYear" :options="years" placeholder="" />
+        <SelectorFilter label="Mes" v-model="selMonth" :options="months" placeholder="" />
+        <SelectorFilter label="Año" v-model="selYear" :options="years" placeholder="" />
       </div>
     </div>
 
