@@ -28,6 +28,7 @@ Data is persisted in the browser's `localStorage` (client-side persistence witho
 | Routing | Vue Router 4 |
 | State Management | Pinia |
 | Charts | Chart.js 4 |
+| Gauge / radial charts | ApexCharts (`vue3-apexcharts`) |
 | Icons | Lucide Vue Next |
 | Alerts / Feedback | SweetAlert2 |
 | Persistence | `localStorage` (Browser) |
