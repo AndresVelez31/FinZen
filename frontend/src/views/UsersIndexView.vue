@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import { ShieldCheck, User, Users as UsersIcon } from 'lucide-vue-next';
 import GenericTable from '@/components/shared/GenericTable.vue';
-import SelectorFiltro from '@/components/shared/SelectorFilter.vue';
+import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import { UserService } from '@/services/UserService.js';
 import { formatDate } from '@/utils/formatters.js';
