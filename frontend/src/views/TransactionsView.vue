@@ -21,6 +21,7 @@ onMounted(() => {
 const fActivity = ref<string>('');
 const fAccount = ref<string>('');
 const fType = ref<string>('');
+const fMonth = ref<string>('');
 const fFrom = ref<string>('');
 const fTo = ref<string>('');
 
@@ -29,7 +30,10 @@ const activityOptions = computed<{ value: string; label: string }[]>(() =>
 );
 
 const accountOptions = computed<{ value: string; label: string }[]>(() =>
-  AccountService.getAccounts().map((a) => ({ value: String(a.id), label: `${a.name} · ${a.type}` })),
+  AccountService.getAccounts().map((a) => ({
+    value: String(a.id),
+    label: `${a.name} · ${a.type}`,
+  })),
 );
 
 const typeOptions = [
@@ -37,11 +41,27 @@ const typeOptions = [
   { value: 'expense', label: 'Gasto' },
 ];
 
+const monthOptions = [
+  { value: '01', label: 'Enero' },
+  { value: '02', label: 'Febrero' },
+  { value: '03', label: 'Marzo' },
+  { value: '04', label: 'Abril' },
+  { value: '05', label: 'Mayo' },
+  { value: '06', label: 'Junio' },
+  { value: '07', label: 'Julio' },
+  { value: '08', label: 'Agosto' },
+  { value: '09', label: 'Septiembre' },
+  { value: '10', label: 'Octubre' },
+  { value: '11', label: 'Noviembre' },
+  { value: '12', label: 'Diciembre' },
+];
+
 const filtered = computed<TransactionInterface[]>(() =>
   TransactionService.getTransactions().filter((t: TransactionInterface) => {
     if (fActivity.value && String(t.activityId) !== fActivity.value) return false;
     if (fAccount.value && String(t.accountId) !== fAccount.value) return false;
     if (fType.value && t.type !== fType.value) return false;
+    if (fMonth.value && t.date.slice(5, 7) !== fMonth.value) return false;
     if (fFrom.value && t.date < fFrom.value) return false;
     if (fTo.value && t.date > fTo.value) return false;
     return true;
@@ -52,13 +72,16 @@ function resetFilters() {
   fActivity.value = '';
   fAccount.value = '';
   fType.value = '';
+  fMonth.value = '';
   fFrom.value = '';
   fTo.value = '';
 }
 
 const activeFilters = computed(
   () =>
-    [fActivity.value, fAccount.value, fType.value, fFrom.value, fTo.value].filter(Boolean).length,
+    [fActivity.value, fAccount.value, fType.value, fMonth.value, fFrom.value, fTo.value].filter(
+      Boolean,
+    ).length,
 );
 
 // Bar chart: expense by activity for the filtered set
@@ -177,6 +200,7 @@ async function removeTx(row: TransactionInterface) {
           placeholder="Todas"
         />
         <SelectorFiltro label="Tipo" v-model="fType" :options="typeOptions" placeholder="Todos" />
+        <SelectorFiltro label="Mes" v-model="fMonth" :options="monthOptions" placeholder="Todos" />
         <div class="field">
           <label>Desde</label>
           <input type="date" class="input" v-model="fFrom" />
