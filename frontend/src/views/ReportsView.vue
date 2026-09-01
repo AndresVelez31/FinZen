@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue';
 import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-vue-next';
 import GraficoChart from '@/components/shared/GraficoChart.vue';
-import SelectorFiltro from '@/components/shared/SelectorFiltro.vue';
+import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import TablaGenerica from '@/components/shared/TablaGenerica.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import { myTransactions, myActivities, formatMoney, monthKey } from '@/store';
@@ -156,8 +156,8 @@ const summaryColumns = [
         <p class="muted">Analiza tu evolución financiera y el cumplimiento de presupuestos.</p>
       </div>
       <div class="period card">
-        <SelectorFiltro label="Mes" v-model="selMonth" :options="months" placeholder="" />
-        <SelectorFiltro label="Año" v-model="selYear" :options="years" placeholder="" />
+        <SelectorFilter label="Mes" v-model="selMonth" :options="months" placeholder="" />
+        <SelectorFilter label="Año" v-model="selYear" :options="years" placeholder="" />
       </div>
     </div>
 
