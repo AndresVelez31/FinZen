@@ -2,7 +2,8 @@
 import { ref, computed } from 'vue';
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-vue-next';
 import GraficoChart from '@/components/shared/GraficoChart.vue';
-import SelectorFiltro from '@/components/shared/SelectorFiltro.vue';
+import SelectorFilter from '@/components/shared/SelectorFilter.vue';
+import TablaGenerica from '@/components/shared/TablaGenerica.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import { ReportService } from '@/services/ReportService.js';
 import { formatToCOP } from '@/utils/formatters.js';

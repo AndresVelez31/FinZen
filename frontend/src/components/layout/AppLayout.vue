@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { UserService } from '@/services/UserService.js';
+import { useThemeStore } from '@/stores/themestore.js';
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -24,17 +25,13 @@ interface NavItem {
   tag?: string;
 }
 
-// ── Temporary stubs (replaced in Issue #4 + #8 with Pinia stores) ─────────────
-const appTheme = ref<'light' | 'dark'>('light');
-const authenticatedUser = ref<{ name: string; role: string } | null>(null);
-const isAdminUser = computed(() => authenticatedUser.value?.role === 'admin');
+const currentUser = computed(() => UserService.getCurrentUser());
+const isAdminUser = computed(() => currentUser.value?.role === 'admin');
 
-function clearSession(): void {
-  authenticatedUser.value = null;
-}
+const themeStore = useThemeStore();
 
 function toggleAppTheme(): void {
-  appTheme.value = appTheme.value === 'light' ? 'dark' : 'light';
+  themeStore.theme = themeStore.theme === 'light' ? 'dark' : 'light';
 }
 
 // ── Router & navigation state ─────────────────────────────────────────────────
@@ -56,7 +53,7 @@ const navItems = computed<NavItem[]>(() => [
 ]);
 
 const userInitials = computed<string>(() => {
-  const fullName = authenticatedUser.value?.name ?? '?';
+  const fullName = currentUser.value?.name ?? '?';
   return fullName
     .split(' ')
     .slice(0, 2)
@@ -122,7 +119,7 @@ async function handleLogout(): Promise<void> {
         <div class="user-card">
           <div class="avatar">{{ userInitials }}</div>
           <div class="user-meta">
-            <div class="user-name">{{ authenticatedUser?.name }}</div>
+            <div class="user-name">{{ currentUser?.name }}</div>
             <div class="user-role">
               <span class="chip" :class="isAdminUser ? 'badge-indigo' : 'badge-gray'">{{
                 isAdminUser ? 'Administrador' : 'Usuario'
@@ -157,7 +154,7 @@ async function handleLogout(): Promise<void> {
             aria-label="Cambiar tema"
             title="Cambiar tema"
           >
-            <Moon v-if="appTheme === 'light'" :size="18" />
+            <Moon v-if="themeStore.theme === 'light'" :size="18" />
             <Sun v-else :size="18" />
           </button>
         </div>

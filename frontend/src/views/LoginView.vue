@@ -390,6 +390,7 @@ async function submit(): Promise<void> {
   border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--surface);
+  color: var(--text);
   font-size: 0.8rem;
   transition:
     border-color 0.18s ease,
