@@ -6,11 +6,15 @@ interface Props {
   value: string;
   icon?: string | Component;
   variant?: 'default' | 'income' | 'expense';
+  trend?: string;
+  trendUp?: boolean;
 }
 
 withDefaults(defineProps<Props>(), {
   icon: undefined,
   variant: 'default',
+  trend: undefined,
+  trendUp: true,
 });
 </script>
 
@@ -36,6 +40,10 @@ withDefaults(defineProps<Props>(), {
 
     <div class="stat-value">
       {{ value }}
+    </div>
+
+    <div v-if="trend" class="stat-trend" :class="trendUp ? 'up' : 'down'">
+      {{ trend }}
     </div>
   </div>
 </template>
@@ -99,6 +107,24 @@ withDefaults(defineProps<Props>(), {
   font-weight: 800;
   font-size: 1.7rem;
   letter-spacing: -0.02em;
+}
+
+.stat-trend {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.stat-trend.up {
+  color: var(--primary-strong);
+}
+
+html.dark .stat-trend.up {
+  color: var(--primary);
+}
+
+.stat-trend.down {
+  color: var(--danger);
 }
 
 @media (max-width: 560px) {
