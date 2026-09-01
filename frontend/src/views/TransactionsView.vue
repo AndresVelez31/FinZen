@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Plus, Pencil, Trash2, Filter, RotateCcw } from 'lucide-vue-next';
 import TablaGenerica from '@/components/shared/TablaGenerica.vue';
-import SelectorFiltro from '@/components/shared/SelectorFiltro.vue';
+import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import GraficoChart from '@/components/shared/GraficoChart.vue';
 import { TransactionService } from '@/services/TransactionService.js';
 import { AccountService } from '@/services/AccountService.js';
@@ -187,22 +187,22 @@ async function removeTx(row: TransactionInterface) {
         <span v-if="activeFilters" class="badge badge-green">{{ activeFilters }} activos</span>
       </div>
       <div class="filters-grid">
-        <SelectorFiltro
+        <SelectorFilter
           label="Actividad"
           v-model="fActivity"
           :options="activityOptions"
           placeholder="Todas"
         />
 
-        <SelectorFiltro
+        <SelectorFilter
           label="Cuenta"
           v-model="fAccount"
           :options="accountOptions"
           placeholder="Todas"
         />
 
-        <SelectorFiltro label="Tipo" v-model="fType" :options="typeOptions" placeholder="Todos" />
-        <SelectorFiltro label="Mes" v-model="fMonth" :options="monthOptions" placeholder="Todos" />
+        <SelectorFilter label="Tipo" v-model="fType" :options="typeOptions" placeholder="Todos" />
+        <SelectorFilter label="Mes" v-model="fMonth" :options="monthOptions" placeholder="Todos" />
         <div class="field">
           <label>Desde</label>
           <input v-model="fFrom" type="date" class="input" />

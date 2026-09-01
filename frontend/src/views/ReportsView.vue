@@ -113,7 +113,7 @@ const trendChart = computed(() => ({
         <p class="muted">Analiza tus ingresos, gastos y hábitos de gasto por actividad.</p>
       </div>
       <div class="period card">
-        <SelectorFiltro
+        <SelectorFilter
           label="Periodo"
           v-model="period"
           :options="PERIOD_OPTIONS"

@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { ShieldCheck, User, Users as UsersIcon } from 'lucide-vue-next';
 import TablaGenerica from '@/components/shared/TablaGenerica.vue';
-import SelectorFiltro from '@/components/shared/SelectorFiltro.vue';
+import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import { UserService } from '@/services/UserService.js';
 import { formatDate } from '@/utils/formatters.js';
@@ -97,7 +97,7 @@ async function changeRole(u: UserInterface) {
     </div>
 
     <div class="card toolbar">
-      <SelectorFiltro
+      <SelectorFilter
         label="Filtrar por rol"
         v-model="fRole"
         :options="roleOptions"
