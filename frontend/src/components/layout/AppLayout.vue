@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { UserService } from '@/services/UserService.js';
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -82,8 +83,8 @@ async function handleLogout(): Promise<void> {
     cancelButtonColor: '#94a3b8',
   });
   if (result.isConfirmed) {
-    clearSession();
-    router.push({ name: 'login' });
+    UserService.logout();
+    await router.push({ name: 'login' });
   }
 }
 </script>

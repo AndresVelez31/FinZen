@@ -1,10 +1,11 @@
 export interface TransactionInterface {
-  id: string;
-  userId: string;
-  accountId: string;
-  activityId: string;
+  id: number;
+  accountId: number;
+  activityId: number;
   type: string;
   amount: number;
   date: string;
   description: string;
+  createdAt: string;
+  updatedAt: string;
 }

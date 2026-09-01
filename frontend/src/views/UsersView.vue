@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { ShieldCheck, User, UserCheck, UserX, Users as UsersIcon } from 'lucide-vue-next';
+import { ShieldCheck, User, Users as UsersIcon } from 'lucide-vue-next';
 import TablaGenerica from '@/components/shared/TablaGenerica.vue';
 import SelectorFiltro from '@/components/shared/SelectorFiltro.vue';
 import StatCard from '@/components/shared/StatCard.vue';
-import type { UserInterface } from '@/interfaces/UserInterface';
-import { UserService } from '@/services/UserService';
-import { formatDate } from '@/utils/formatDate';
+import { UserService } from '@/services/UserService.js';
+import { formatDate } from '@/utils/formatters.js';
+import type { UserInterface } from '@/interfaces/UserInterface.js';
 
 const loading = ref(true);
 onMounted(() => setTimeout(() => (loading.value = false), 450));
@@ -28,24 +28,28 @@ const stats = computed(() => {
   return {
     total: users.length,
     admins: users.filter((u) => u.role === 'admin').length,
-    active: users.filter((u) => u.active).length,
   };
 });
 
 const columns = [
   { key: 'name', label: 'Usuario' },
   { key: 'role', label: 'Rol' },
-  { key: 'active', label: 'Estado' },
   { key: 'createdAt', label: 'Registro' },
 ];
 
 function initials(name: string): string {
+  if (!name) return '';
   return name
     .split(' ')
     .slice(0, 2)
     .map((s) => s[0])
     .join('')
     .toUpperCase();
+}
+
+// Helper para tipar la fila directamente en el script
+function asUser(row: unknown): UserInterface {
+  return row as UserInterface;
 }
 
 async function changeRole(u: UserInterface) {
@@ -64,30 +68,6 @@ async function changeRole(u: UserInterface) {
   if (res.isConfirmed) {
     UserService.updateUserRole(u.id, newRole);
     Swal.fire({ title: 'Rol actualizado', icon: 'success', timer: 1100, showConfirmButton: false });
-  }
-}
-
-async function toggleActive(u: UserInterface) {
-  const Swal = (await import('sweetalert2')).default;
-  const action = u.active ? 'desactivar' : 'activar';
-  const res = await Swal.fire({
-    title: `¿${action.charAt(0).toUpperCase() + action.slice(1)} cuenta?`,
-    html: `Vas a ${action} la cuenta de <b>${u.name}</b>.`,
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Confirmar',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: u.active ? '#ef4444' : '#10b981',
-    cancelButtonColor: '#94a3b8',
-  });
-  if (res.isConfirmed) {
-    UserService.toggleUserActive(u.id);
-    Swal.fire({
-      title: u.active ? 'Cuenta desactivada' : 'Cuenta activada',
-      icon: 'success',
-      timer: 1100,
-      showConfirmButton: false,
-    });
   }
 }
 </script>
@@ -114,12 +94,6 @@ async function toggleActive(u: UserInterface) {
         :icon="ShieldCheck"
         accent="var(--primary)"
       />
-      <StatCard
-        label="Cuentas activas"
-        :value="String(stats.active)"
-        :icon="UserCheck"
-        accent="var(--info)"
-      />
     </div>
 
     <div class="card toolbar">
@@ -140,51 +114,37 @@ async function toggleActive(u: UserInterface) {
       emptyText="No hay usuarios que coincidan con el filtro."
     >
       <template #cell-name="{ row }">
-        <div class="u">
-          <span class="u-avatar" :class="{ admin: row.role === 'admin' }">{{
-            initials(row.name)
-          }}</span>
+        <div class="u" v-if="row">
+          <span class="u-avatar" :class="{ admin: asUser(row).role === 'admin' }">
+            {{ initials(asUser(row).name) }}
+          </span>
           <div>
             <div class="u-name">
-              {{ row.name }}
-              <span v-if="row.id === currentUser?.id" class="badge badge-green">Tú</span>
+              {{ asUser(row).name }}
+              <span v-if="asUser(row).id === currentUser?.id" class="badge badge-green">Tú</span>
             </div>
-            <div class="soft u-mail">{{ row.email }}</div>
+            <div class="soft u-mail">{{ asUser(row).email }}</div>
           </div>
         </div>
       </template>
+
       <template #cell-role="{ value }">
         <span class="badge" :class="value === 'admin' ? 'badge-indigo' : 'badge-gray'">
           <component :is="value === 'admin' ? ShieldCheck : User" :size="12" />
           {{ value === 'admin' ? 'Administrador' : 'Usuario' }}
         </span>
       </template>
-      <template #cell-active="{ value }">
-        <span class="badge" :class="value ? 'badge-green' : 'badge-red'">
-          <span class="status-dot" :class="{ on: value }"></span>
-          {{ value ? 'Activo' : 'Inactivo' }}
-        </span>
-      </template>
-      <template #cell-createdAt="{ value }">{{ formatDate(value) }}</template>
+
+      <template #cell-createdAt="{ value }">{{ formatDate(String(value)) }}</template>
+
       <template #actions="{ row }">
         <button
           class="btn btn-ghost btn-sm"
-          @click="changeRole(row)"
-          :disabled="row.id === currentUser?.id"
+          @click="changeRole(asUser(row))"
+          :disabled="asUser(row).id === currentUser?.id"
           title="Cambiar rol"
         >
-          {{ row.role === 'admin' ? 'A usuario' : 'A admin' }}
-        </button>
-        <button
-          class="btn btn-icon"
-          :class="row.active ? 'btn-danger' : 'btn-ghost'"
-          @click="toggleActive(row)"
-          :disabled="row.id === currentUser?.id"
-          :aria-label="row.active ? 'Desactivar' : 'Activar'"
-          :title="row.active ? 'Desactivar' : 'Activar'"
-        >
-          <UserX v-if="row.active" :size="15" />
-          <UserCheck v-else :size="15" />
+          {{ asUser(row).role === 'admin' ? 'A usuario' : 'A admin' }}
         </button>
       </template>
     </TablaGenerica>

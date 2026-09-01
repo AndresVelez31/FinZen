@@ -1,24 +1,16 @@
-import type { UserInterface } from '@/interfaces/UserInterface';
-import { useUserStore } from '@/stores/userstore';
+import type { UserInterface } from '@/interfaces/UserInterface.js';
+import { useUserStore } from '@/stores/userstore.js';
 
 export class UserService {
   static getUsers(): UserInterface[] {
     return useUserStore().users;
   }
-  
-  static getUserById(id: string): UserInterface | undefined {
+
+  static getUserById(id: number): UserInterface | undefined {
     return useUserStore().users.find((user) => user.id === id);
   }
 
-  static getCurrentUser(): UserInterface | undefined {
-  const store = useUserStore();
-  if (!store.currentUserId) {
-    return undefined;
-  }
-  return store.users.find((user) => user.id === store.currentUserId);
-  }
-
-  static updateUserRole(id: string, role: string): void {
+  static updateUserRole(id: number, role: string): void {
     const user = UserService.getUserById(id);
     if (!user) {
       return;
@@ -27,7 +19,7 @@ export class UserService {
     user.updatedAt = new Date().toISOString();
   }
 
-  static toggleUserActive(id: string): void {
+  static toggleUserActive(id: number): void {
     const user = UserService.getUserById(id);
     if (!user) {
       return;
@@ -47,8 +39,12 @@ export class UserService {
     if (!user || user.password !== password) {
       return { ok: false, error: 'Credenciales inválidas.' };
     }
+
     if (!user.active) {
-      return { ok: false, error: 'Cuenta inactiva.' };
+      return {
+        ok: false,
+        error: 'Tu cuenta se encuentra inactiva.',
+      };
     }
 
     store.currentUserId = user.id;
@@ -57,5 +53,19 @@ export class UserService {
 
   static logout(): void {
     useUserStore().currentUserId = null;
+  }
+
+  static getCurrentUser(): UserInterface | undefined {
+    const store = useUserStore();
+
+    if (store.currentUserId === null) {
+      return undefined;
+    }
+
+    return store.users.find((user) => user.id === store.currentUserId);
+  }
+
+  static isAuthenticated(): boolean {
+    return UserService.getCurrentUser() !== undefined;
   }
 }

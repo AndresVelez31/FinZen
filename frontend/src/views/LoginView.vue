@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { Wallet, Mail, Lock, Eye, EyeOff, ShieldCheck, TrendingUp, PieChart, } from 'lucide-vue-next';
-import { UserService } from '@/services/UserService';
-
-const router = useRouter();
-const email = ref('');
-const password = ref('');
-const showPass = ref(false);
-const error = ref('');
-const loading = ref(false);
+import {
+  Wallet,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  TrendingUp,
+  PieChart,
+} from 'lucide-vue-next';
+import { UserService } from '@/services/UserService.js';
 
 interface DemoAccount {
   role: string;
@@ -17,33 +19,48 @@ interface DemoAccount {
   password: string;
 }
 
-const demos: DemoAccount[] = [
+const router = useRouter();
+const email = ref('');
+const password = ref('');
+const showPassword = ref(false);
+const errorMessage = ref('');
+const loading = ref(false);
+
+const demoAccounts: DemoAccount[] = [
   { role: 'Administrador', email: 'admin@finzen.app', password: 'admin123' },
   { role: 'Usuario', email: 'user@finzen.app', password: 'user123' },
 ];
 
-function useDemo(d: DemoAccount) {
-  email.value = d.email;
-  password.value = d.password;
-  error.value = '';
+function useDemoAccount(account: DemoAccount): void {
+  email.value = account.email;
+  password.value = account.password;
+  errorMessage.value = '';
 }
 
-async function submit() {
-  error.value = '';
-  if (!email.value || !password.value) {
-    error.value = 'Introduce email y contraseña.';
+async function submit(): Promise<void> {
+  errorMessage.value = '';
+
+  if (!email.value.trim() || !password.value) {
+    errorMessage.value = 'Introduce el correo y la contraseña.';
     return;
   }
+
   loading.value = true;
-  // small delay to show the loading state
-  await new Promise((r) => setTimeout(r, 450));
-  const res = UserService.login(email.value, password.value);
-  loading.value = false;
-  if (!res.ok) {
-    error.value = res.error;
-    return;
+
+  try {
+    const result = UserService.login(email.value, password.value);
+
+    if (!result.ok) {
+      errorMessage.value = result.error;
+      return;
+    }
+
+    await router.push({ name: 'dashboard' });
+  } catch {
+    errorMessage.value = 'No fue posible iniciar sesión. Inténtalo nuevamente.';
+  } finally {
+    loading.value = false;
   }
-  router.push({ name: 'dashboard' });
 }
 </script>
 
@@ -88,18 +105,20 @@ async function submit() {
         <h2>Bienvenido de nuevo</h2>
         <p class="muted">Accede a tu panel de finanzas personales.</p>
 
-        <form @submit.prevent="submit" class="form">
+        <form class="form" novalidate @submit.prevent="submit">
           <div class="field">
             <label for="email">Correo electrónico</label>
             <div class="input-icon">
               <Mail :size="17" class="ii" />
               <input
                 id="email"
-                class="input"
                 v-model="email"
+                class="input"
                 type="email"
                 placeholder="tu@email.com"
-                autocomplete="username"
+                autocomplete="email"
+                :aria-invalid="Boolean(errorMessage)"
+                required
               />
             </div>
           </div>
@@ -110,28 +129,37 @@ async function submit() {
               <Lock :size="17" class="ii" />
               <input
                 id="password"
-                class="input"
                 v-model="password"
-                :type="showPass ? 'text' : 'password'"
+                class="input"
+                :type="showPassword ? 'text' : 'password'"
                 placeholder="••••••••"
                 autocomplete="current-password"
+                :aria-invalid="Boolean(errorMessage)"
+                required
               />
               <button
                 type="button"
                 class="toggle"
-                @click="showPass = !showPass"
-                :aria-label="showPass ? 'Ocultar' : 'Mostrar'"
+                :aria-label="showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+                @click="showPassword = !showPassword"
               >
-                <EyeOff v-if="showPass" :size="17" />
+                <EyeOff v-if="showPassword" :size="17" />
                 <Eye v-else :size="17" />
               </button>
             </div>
           </div>
 
-          <p v-if="error" class="error">{{ error }}</p>
+          <p v-if="errorMessage" class="error" role="alert" aria-live="polite">
+            {{ errorMessage }}
+          </p>
 
-          <button class="btn btn-primary submit" type="submit" :disabled="loading">
-            <span v-if="loading" class="spinner"></span>
+          <button
+            class="btn btn-primary submit"
+            type="submit"
+            :disabled="loading"
+            :aria-busy="loading"
+          >
+            <span v-if="loading" class="spinner" aria-hidden="true"></span>
             {{ loading ? 'Accediendo…' : 'Iniciar sesión' }}
           </button>
         </form>
@@ -139,9 +167,15 @@ async function submit() {
         <div class="demo">
           <span class="demo-label">Cuentas de demostración</span>
           <div class="demo-grid">
-            <button v-for="d in demos" :key="d.email" class="demo-btn" @click="useDemo(d)">
-              <strong>{{ d.role }}</strong>
-              <span class="muted">{{ d.email }}</span>
+            <button
+              v-for="account in demoAccounts"
+              :key="account.email"
+              class="demo-btn"
+              type="button"
+              @click="useDemoAccount(account)"
+            >
+              <strong>{{ account.role }}</strong>
+              <span class="muted">{{ account.email }}</span>
             </button>
           </div>
         </div>

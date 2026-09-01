@@ -1,8 +1,9 @@
 import { createPinia } from 'pinia';
 import { watch } from 'vue';
-import { userSeeder } from '@/stores/userseeder';
-
-// TODO (Issues 5-7): import seeders and stores here
+import { userSeeder } from '@/stores/userseeder.js';
+import { accountSeeder } from '@/stores/accountseeder.js';
+import { activitySeeder } from '@/stores/activityseeder.js';
+import { transactionSeeder } from '@/stores/transactionseeder.js';
 
 const STORAGE_KEY = 'finzenState';
 
@@ -10,18 +11,29 @@ export default class PiniaConfig {
   public static init() {
     const pinia = createPinia();
 
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      pinia.state.value = JSON.parse(saved);
+    const savedState = localStorage.getItem(STORAGE_KEY);
+    if (savedState) {
+      pinia.state.value = JSON.parse(savedState);
     } else {
-      // TODO (Issues 5-7): Load seeders after pinia is ready
-      // (done inside app.use callback or via nextTick)
       pinia.state.value = {
         user: {
           users: userSeeder,
           currentUserId: null,
         },
+        account: {
+          accounts: accountSeeder,
+        },
+        activity: {
+          activities: activitySeeder,
+        },
+        transaction: {
+          transactions: transactionSeeder,
+        },
       };
+
+      // Save the initial seeded state immediately so that if the user closes
+      // the browser before the async watch fires, the data is not lost.
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pinia.state.value));
     }
 
     watch(

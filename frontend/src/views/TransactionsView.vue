@@ -30,7 +30,7 @@ const activityOptions = computed(() =>
   myActivities.value.map((a) => ({ value: a.id, label: a.name })),
 );
 const accountOptions = computed(() =>
-  myAccounts.value.map((a) => ({ value: a.id, label: `${a.bank} · ${a.accountNumber}` })),
+  myAccounts.value.map((a) => ({ value: a.id, label: `${a.name} · ${a.type}` })),
 );
 const typeOptions = [
   { value: 'income', label: 'Ingreso' },
@@ -211,7 +211,7 @@ async function removeTx(row) {
       <template #cell-activityId="{ value }">
         <span class="chip badge-gray">{{ activityById(value)?.name || '—' }}</span>
       </template>
-      <template #cell-accountId="{ value }">{{ accountById(value)?.bank || '—' }}</template>
+      <template #cell-accountId="{ value }">{{ accountById(value)?.name || '—' }}</template>
       <template #cell-date="{ value }">{{ formatDate(value) }}</template>
       <template #cell-type="{ value }">
         <span class="badge" :class="value === 'income' ? 'badge-green' : 'badge-red'">

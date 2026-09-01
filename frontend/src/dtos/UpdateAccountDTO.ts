@@ -1,3 +1,3 @@
-import type { AccountInterface } from '../interfaces/AccountInterface';
+import type { AccountInterface } from '../interfaces/AccountInterface.js';
 
-export type UpdateAccountDTO = Partial<Omit<AccountInterface, 'id'>>;
+export type UpdateAccountDTO = Partial<Omit<AccountInterface, 'id' | 'userId' | 'createdAt' | 'updatedAt'>>;
