@@ -5,6 +5,7 @@ import { Wallet, TrendingDown, TrendingUp, Plus, ArrowRight } from 'lucide-vue-n
 import StatCard from '@/components/shared/StatCard.vue';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import GenericTable from '@/components/shared/GenericTable.vue';
+import type { TableColumn } from '@/components/shared/GenericTable.vue';
 import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
 import { TransactionService } from '@/services/TransactionService.js';
@@ -65,7 +66,7 @@ const donut = computed(() => {
 const hasDonut = computed(() => donut.value.labels.length > 0);
 
 const recentTransactions = computed(() => transactions.value.slice(0, 5));
-const columns = [
+const columns: TableColumn[] = [
   { key: 'description', label: 'Descripción' },
   { key: 'activityId', label: 'Actividad' },
   { key: 'date', label: 'Fecha' },

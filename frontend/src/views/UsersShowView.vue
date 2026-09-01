@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { ShieldCheck, User, Users as UsersIcon } from 'lucide-vue-next';
 import GenericTable from '@/components/shared/GenericTable.vue';
+import type { TableColumn } from '@/components/shared/GenericTable.vue';
 import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import { UserService } from '@/services/UserService.js';
 import { formatDate } from '@/utils/formatters.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
+
+const loading = ref(true);
+onMounted(() => setTimeout(() => (loading.value = false), 450));
 
 const fRole = ref('');
 const roleOptions = [
@@ -28,7 +32,7 @@ const stats = computed(() => {
   };
 });
 
-const columns = [
+const columns: TableColumn[] = [
   { key: 'name', label: 'Nombre' },
   { key: 'email', label: 'Correo' },
   { key: 'role', label: 'Rol' },

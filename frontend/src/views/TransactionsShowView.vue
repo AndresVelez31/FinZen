@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Plus, Pencil, Trash2, Filter, RotateCcw } from 'lucide-vue-next';
 import GenericTable from '@/components/shared/GenericTable.vue';
+import type { TableColumn } from '@/components/shared/GenericTable.vue';
 import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import { TransactionService } from '@/services/TransactionService.js';
@@ -125,7 +126,7 @@ const totals = computed(() => {
   return { income, expense };
 });
 
-const columns = [
+const columns: TableColumn[] = [
   { key: 'description', label: 'Descripción' },
   { key: 'activityId', label: 'Actividad' },
   { key: 'accountId', label: 'Cuenta' },

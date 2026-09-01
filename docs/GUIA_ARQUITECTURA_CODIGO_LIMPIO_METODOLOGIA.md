@@ -428,9 +428,9 @@ frontend/
 │   │       └── input.css
 │   │
 │   ├── components/
-│   │   ├── TablaGenerica.vue
-│   │   ├── SelectorFiltro.vue
-│   │   └── GraficoChart.vue
+│   │   ├── GenericTable.vue
+│   │   ├── SelectorFilter.vue
+│   │   └── ChartGraphic.vue
 │   │
 │   ├── dtos/
 │   │   ├── CreateUserDTO.ts
@@ -470,11 +470,11 @@ frontend/
 │   │
 │   ├── views/
 │   │   ├── LoginView.vue
-│   │   ├── HomeView.vue
-│   │   ├── TransactionsIndexView.vue
-│   │   ├── TransactionsCreateView.vue
-│   │   ├── ActivitiesIndexView.vue
-│   │   ├── UsersIndexView.vue
+│   │   ├── DashboardView.vue
+│   │   ├── TransactionsShowView.vue
+│   │   ├── TransactionFormView.vue
+│   │   ├── ActivitiesShowView.vue
+│   │   ├── UsersShowView.vue
 │   │   └── ReportsView.vue
 │   │
 │   ├── App.vue
@@ -1135,9 +1135,9 @@ La regla es:
 
   Service                 PascalCase + `Service`  `TransactionService`
 
-  View                    PascalCase + `View`     `TransactionsIndexView.vue`
+  View                    PascalCase + `View`     `TransactionsShowView.vue`
 
-  Component               PascalCase              `TablaGenerica.vue`
+  Component               PascalCase              `GenericTable.vue`
 
   Store                   camelCase + `store`     `transactionstore.ts`
 
@@ -1186,6 +1186,47 @@ TransactionFormPage.vue
 
 salvo que exista una decisión documentada.
 
+### 19.1 Excepción documentada para el proyecto FinZen
+
+Para el proyecto FinZen específicamente, el equipo decidió invertir el
+significado de `Index`/`Show` respecto a la convención genérica de la
+sección anterior:
+
+``` text
+Show  → muestra TODOS los elementos (la lista/colección completa)
+Index → mostraría UN elemento específico (no se usa actualmente:
+        ningún CRUD del proyecto tiene una página de detalle individual)
+```
+
+Es decir, la vista de listado de cada entidad se llama
+`<Entidad>ShowView.vue`, no `<Entidad>IndexView.vue`.
+
+``` text
+AccountsShowView.vue
+ActivitiesShowView.vue
+TransactionsShowView.vue
+UsersShowView.vue
+```
+
+`Create` y `Edit` tampoco se separan en dos vistas: un único
+`<Entidad>FormView.vue` maneja ambos modos (crear cuando no hay
+`:id`, editar cuando sí lo hay), como ya se documentó en la
+sección 4.2 sobre DTOs derivados. Cada entidad con CRUD completo debe
+tener exactamente dos vistas — `<Entidad>ShowView.vue` (listar) y
+`<Entidad>FormView.vue` (crear/editar) — nunca lógica de formulario
+embebida en un modal dentro de la vista de listado.
+
+``` text
+AccountsShowView.vue    + AccountFormView.vue
+ActivitiesShowView.vue  + ActivityFormView.vue
+TransactionsShowView.vue + TransactionFormView.vue
+```
+
+`UsersShowView.vue` es la única excepción: no tiene un
+`UserFormView.vue` porque el CRUD de usuarios no incluye creación —
+solo cambio de rol y activación/desactivación, ambas acciones en
+línea sobre la propia tabla.
+
 ------------------------------------------------------------------------
 
 # 20. Componentes reutilizables del proyecto
@@ -1194,7 +1235,7 @@ El proyecto actual requiere como mínimo dos componentes reutilizables.
 
 Se definieron tres componentes especialmente adecuados:
 
-## `TablaGenerica.vue`
+## `GenericTable.vue`
 
 Responsabilidad:
 
@@ -1211,7 +1252,7 @@ Debe poder reutilizarse en:
 
 ------------------------------------------------------------------------
 
-## `SelectorFiltro.vue`
+## `SelectorFilter.vue`
 
 Responsabilidad:
 
@@ -1226,7 +1267,7 @@ Debe poder utilizarse en:
 
 ------------------------------------------------------------------------
 
-## `GraficoChart.vue`
+## `ChartGraphic.vue`
 
 Responsabilidad:
 
@@ -2074,19 +2115,19 @@ Store
 Ejemplo:
 
 ``` text
-TransactionsIndexView
+TransactionsShowView
         ↓
 TransactionService.getTransactions()
         ↓
 useTransactionStore().transactions
 ```
 
-Crear:
+Crear/Editar:
 
 ``` text
-TransactionsCreateView
+TransactionFormView
         ↓
-TransactionService.createTransaction(dto)
+TransactionService.createTransaction(dto) / updateTransaction(id, dto)
         ↓
 Store
 ```
@@ -2094,7 +2135,7 @@ Store
 Eliminar:
 
 ``` text
-TransactionsIndexView
+TransactionsShowView
         ↓
 TransactionService.deleteTransaction(id)
         ↓
