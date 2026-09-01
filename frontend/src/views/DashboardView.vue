@@ -105,33 +105,23 @@ const transactionColumns = [
     </div>
 
     <div class="grid-kpi">
-      <StatCard
-        label="Balance total"
-        :value="formatToCOP(totalBalance)"
-        :icon="Wallet"
-        accent="var(--primary)"
-      />
+      <StatCard title="Balance total" :value="formatToCOP(totalBalance)" :icon="Wallet" />
 
       <StatCard
-        label="Ingresos del mes"
+        title="Ingresos del mes"
         :value="formatToCOP(monthlyIncome)"
         :icon="TrendingUp"
-        accent="var(--primary)"
+        variant="income"
       />
 
       <StatCard
-        label="Gastos del mes"
+        title="Gastos del mes"
         :value="formatToCOP(monthlyExpenses)"
         :icon="TrendingDown"
-        accent="var(--danger)"
+        variant="expense"
       />
 
-      <StatCard
-        label="Transacciones del mes"
-        :value="String(transactionCount)"
-        :icon="List"
-        accent="var(--accent)"
-      />
+      <StatCard title="Transacciones del mes" :value="String(transactionCount)" :icon="List" />
     </div>
     <div v-if="hasTransactions" class="dashboard-grid">
       <section class="card panel">
