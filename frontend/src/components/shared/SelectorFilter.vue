@@ -33,8 +33,8 @@ function onChange(event: Event): void {
       :value="props.modelValue"
       @change="onChange"
     >
-      <option value="">
-        {{ props.placeholder || 'Todos' }}
+      <option v-if="props.placeholder" value="">
+        {{ props.placeholder }}
       </option>
 
       <option
