@@ -5,7 +5,7 @@ import GraficoChart from '@/components/shared/GraficoChart.vue';
 import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import TablaGenerica from '@/components/shared/TablaGenerica.vue';
 import StatCard from '@/components/shared/StatCard.vue';
-import { myTransactions, myActivities, formatMoney, monthKey } from '@/store';
+import { myTransactions, myActivities, formatMoney, monthKey } from '@/services/ReportService.js';
 
 interface FilterOption {
   label: string;

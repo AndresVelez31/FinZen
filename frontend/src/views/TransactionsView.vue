@@ -2,8 +2,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Plus, Pencil, Trash2, Filter, RotateCcw } from 'lucide-vue-next';
-import TablaGenerica from '@/components/shared/TablaGenerica.vue';
-import SelectorFiltro from '@/components/shared/SelectorFiltro.vue';
+import GenericTable from '@/components/shared/GenericTable.vue';
+import SelectorFiltro from '@/components/shared/SelectorFilter.vue';
 import GraficoChart from '@/components/shared/GraficoChart.vue';
 import {
   myTransactions,
