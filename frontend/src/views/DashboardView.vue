@@ -1,99 +1,81 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { Wallet, TrendingDown, TrendingUp, List, Plus } from 'lucide-vue-next';
-
+import { Wallet, TrendingDown, TrendingUp, Plus, ArrowRight } from 'lucide-vue-next';
 import StatCard from '@/components/shared/StatCard.vue';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import GenericTable from '@/components/shared/GenericTable.vue';
 import { AccountService } from '@/services/AccountService.js';
+import { ActivityService } from '@/services/ActivityService.js';
 import { TransactionService } from '@/services/TransactionService.js';
 import { UserService } from '@/services/UserService.js';
-
 import { formatToCOP, formatDate } from '@/utils/formatters.js';
+import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 
 const router = useRouter();
-const currentUser = computed(() => UserService.getCurrentUser());
+const loading = ref(true);
+onMounted(() => setTimeout(() => (loading.value = false), 500));
 
+const currentUser = computed(() => UserService.getCurrentUser());
 const transactions = computed(() => TransactionService.getTransactions());
 
 const currentMonth = new Date().toISOString().slice(0, 7);
-
 const monthTransactions = computed(() =>
   transactions.value.filter((transaction) => transaction.date.slice(0, 7) === currentMonth),
 );
 
+const monthExpenses = computed(() => monthTransactions.value.filter((transaction) => transaction.type === 'expense'));
+const monthIncomes = computed(() => monthTransactions.value.filter((transaction) => transaction.type === 'income'));
+
+const monthExpenseTotal = computed(() =>
+  monthExpenses.value.reduce((total, transaction) => total + transaction.amount, 0),
+);
+const monthIncomeTotal = computed(() =>
+  monthIncomes.value.reduce((total, transaction) => total + transaction.amount, 0),
+);
+
 const totalBalance = computed(() => AccountService.getTotalBalance());
 
-const monthlyIncome = computed(() =>
-  monthTransactions.value
-    .filter((transaction) => transaction.type === 'income')
-    .reduce((total, transaction) => total + transaction.amount, 0),
-);
+// Doughnut: expense by activity this month
+const donut = computed(() => {
+  const totals = new Map<string, { total: number; color: string }>();
 
-const monthlyExpenses = computed(() =>
-  monthTransactions.value
-    .filter((transaction) => transaction.type === 'expense')
-    .reduce((total, transaction) => total + transaction.amount, 0),
-);
-
-const transactionCount = computed(() => monthTransactions.value.length);
-
-const recentTransactions = computed(() => transactions.value.slice(0, 5));
-
-const lastSixMonths = computed(() => {
-  const months = [];
-  const today = new Date();
-
-  for (let i = 5; i >= 0; i--) {
-    const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
-
-    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-
-    const label = date.toLocaleDateString('es-CO', {
-      month: 'short',
-    });
-
-    months.push({
-      key,
-      label,
-    });
-  }
-
-  return months;
-});
-
-const expenseTrend = computed(() => {
-  const values = lastSixMonths.value.map((month) => {
-    return transactions.value
-      .filter(
-        (transaction) =>
-          transaction.type === 'expense' && transaction.date.slice(0, 7) === month.key,
-      )
-      .reduce((total, transaction) => total + transaction.amount, 0);
+  monthExpenses.value.forEach((transaction) => {
+    const activity = ActivityService.getActivityById(transaction.activityId);
+    const name = activity ? activity.name : 'Otros';
+    const entry = totals.get(name) ?? { total: 0, color: activity?.color ?? '#94a3b8' };
+    entry.total += transaction.amount;
+    totals.set(name, entry);
   });
 
+  const entries = [...totals.entries()].sort((a, b) => b[1].total - a[1].total);
+
   return {
-    labels: lastSixMonths.value.map((month) => month.label),
+    labels: entries.map(([name]) => name),
     datasets: [
       {
-        label: 'Gastos',
-        data: values,
-        borderWidth: 2,
-        tension: 0.3,
+        data: entries.map(([, entry]) => entry.total),
+        backgroundColor: entries.map(([, entry]) => entry.color),
+        borderWidth: 0,
+        hoverOffset: 6,
       },
     ],
   };
 });
+const hasDonut = computed(() => donut.value.labels.length > 0);
 
-const hasTransactions = computed(() => transactions.value.length > 0);
-
-const transactionColumns = [
+const recentTransactions = computed(() => transactions.value.slice(0, 5));
+const columns = [
   { key: 'description', label: 'Descripción' },
+  { key: 'activityId', label: 'Actividad' },
   { key: 'date', label: 'Fecha' },
-  { key: 'type', label: 'Tipo' },
-  { key: 'amount', label: 'Valor', align: 'right' },
+  { key: 'amount', label: 'Importe', align: 'right' },
 ];
+
+// Helper para tipar la fila directamente en el script (mismo patrón que otras vistas)
+function asTransaction(row: unknown): TransactionInterface {
+  return row as TransactionInterface;
+}
 </script>
 
 <template>
@@ -101,94 +83,97 @@ const transactionColumns = [
     <div class="head">
       <div>
         <h2 class="page-title">Hola, {{ currentUser?.name?.split(' ')[0] }}</h2>
-
         <p class="muted">Este es el resumen de tus finanzas de este mes.</p>
       </div>
-
       <button class="btn btn-primary" @click="router.push({ name: 'transaction-new' })">
-        <Plus :size="18" />
-        Nueva transacción
+        <Plus :size="18" /> Nueva transacción
       </button>
     </div>
 
+    <!-- KPIs -->
     <div class="grid-kpi">
-      <StatCard title="Balance total" :value="formatToCOP(totalBalance)" :icon="Wallet" />
-
       <StatCard
-        title="Ingresos del mes"
-        :value="formatToCOP(monthlyIncome)"
-        :icon="TrendingUp"
-        variant="income"
+        title="Balance total"
+        :value="formatToCOP(totalBalance)"
+        :icon="Wallet"
+        trend="Suma de todas tus cuentas"
       />
-
       <StatCard
-        title="Gastos del mes"
-        :value="formatToCOP(monthlyExpenses)"
+        title="Gasto del mes"
+        :value="formatToCOP(monthExpenseTotal)"
         :icon="TrendingDown"
         variant="expense"
+        :trend="`${monthExpenses.length} movimientos`"
+        :trendUp="false"
       />
-
-      <StatCard title="Transacciones del mes" :value="String(transactionCount)" :icon="List" />
+      <StatCard
+        title="Ingresos del mes"
+        :value="formatToCOP(monthIncomeTotal)"
+        :icon="TrendingUp"
+        variant="income"
+        :trend="`${monthIncomes.length} movimientos`"
+      />
     </div>
-    <div v-if="hasTransactions" class="dashboard-grid">
+
+    <!-- Charts + recent -->
+    <div class="grid-main">
       <section class="card panel">
         <div class="panel-head">
-          <div>
-            <h3>Tendencia de gastos</h3>
-            <p class="muted">Últimos 6 meses</p>
-          </div>
+          <h3>Gasto por actividad</h3>
+          <span class="badge badge-gray">Mes actual</span>
         </div>
-
         <ChartGraphic
-          type="line"
-          :labels="expenseTrend.labels"
-          :datasets="expenseTrend.datasets"
+          v-if="hasDonut"
+          type="doughnut"
+          :labels="donut.labels"
+          :datasets="donut.datasets"
           :height="300"
+          :options="{ cutout: '62%' }"
         />
+        <div v-else class="empty-chart">
+          <p class="muted">Aún no hay gastos registrados este mes.</p>
+        </div>
       </section>
 
-      <section class="recent-section">
+      <section class="card panel">
         <div class="panel-head">
-          <div>
-            <h3>Últimas transacciones</h3>
-            <p class="muted">Tus 5 movimientos más recientes</p>
-          </div>
+          <h3>Últimas transacciones</h3>
+          <button class="link" @click="router.push({ name: 'transactions' })">
+            Ver todas <ArrowRight :size="15" />
+          </button>
         </div>
-
         <GenericTable
-          :columns="transactionColumns"
+          :columns="columns"
           :rows="recentTransactions"
+          :loading="loading"
           emptyTitle="Sin transacciones"
-          emptyText="Aún no tienes movimientos registrados."
+          emptyText="Crea tu primera transacción para verla aquí."
         >
-          <template #cell-date="{ value }">
-            {{ formatDate(String(value)) }}
+          <template #cell-description="{ row }">
+            <div class="tx-desc">
+              <span
+                class="dot"
+                :style="{ background: ActivityService.getActivityById(asTransaction(row).activityId)?.color ?? '#94a3b8' }"
+              ></span>
+              <div>
+                <div class="tx-name">{{ asTransaction(row).description }}</div>
+                <div class="soft tx-acc">
+                  {{ AccountService.getAccountById(asTransaction(row).accountId)?.name }}
+                </div>
+              </div>
+            </div>
           </template>
-
-          <template #cell-type="{ value }">
-            <span class="badge" :class="value === 'income' ? 'badge-green' : 'badge-gray'">
-              {{ value === 'income' ? 'Ingreso' : value === 'expense' ? 'Gasto' : 'Ahorro' }}
-            </span>
+          <template #cell-activityId="{ value }">
+            <span class="chip badge-gray">{{ ActivityService.getActivityById(Number(value))?.name ?? '—' }}</span>
           </template>
-
+          <template #cell-date="{ value }">{{ formatDate(String(value)) }}</template>
           <template #cell-amount="{ row }">
-            <strong :class="row.type === 'income' ? 'amount-income' : 'amount-expense'">
-              {{ row.type === 'income' ? '+' : '-' }}
-              {{ formatToCOP(Number(row.amount)) }}
-            </strong>
+            <span :class="asTransaction(row).type === 'income' ? 'amt-in' : 'amt-out'">
+              {{ asTransaction(row).type === 'income' ? '+' : '−' }}{{ formatToCOP(asTransaction(row).amount) }}
+            </span>
           </template>
         </GenericTable>
       </section>
-    </div>
-
-    <div v-else class="card empty-dashboard">
-      <List :size="32" />
-
-      <h3>Aún no tienes transacciones</h3>
-
-      <p class="muted">
-        Registra tu primera transacción para comenzar a ver estadísticas y tendencias.
-      </p>
     </div>
   </div>
 </template>
@@ -202,89 +187,75 @@ const transactionColumns = [
   margin-bottom: 22px;
   flex-wrap: wrap;
 }
-
-.welcome-card {
-  padding: 24px;
+.grid-kpi {
+  margin-bottom: 20px;
 }
-
-.welcome-card h3 {
-  margin-bottom: 6px;
-}
-
-.user-info {
+.grid-main {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 24px;
-}
-
-.info-item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.info-label {
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  font-weight: 600;
-}
-
-.info-value {
-  font-weight: 600;
-}
-
-@media (max-width: 700px) {
-  .user-info {
-    grid-template-columns: 1fr;
-  }
-}
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 380px 1fr;
   gap: 20px;
-  margin-top: 20px;
 }
-
 .panel {
   padding: 22px;
 }
-
 .panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 18px;
 }
-
 .panel-head h3 {
   font-size: 1.05rem;
-  margin-bottom: 4px;
 }
-
-.recent-section {
-  min-width: 0;
-}
-
-.amount-income {
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
   color: var(--primary-strong);
+  font-weight: 600;
+  font-size: 0.85rem;
 }
-
-.amount-expense {
-  color: var(--danger);
+html.dark .link {
+  color: var(--primary);
 }
-
-.empty-dashboard {
-  margin-top: 20px;
-  padding: 50px 20px;
-  text-align: center;
+.empty-chart {
+  height: 300px;
+  display: grid;
+  place-items: center;
 }
-
-.empty-dashboard h3 {
-  margin-top: 12px;
-  margin-bottom: 6px;
+.tx-desc {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.tx-name {
+  font-weight: 600;
+}
+.tx-acc {
+  font-size: 0.76rem;
+}
+.amt-in {
+  color: var(--primary-strong);
+  font-weight: 700;
+}
+html.dark .amt-in {
+  color: var(--primary);
+}
+.amt-out {
+  color: var(--text);
+  font-weight: 700;
 }
 
 @media (max-width: 900px) {
-  .dashboard-grid {
+  .grid-main {
     grid-template-columns: 1fr;
   }
 }
