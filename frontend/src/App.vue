@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import AppLayout from '@/components/layout/AppLayout.vue';
+import { useThemeStore } from '@/stores/themestore.js';
 
 const route = useRoute();
 const isBlank = computed(() => route.meta.layout === 'blank');
+
+const themeStore = useThemeStore();
+watchEffect(() => {
+  document.documentElement.classList.toggle('dark', themeStore.theme === 'dark');
+});
 </script>
 
 <template>
