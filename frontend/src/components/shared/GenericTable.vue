@@ -1,13 +1,33 @@
 <script setup lang="ts">
 import { Inbox } from 'lucide-vue-next';
 
-defineProps({
-  columns: { type: Array, required: true },
-  rows: { type: Array, default: () => [] },
-  loading: { type: Boolean, default: false },
-  hasActions: { type: Boolean, default: false },
-  emptyTitle: { type: String, default: 'Sin resultados' },
-  emptyText: { type: String, default: 'No hay datos para mostrar por ahora.' },
+interface TableColumn {
+  key: string;
+  label: string;
+  align?: 'left' | 'center' | 'right';
+  width?: string;
+}
+
+interface TableRow {
+  id?: number | string;
+  [key: string]: unknown;
+}
+
+interface Props {
+  columns: TableColumn[];
+  rows?: TableRow[];
+  loading?: boolean;
+  hasActions?: boolean;
+  emptyTitle?: string;
+  emptyText?: string;
+}
+
+withDefaults(defineProps<Props>(), {
+  rows: () => [],
+  loading: false,
+  hasActions: false,
+  emptyTitle: 'Sin resultados',
+  emptyText: 'No hay datos para mostrar por ahora.',
 });
 </script>
 
