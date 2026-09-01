@@ -114,6 +114,26 @@ Before staging and committing, ensure that:
 
 All major changes must go through a **Pull Request (PR)**.
 
+### PR Title Format
+
+PR titles follow the same format as commit messages:
+
+```
+<type>(<scope>): <imperative description in English>
+```
+
+The title must **summarize the entire PR**, not copy a single commit — if the PR has several commits, the title describes the change as a whole, the same way a squash-merge message would. `<scope>` is the issue code in lowercase when there is one (e.g. `service-41`, `utils-13`); omit it if the change doesn't map to a single issue.
+
+This matters beyond style: this repo merges PRs with **merge commits** (`Merge pull request #NN from <branch>`), and GitHub records the PR title as the second line of that merge commit. A vague or copy-pasted title becomes permanent, hard-to-read history on `main`.
+
+```
+feat(service-41): implement ReportService with strict domain model
+docs(utils-13): add ADR for formatter utilities
+fix(reports-24): correct monthly filter off-by-one
+```
+
+Do not use `[CODE-NN] Issue Title` as the PR title — that duplicates the linked issue instead of describing the change, and doesn't carry a `type`. (Earlier PRs in this repo used that style before this rule was written; it isn't being retroactively changed.)
+
 ### Author Checklist Before Opening a PR
 
 ```
