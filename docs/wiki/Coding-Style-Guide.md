@@ -11,8 +11,8 @@ This document defines the team's coding conventions, code formatting standards, 
 | **Classes / Services** | PascalCase | `[Domain]Service` | `TransactionService`, `AccountService` |
 | **Interfaces** | PascalCase | `[Domain]Interface` | `TransactionInterface`, `UserInterface` |
 | **DTOs** | PascalCase | `[Action][Domain]DTO` | `CreateTransactionDTO`, `UpdateAccountDTO` |
-| **Vue Views** | PascalCase | `[Domain][Action]View.vue` | `DashboardView.vue`, `TransactionsIndexView.vue` |
-| **Vue Components** | PascalCase | `[Name].vue` | `TablaGenerica.vue`, `StatCard.vue` |
+| **Vue Views** | PascalCase | `[Domain]ShowView.vue` (listar todos) / `[Domain]FormView.vue` (crear/editar) | `DashboardView.vue`, `TransactionsShowView.vue` |
+| **Vue Components** | PascalCase | `[Name].vue` | `GenericTable.vue`, `StatCard.vue` |
 | **Stores** | camelCase | `[domain]store.ts` | `transactionstore.ts`, `userstore.ts` |
 | **Seeders** | camelCase | `[domain]seeder.ts` | `transactionseeder.ts`, `accountseeder.ts` |
 | **Variables / Properties** | camelCase | `[description]` | `selectedTransaction`, `totalBalance` |

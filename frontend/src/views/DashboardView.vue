@@ -6,9 +6,11 @@ import { Wallet, TrendingDown, TrendingUp, List, Plus } from 'lucide-vue-next';
 import StatCard from '@/components/shared/StatCard.vue';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import GenericTable from '@/components/shared/GenericTable.vue';
+import type { TableColumn } from '@/components/shared/GenericTable.vue';
 import { AccountService } from '@/services/AccountService.js';
 import { TransactionService } from '@/services/TransactionService.js';
 import { UserService } from '@/services/UserService.js';
+import type { TransactionInterface } from '@/interfaces/TransactionInterface';
 
 import { formatToCOP, formatDate } from '@/utils/formatters.js';
 
@@ -88,12 +90,16 @@ const expenseTrend = computed(() => {
 
 const hasTransactions = computed(() => transactions.value.length > 0);
 
-const transactionColumns = [
+const transactionColumns: TableColumn[] = [
   { key: 'description', label: 'Descripción' },
   { key: 'date', label: 'Fecha' },
   { key: 'type', label: 'Tipo' },
   { key: 'amount', label: 'Valor', align: 'right' },
 ];
+
+function asTx(row: unknown): TransactionInterface {
+  return row as TransactionInterface;
+}
 </script>
 
 <template>
@@ -172,9 +178,9 @@ const transactionColumns = [
           </template>
 
           <template #cell-amount="{ row }">
-            <strong :class="row.type === 'income' ? 'amount-income' : 'amount-expense'">
-              {{ row.type === 'income' ? '+' : '-' }}
-              {{ formatToCOP(Number(row.amount)) }}
+            <strong :class="asTx(row).type === 'income' ? 'amount-income' : 'amount-expense'">
+              {{ asTx(row).type === 'income' ? '+' : '-' }}
+              {{ formatToCOP(asTx(row).amount) }}
             </strong>
           </template>
         </GenericTable>

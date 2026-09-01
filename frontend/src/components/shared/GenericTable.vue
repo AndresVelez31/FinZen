@@ -1,21 +1,20 @@
 <script setup lang="ts">
 import { Inbox } from 'lucide-vue-next';
 
-interface TableColumn {
+export interface TableColumn {
   key: string;
   label: string;
   align?: 'left' | 'center' | 'right';
   width?: string;
 }
 
-interface TableRow {
-  id?: number | string;
-  [key: string]: unknown;
-}
-
 interface Props {
   columns: TableColumn[];
-  rows?: TableRow[];
+  // Named domain interfaces (TransactionInterface, UserInterface, ...) have no
+  // index signature, so TypeScript never lets them satisfy a typed "TableRow"
+  // shape here -- callers already cast rows internally (see asX() helpers in
+  // consuming Views), so this stays intentionally loose.
+  rows?: unknown[];
   loading?: boolean;
   hasActions?: boolean;
   emptyTitle?: string;
@@ -29,6 +28,10 @@ withDefaults(defineProps<Props>(), {
   emptyTitle: 'Sin resultados',
   emptyText: 'No hay datos para mostrar por ahora.',
 });
+
+function asRow(row: unknown): Record<string, unknown> & { id?: number | string } {
+  return row as Record<string, unknown> & { id?: number | string };
+}
 </script>
 
 <template>
@@ -58,10 +61,10 @@ withDefaults(defineProps<Props>(), {
 
         <!-- Data -->
         <template v-else-if="rows.length">
-          <tr v-for="(row, i) in rows" :key="row.id || i">
+          <tr v-for="(row, i) in rows" :key="asRow(row).id ?? i">
             <td v-for="col in columns" :key="col.key" :style="{ textAlign: col.align || 'left' }">
-              <slot :name="'cell-' + col.key" :row="row" :value="row[col.key]">
-                {{ row[col.key] }}
+              <slot :name="'cell-' + col.key" :row="row" :value="asRow(row)[col.key]">
+                {{ asRow(row)[col.key] }}
               </slot>
             </td>
             <td v-if="hasActions" style="text-align: right">

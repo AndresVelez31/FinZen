@@ -7,7 +7,7 @@ This document establishes the mandatory programming rules for developing in the 
 ## 1. Rules for Routes & Navigation (`src/router/`)
 
 1. **Every page route must be associated with a dedicated View component.**
-2. **Every View file representing a page must end with `View`** (e.g., `DashboardView.vue`, `TransactionsIndexView.vue`).
+2. **Every View file representing a page must end with `View`** (e.g., `DashboardView.vue`, `TransactionsShowView.vue`). For an entity with full CRUD, the two views are `<Entity>ShowView.vue` (lists all — FinZen uses `Show` for "all", not the generic REST `Index`, see `GUIA_ARQUITECTURA...md` §19.1) and `<Entity>FormView.vue` (create/edit, shared).
 3. **Use `createWebHistory`** for clean, standard browser URLs.
 4. **Define `meta.title` on every route** for page title consistency.
 5. **Private routes must enforce authentication guards.**

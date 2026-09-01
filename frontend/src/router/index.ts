@@ -33,7 +33,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/transactions',
     name: 'transactions',
-    component: () => import('@/views/TransactionsView.vue'),
+    component: () => import('@/views/TransactionsShowView.vue'),
     meta: { title: 'Transacciones | FinZen' },
   },
   {
@@ -51,7 +51,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/accounts',
     name: 'accounts',
-    component: () => import('@/views/AccountsIndexView.vue'),
+    component: () => import('@/views/AccountsShowView.vue'),
     meta: { title: 'Cuentas | FinZen' },
   },
   {
@@ -75,13 +75,25 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/activities',
     name: 'activities',
-    component: () => import('@/views/ActivitiesIndexView.vue'),
+    component: () => import('@/views/ActivitiesShowView.vue'),
     meta: { title: 'Actividades | FinZen', admin: true },
+  },
+  {
+    path: '/activities/new',
+    name: 'activity-new',
+    component: () => import('@/views/ActivityFormView.vue'),
+    meta: { title: 'Nueva actividad | FinZen', admin: true },
+  },
+  {
+    path: '/activities/:id/edit',
+    name: 'activity-edit',
+    component: () => import('@/views/ActivityFormView.vue'),
+    meta: { title: 'Editar actividad | FinZen', admin: true },
   },
   {
     path: '/users',
     name: 'users',
-    component: () => import('@/views/UsersIndexView.vue'),
+    component: () => import('@/views/UsersShowView.vue'),
     meta: {
       title: 'Usuarios | FinZen',
       admin: true,
@@ -97,6 +109,7 @@ const router = createRouter({
 const ROUTES_REQUIRING_ID: Record<string, string> = {
   'transaction-edit': 'transactions',
   'account-edit': 'accounts',
+  'activity-edit': 'activities',
 };
 
 router.beforeEach((to) => {

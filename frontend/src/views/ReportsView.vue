@@ -4,6 +4,7 @@ import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-vue-next';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import GenericTable from '@/components/shared/GenericTable.vue';
+import type { TableColumn } from '@/components/shared/GenericTable.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import { ActivityService } from '@/services/ActivityService.js';
 import { ReportService } from '@/services/ReportService.js';
@@ -13,6 +14,19 @@ import { formatToCOP } from '@/utils/formatters.js';
 interface FilterOption {
   label: string;
   value: string;
+}
+
+interface SummaryRow {
+  id: number;
+  name: string;
+  color: string;
+  budget: number;
+  spent: number;
+  diff: number;
+}
+
+function asSummaryRow(row: unknown): SummaryRow {
+  return row as SummaryRow;
 }
 
 const now = new Date();
@@ -142,7 +156,7 @@ const summaryRows = computed(() =>
     };
   }),
 );
-const summaryColumns = [
+const summaryColumns: TableColumn[] = [
   { key: 'name', label: 'Actividad' },
   { key: 'budget', label: 'Presupuesto', align: 'right' },
   { key: 'spent', label: 'Gasto real', align: 'right' },
@@ -252,7 +266,8 @@ const summaryColumns = [
       >
         <template #cell-name="{ row }">
           <div class="rn">
-            <span class="dot" :style="{ background: String(row.color) }"></span>{{ row.name }}
+            <span class="dot" :style="{ background: asSummaryRow(row).color }"></span
+            >{{ asSummaryRow(row).name }}
           </div>
         </template>
         <template #cell-budget="{ value }">{{ formatToCOP(Number(value)) }}</template>
