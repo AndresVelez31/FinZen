@@ -7,7 +7,7 @@ import GenericTable from '@/components/shared/GenericTable.vue';
 import type { TableColumn } from '@/components/shared/GenericTable.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import { ActivityService } from '@/services/ActivityService.js';
-import { ReportService } from '@/services/ReportService.js';
+import { ReportService } from '@/utils/ReportService.js';
 import { TransactionService } from '@/services/TransactionService.js';
 import { formatToCOP } from '@/utils/formatters.js';
 
