@@ -1,9 +1,9 @@
 import { createPinia } from 'pinia';
 import { watch } from 'vue';
-import { userSeeder } from '@/stores/userseeder.js';
-import { accountSeeder } from '@/stores/accountseeder.js';
-import { activitySeeder } from '@/stores/activityseeder.js';
-import { transactionSeeder } from '@/stores/transactionseeder.js';
+import { userSeeder } from '@/seeders/userseeder.js';
+import { accountSeeder } from '@/seeders/accountseeder.js';
+import { activitySeeder } from '@/seeders/activityseeder.js';
+import { transactionSeeder } from '@/seeders/transactionseeder.js';
 
 const STORAGE_KEY = 'finzenState';
 
