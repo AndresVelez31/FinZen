@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router';
 import { Plus, Pencil, Trash2, Target, PiggyBank } from 'lucide-vue-next';
 import { ActivityService } from '@/services/ActivityService.js';
 import { ReportService } from '@/utils/ReportService.js';
-import { formatToCOP } from '@/utils/formatters.js';
+import { Formatters } from '@/utils/formatters.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 
 const router = useRouter();
@@ -109,7 +109,7 @@ async function remove(activity: ActivityInterface): Promise<void> {
           <span class="soft">{{
             activity.type === 'expense' ? 'Presupuesto mensual' : 'Meta de ahorro'
           }}</span>
-          <strong>{{ formatToCOP(activity.targetAmount) }}</strong>
+          <strong>{{ Formatters.formatToCOP(activity.targetAmount) }}</strong>
         </div>
 
         <div class="progress">
@@ -123,7 +123,7 @@ async function remove(activity: ActivityInterface): Promise<void> {
           </div>
           <div class="progress-foot">
             <span :class="{ over: activity.over }"
-              >{{ formatToCOP(activity.used) }}
+              >{{ Formatters.formatToCOP(activity.used) }}
               {{ activity.type === 'expense' ? 'gastado' : 'ahorrado' }}</span
             >
             <span class="soft">{{ activity.percent }}%</span>

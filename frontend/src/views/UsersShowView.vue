@@ -6,7 +6,7 @@ import type { TableColumn } from '@/components/shared/GenericTable.vue';
 import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import { UserService } from '@/services/UserService.js';
-import { formatDate } from '@/utils/formatters.js';
+import { Formatters } from '@/utils/formatters.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
 
 const loading = ref(true);
@@ -139,7 +139,7 @@ function toggleActive(user: UserInterface): void {
         </span>
       </template>
 
-      <template #cell-createdAt="{ value }">{{ formatDate(String(value)) }}</template>
+      <template #cell-createdAt="{ value }">{{ Formatters.formatDate(String(value)) }}</template>
 
       <template #actions="{ row }">
         <div class="user-actions">

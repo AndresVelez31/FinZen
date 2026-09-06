@@ -10,7 +10,7 @@ import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
 import { TransactionService } from '@/services/TransactionService.js';
 import { UserService } from '@/services/UserService.js';
-import { formatToCOP, formatDate } from '@/utils/formatters.js';
+import { Formatters } from '@/utils/formatters.js';
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 
 const router = useRouter();
@@ -95,13 +95,13 @@ function asTransaction(row: unknown): TransactionInterface {
     <div class="grid-kpi">
       <StatCard
         title="Balance total"
-        :value="formatToCOP(totalBalance)"
+        :value="Formatters.formatToCOP(totalBalance)"
         :icon="Wallet"
         trend="Suma de todas tus cuentas"
       />
       <StatCard
         title="Gasto del mes"
-        :value="formatToCOP(monthExpenseTotal)"
+        :value="Formatters.formatToCOP(monthExpenseTotal)"
         :icon="TrendingDown"
         variant="expense"
         :trend="`${monthExpenses.length} movimientos`"
@@ -109,7 +109,7 @@ function asTransaction(row: unknown): TransactionInterface {
       />
       <StatCard
         title="Ingresos del mes"
-        :value="formatToCOP(monthIncomeTotal)"
+        :value="Formatters.formatToCOP(monthIncomeTotal)"
         :icon="TrendingUp"
         variant="income"
         :trend="`${monthIncomes.length} movimientos`"
@@ -167,10 +167,10 @@ function asTransaction(row: unknown): TransactionInterface {
           <template #cell-activityId="{ value }">
             <span class="chip badge-gray">{{ ActivityService.getActivityById(Number(value))?.name ?? '—' }}</span>
           </template>
-          <template #cell-date="{ value }">{{ formatDate(String(value)) }}</template>
+          <template #cell-date="{ value }">{{ Formatters.formatDate(String(value)) }}</template>
           <template #cell-amount="{ row }">
             <span :class="asTransaction(row).type === 'income' ? 'amt-in' : 'amt-out'">
-              {{ asTransaction(row).type === 'income' ? '+' : '−' }}{{ formatToCOP(asTransaction(row).amount) }}
+              {{ asTransaction(row).type === 'income' ? '+' : '−' }}{{ Formatters.formatToCOP(asTransaction(row).amount) }}
             </span>
           </template>
         </GenericTable>
