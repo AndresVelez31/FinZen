@@ -43,18 +43,10 @@ view over store data, same as everywhere else in the app. Converting these to `c
 would freeze the account/activity dropdowns to whatever the store held at mount time.
 
 ### `App.vue`'s `isBlank` is out of scope (unchanged)
-Confirmed as correctly excluded: it reads `route.meta` from a single, app-lifetime-long
-component instance that must react to every navigation — exactly the case `computed()`
-exists for.
+Confirmed as correctly excluded: it reads `route.meta` from a single, app-lifetime-long component instance that must react to every navigation — exactly the case `computed()` exists for.
 
 ## Validation
 
-- `npm run type-check`: removing `computed()` turns each of these four values into a
-  plain primitive, so any leftover `.value` access fails to compile
-  (`Property 'value' does not exist on type '...'`) — this was used as a completeness
-  check while editing, not just a final gate.
+- `npm run type-check`: removing `computed()` turns each of these four values into a plain primitive, so any leftover `.value` access fails to compile (`Property 'value' does not exist on type '...'`) — this was used as a completeness check while editing, not just a final gate.
 - `npm run lint`: no new errors in any of the three files.
-- Manual test: visited `/accounts/new`, `/activities/new`, `/transactions/new` (blank
-  form) and `/accounts/:id/edit`, `/activities/:id/edit`, `/transactions/:id/edit`
-  (pre-filled form) for all three entities; create, edit, and cancel all behave
-  identically to before this change.
+- Manual test: visited `/accounts/new`, `/activities/new`, `/transactions/new` (blank form) and `/accounts/:id/edit`, `/activities/:id/edit`, `/transactions/:id/edit` (pre-filled form) for all three entities; create, edit, and cancel all behave identically to before this change.
