@@ -11,8 +11,8 @@ import type { UpdateTransactionDTO } from '@/dtos/UpdateTransactionDTO.js';
 const route = useRoute();
 const router = useRouter();
 
-const editing = computed(() => route.name === 'transaction-edit');
-const transactionId = computed(() => (route.params.id ? Number(route.params.id) : null));
+const editing = route.name === 'transaction-edit';
+const transactionId = route.params.id ? Number(route.params.id) : null;
 
 const accounts = computed(() => AccountService.getAccounts());
 const activities = computed(() => ActivityService.getActivities());
@@ -40,9 +40,9 @@ const errors = ref<FormErrors>({});
 const saving = ref(false);
 
 onMounted(() => {
-  if (editing.value) {
-    const transaction = transactionId.value
-      ? TransactionService.getTransactionById(transactionId.value)
+  if (editing) {
+    const transaction = transactionId
+      ? TransactionService.getTransactionById(transactionId)
       : undefined;
     if (!transaction) {
       router.replace({ name: 'transactions' });
@@ -99,7 +99,7 @@ async function submit() {
   const Swal = (await import('sweetalert2')).default;
 
   try {
-    if (editing.value && transactionId.value) {
+    if (editing && transactionId) {
       const dto: UpdateTransactionDTO = {
         type: form.value.type,
         amount: Number(form.value.amount),
@@ -108,7 +108,7 @@ async function submit() {
         date: form.value.date,
         description: form.value.description.trim(),
       };
-      TransactionService.updateTransaction(transactionId.value, dto);
+      TransactionService.updateTransaction(transactionId, dto);
     } else {
       const dto: CreateTransactionDTO = {
         type: form.value.type,
@@ -122,7 +122,7 @@ async function submit() {
     }
 
     await Swal.fire({
-      title: editing.value ? 'Transacción actualizada' : 'Transacción creada',
+      title: editing ? 'Transacción actualizada' : 'Transacción creada',
       icon: 'success',
       timer: 1300,
       showConfirmButton: false,

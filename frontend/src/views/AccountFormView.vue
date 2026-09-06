@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft, Save, Landmark, PiggyBank, Wallet, Smartphone } from 'lucide-vue-next';
 import { AccountService } from '@/services/AccountService.js';
@@ -17,8 +17,8 @@ const TYPES = [
   { value: 'Inversión', label: 'Inversión', icon: Landmark },
 ];
 
-const editing = computed(() => route.name === 'account-edit');
-const accountId = computed(() => (route.params.id ? Number(route.params.id) : null));
+const editing = route.name === 'account-edit';
+const accountId = route.params.id ? Number(route.params.id) : null;
 
 const form = ref({
   name: '',
@@ -36,11 +36,11 @@ const errors = ref<FormErrors>({});
 const saving = ref(false);
 
 onMounted(() => {
-  if (!editing.value) {
+  if (!editing) {
     return;
   }
 
-  const account = accountId.value ? AccountService.getAccountById(accountId.value) : undefined;
+  const account = accountId ? AccountService.getAccountById(accountId) : undefined;
   if (!account) {
     router.replace({ name: 'accounts' });
     return;
@@ -81,13 +81,13 @@ async function submit() {
   const Swal = (await import('sweetalert2')).default;
 
   try {
-    if (editing.value && accountId.value) {
+    if (editing && accountId) {
       const dto: UpdateAccountDTO = {
         name: form.value.name.trim(),
         type: form.value.type,
         balance: Number(form.value.balance),
       };
-      AccountService.updateAccount(accountId.value, dto);
+      AccountService.updateAccount(accountId, dto);
     } else {
       const dto: CreateAccountDTO = {
         name: form.value.name.trim(),
@@ -98,7 +98,7 @@ async function submit() {
     }
 
     await Swal.fire({
-      title: editing.value ? 'Cuenta actualizada' : 'Cuenta creada',
+      title: editing ? 'Cuenta actualizada' : 'Cuenta creada',
       icon: 'success',
       timer: 1300,
       showConfirmButton: false,
