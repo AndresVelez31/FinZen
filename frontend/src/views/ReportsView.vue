@@ -3,8 +3,7 @@ import { ref, computed } from 'vue';
 import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-vue-next';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import SelectorFilter from '@/components/shared/SelectorFilter.vue';
-import GenericTable from '@/components/shared/GenericTable.vue';
-import type { TableColumn } from '@/components/shared/GenericTable.vue';
+import BudgetSummaryTable from '@/components/reports/BudgetSummaryTable.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import RadialProgress from '@/components/shared/RadialProgress.vue';
 import { ActivityService } from '@/services/ActivityService.js';
@@ -15,19 +14,6 @@ import { Formatters } from '@/utils/formatters.js';
 interface FilterOption {
   label: string;
   value: string;
-}
-
-interface SummaryRow {
-  id: number;
-  name: string;
-  color: string;
-  budget: number;
-  spent: number;
-  diff: number;
-}
-
-function asSummaryRow(row: unknown): SummaryRow {
-  return row as SummaryRow;
 }
 
 const now = new Date();
@@ -159,12 +145,6 @@ const summaryRows = computed(() =>
     };
   }),
 );
-const summaryColumns: TableColumn[] = [
-  { key: 'name', label: 'Actividad' },
-  { key: 'budget', label: 'Presupuesto', align: 'right' },
-  { key: 'spent', label: 'Gasto real', align: 'right' },
-  { key: 'diff', label: 'Diferencia', align: 'right' },
-];
 </script>
 
 <template>
@@ -258,26 +238,7 @@ const summaryColumns: TableColumn[] = [
     <!-- Summary table -->
     <section>
       <h3 class="section-title">Resumen por actividad · {{ monthName }} {{ selYear }}</h3>
-      <GenericTable
-        :columns="summaryColumns"
-        :rows="summaryRows"
-        emptyTitle="Sin datos"
-        emptyText="No hay actividades de gasto para este periodo."
-      >
-        <template #cell-name="{ row }">
-          <div class="rn">
-            <span class="dot" :style="{ background: asSummaryRow(row).color }"></span
-            >{{ asSummaryRow(row).name }}
-          </div>
-        </template>
-        <template #cell-budget="{ value }">{{ Formatters.formatToCOP(Number(value)) }}</template>
-        <template #cell-spent="{ value }">{{ Formatters.formatToCOP(Number(value)) }}</template>
-        <template #cell-diff="{ value }">
-          <span :class="Number(value) >= 0 ? 'pos' : 'neg'">
-            {{ Number(value) >= 0 ? '+' : '' }}{{ Formatters.formatToCOP(Number(value)) }}
-          </span>
-        </template>
-      </GenericTable>
+      <BudgetSummaryTable :rows="summaryRows" />
     </section>
   </div>
 </template>
@@ -343,28 +304,6 @@ const summaryColumns: TableColumn[] = [
 }
 .saving-name {
   font-weight: 600;
-}
-.rn {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-weight: 600;
-}
-.dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-}
-.pos {
-  color: var(--primary-strong);
-  font-weight: 700;
-}
-html.dark .pos {
-  color: var(--primary);
-}
-.neg {
-  color: var(--danger);
-  font-weight: 700;
 }
 @media (max-width: 900px) {
   .grid-charts {
