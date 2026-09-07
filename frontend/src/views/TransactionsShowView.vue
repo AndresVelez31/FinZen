@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { Plus, Pencil, Trash2, Filter, RotateCcw } from 'lucide-vue-next';
-import GenericTable from '@/components/shared/GenericTable.vue';
-import type { TableColumn } from '@/components/shared/GenericTable.vue';
+import { Plus, Filter, RotateCcw } from 'lucide-vue-next';
+import TransactionsTable from '@/components/transactions/TransactionsTable.vue';
 import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import { TransactionService } from '@/services/TransactionService.js';
@@ -126,25 +125,8 @@ const totals = computed(() => {
   return { income, expense };
 });
 
-const columns: TableColumn[] = [
-  { key: 'description', label: 'Descripción' },
-  { key: 'activityId', label: 'Actividad' },
-  { key: 'accountId', label: 'Cuenta' },
-  { key: 'date', label: 'Fecha' },
-  { key: 'type', label: 'Tipo' },
-  { key: 'amount', label: 'Importe', align: 'right' },
-];
-
-function asTx(row: unknown): TransactionInterface {
-  return row as TransactionInterface;
-}
-
-function getActivity(id: number) {
-  return ActivityService.getById(id);
-}
-
-function getAccount(id: number) {
-  return AccountService.getById(id);
+function onEdit(transaction: TransactionInterface) {
+  router.push({ name: 'transaction-edit', params: { id: transaction.id } });
 }
 
 async function removeTx(row: TransactionInterface) {
@@ -241,69 +223,7 @@ async function removeTx(row: TransactionInterface) {
     </section>
 
     <!-- Table -->
-    <GenericTable
-      :columns="columns"
-      :rows="filtered"
-      :loading="loading"
-      :hasActions="true"
-      emptyTitle="Sin transacciones"
-      emptyText="Ajusta los filtros o crea una nueva transacción."
-    >
-      <template #cell-description="{ row }">
-        <div class="tx-desc" v-if="row">
-          <span
-            class="dot"
-            :style="{ background: getActivity(asTx(row).activityId)?.color || '#94a3b8' }"
-          ></span>
-          <span class="tx-name">{{ asTx(row).description }}</span>
-        </div>
-      </template>
-
-      <template #cell-activityId="{ value }">
-        <span class="chip badge-gray">{{ getActivity(Number(value))?.name || '—' }}</span>
-      </template>
-
-      <template #cell-accountId="{ value }">
-        {{ getAccount(Number(value))?.name || '—' }}
-      </template>
-
-      <template #cell-date="{ value }">
-        {{ Formatters.formatDate(String(value)) }}
-      </template>
-
-      <template #cell-type="{ value }">
-        <span class="badge" :class="value === 'income' ? 'badge-green' : 'badge-red'">
-          {{ value === 'income' ? 'Ingreso' : 'Gasto' }}
-        </span>
-      </template>
-
-      <template #cell-amount="{ row }">
-        <span v-if="row" :class="asTx(row).type === 'income' ? 'amt-in' : 'amt-out'">
-          {{ asTx(row).type === 'income' ? '+' : '−' }}{{ Formatters.formatToCOP(asTx(row).amount) }}
-        </span>
-      </template>
-
-      <template #actions="{ row }">
-        <div v-if="row">
-          <button
-            class="btn btn-ghost btn-icon"
-            @click="router.push({ name: 'transaction-edit', params: { id: asTx(row).id } })"
-            aria-label="Editar"
-            title="Editar"
-          >
-            <Pencil :size="15" />
-          </button>
-          <button
-            class="btn btn-danger btn-icon"
-            @click="removeTx(asTx(row))"
-            aria-label="Eliminar"
-            title="Eliminar"
-          >
-            <Trash2 :size="15" />
-          </button>
-        </div>
-      </template>
-    </GenericTable>
+    <TransactionsTable :rows="filtered" :loading="loading" @edit="onEdit" @delete="removeTx" />
   </div>
 </template>
 
@@ -355,29 +275,5 @@ async function removeTx(row: TransactionInterface) {
   height: 200px;
   display: grid;
   place-items: center;
-}
-.tx-desc {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.tx-name {
-  font-weight: 600;
-}
-.amt-in {
-  color: var(--primary-strong);
-  font-weight: 700;
-}
-html.dark .amt-in {
-  color: var(--primary);
-}
-.amt-out {
-  font-weight: 700;
 }
 </style>

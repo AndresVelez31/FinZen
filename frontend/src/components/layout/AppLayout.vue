@@ -17,7 +17,7 @@ import {
   Wallet,
 } from 'lucide-vue-next';
 
-// ── Interfaces ────────────────────────────────────────────────────────────────
+// Interfaces
 interface NavItem {
   name: string;
   label: string;
@@ -34,7 +34,7 @@ function toggleAppTheme(): void {
   themeStore.theme = themeStore.theme === 'light' ? 'dark' : 'light';
 }
 
-// ── Router & navigation state ─────────────────────────────────────────────────
+// Router & navigation state
 const route = useRoute();
 const router = useRouter();
 const isMobileMenuOpen = ref(false);
