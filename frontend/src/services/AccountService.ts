@@ -41,24 +41,24 @@ export class AccountService {
     return newAccount;
   }
 
-  static update(id: number, dto: UpdateAccountDTO): AccountInterface | undefined {
+  static update(updateAccountDTO: UpdateAccountDTO): AccountInterface | undefined {
+    const { id, ...accountUpdates } = updateAccountDTO;
     const accountStore = useAccountStore();
     const index = accountStore.accounts.findIndex((account) => account.id === id);
     if (index === -1) {
       return undefined;
     }
 
-    // TypeScript strict mode check
     const accountToUpdate = accountStore.accounts[index];
     if (!accountToUpdate) return undefined;
 
-    const cleanName = dto.name !== undefined ? dto.name.trim() : accountToUpdate.name;
-    if (dto.name !== undefined && !cleanName) throw new Error('Account name cannot be empty.');
-    if (dto.type !== undefined && !dto.type) throw new Error('Account type cannot be empty.');
+    const cleanName = accountUpdates.name !== undefined ? accountUpdates.name.trim() : accountToUpdate.name;
+    if (accountUpdates.name !== undefined && !cleanName) throw new Error('Account name cannot be empty.');
+    if (accountUpdates.type !== undefined && !accountUpdates.type) throw new Error('Account type cannot be empty.');
 
     const updatedAccount: AccountInterface = {
       ...accountToUpdate,
-      ...dto,
+      ...accountUpdates,
       name: cleanName,
       updatedAt: new Date().toISOString(),
     };

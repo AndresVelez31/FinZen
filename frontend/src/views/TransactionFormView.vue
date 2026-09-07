@@ -101,6 +101,7 @@ async function submit() {
   try {
     if (editing && transactionId) {
       const dto: UpdateTransactionDTO = {
+        id: transactionId,
         type: form.value.type,
         amount: Number(form.value.amount),
         accountId: form.value.accountId,
@@ -108,7 +109,7 @@ async function submit() {
         date: form.value.date,
         description: form.value.description.trim(),
       };
-      TransactionService.update(transactionId, dto);
+      TransactionService.update(dto);
     } else {
       const dto: CreateTransactionDTO = {
         type: form.value.type,

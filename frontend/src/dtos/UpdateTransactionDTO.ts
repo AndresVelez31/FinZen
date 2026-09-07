@@ -1,3 +1,5 @@
 import type { TransactionInterface } from '../interfaces/TransactionInterface.js';
 
-export type UpdateTransactionDTO = Partial<Omit<TransactionInterface, 'id' | 'createdAt' | 'updatedAt'>>;
+export type UpdateTransactionDTO = Partial<Omit<TransactionInterface, 'id' | 'createdAt' | 'updatedAt'>> & {
+  id: number;
+};
