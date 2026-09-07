@@ -2,22 +2,11 @@
 import { computed } from 'vue';
 import { Plus, Pencil, Trash2, Wallet } from 'lucide-vue-next';
 import { AccountService } from '@/services/AccountService.js';
-
+import { Formatters } from '@/utils/formatters';
 const accounts = computed(() => AccountService.getAccounts());
 
 function getBalance(id: number): number {
   return AccountService.getAccountBalance(id);
-}
-
-function formatToCOP(value: number): string {
-  const formatter = new Intl.NumberFormat('es-CO', {
-    style: 'currency',
-    currency: 'COP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-
-  return formatter.format(value);
 }
 
 function deleteAccount(id: number): void {
@@ -98,7 +87,7 @@ function deleteAccount(id: number): void {
           </span>
 
           <strong>
-            {{ formatToCOP(getBalance(account.id)) }}
+            {{ Formatters.formatToCOP(getBalance(account.id)) }}
           </strong>
         </div>
 

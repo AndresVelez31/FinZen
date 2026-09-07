@@ -10,7 +10,7 @@ import RadialProgress from '@/components/shared/RadialProgress.vue';
 import { ActivityService } from '@/services/ActivityService.js';
 import { ReportService } from '@/utils/ReportService.js';
 import { TransactionService } from '@/services/TransactionService.js';
-import { formatToCOP } from '@/utils/formatters.js';
+import { Formatters } from '@/utils/formatters.js';
 
 interface FilterOption {
   label: string;
@@ -182,14 +182,14 @@ const summaryColumns: TableColumn[] = [
     <div class="grid-kpi mb">
       <StatCard
         title="Ingresos del periodo"
-        :value="formatToCOP(summary.totalIncome)"
+        :value="Formatters.formatToCOP(summary.totalIncome)"
         :icon="TrendingUp"
         variant="income"
         :trend="`${monthName} ${selYear}`"
       />
       <StatCard
         title="Gastos del periodo"
-        :value="formatToCOP(summary.totalExpense)"
+        :value="Formatters.formatToCOP(summary.totalExpense)"
         :icon="TrendingDown"
         variant="expense"
         :trend="`${monthName} ${selYear}`"
@@ -197,7 +197,7 @@ const summaryColumns: TableColumn[] = [
       />
       <StatCard
         title="Balance neto"
-        :value="formatToCOP(summary.netBalance)"
+        :value="Formatters.formatToCOP(summary.netBalance)"
         :icon="Wallet"
         :variant="summary.netBalance >= 0 ? 'income' : 'expense'"
         :trend="summary.netBalance >= 0 ? 'Ahorro positivo' : 'Gasto excesivo'"
@@ -247,7 +247,7 @@ const summaryColumns: TableColumn[] = [
           <RadialProgress :value="activity.percent" :label="activity.name" :color="activity.color" :height="150" />
           <div class="saving-top">
             <span class="saving-name">{{ activity.name }}</span>
-            <span class="soft">{{ formatToCOP(activity.saved) }} / {{ formatToCOP(activity.targetAmount) }}</span>
+            <span class="soft">{{ Formatters.formatToCOP(activity.saved) }} / {{ Formatters.formatToCOP(activity.targetAmount) }}</span>
           </div>
         </div>
       </div>
@@ -268,11 +268,11 @@ const summaryColumns: TableColumn[] = [
             >{{ asSummaryRow(row).name }}
           </div>
         </template>
-        <template #cell-budget="{ value }">{{ formatToCOP(Number(value)) }}</template>
-        <template #cell-spent="{ value }">{{ formatToCOP(Number(value)) }}</template>
+        <template #cell-budget="{ value }">{{ Formatters.formatToCOP(Number(value)) }}</template>
+        <template #cell-spent="{ value }">{{ Formatters.formatToCOP(Number(value)) }}</template>
         <template #cell-diff="{ value }">
           <span :class="Number(value) >= 0 ? 'pos' : 'neg'">
-            {{ Number(value) >= 0 ? '+' : '' }}{{ formatToCOP(Number(value)) }}
+            {{ Number(value) >= 0 ? '+' : '' }}{{ Formatters.formatToCOP(Number(value)) }}
           </span>
         </template>
       </GenericTable>

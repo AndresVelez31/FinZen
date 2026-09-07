@@ -9,7 +9,7 @@ import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import { TransactionService } from '@/services/TransactionService.js';
 import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
-import { formatToCOP, formatDate } from '@/utils/formatters.js';
+import { Formatters } from '@/utils/formatters.js';
 import type { TransactionInterface } from '@/interfaces/TransactionInterface';
 
 const router = useRouter();
@@ -151,7 +151,7 @@ async function removeTx(row: TransactionInterface) {
   const Swal = (await import('sweetalert2')).default;
   const res = await Swal.fire({
     title: '¿Eliminar transacción?',
-    html: `<b>${row.description}</b><br>${formatToCOP(row.amount)}`,
+    html: `<b>${row.description}</b><br>${Formatters.formatToCOP(row.amount)}`,
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: 'Eliminar',
@@ -172,8 +172,8 @@ async function removeTx(row: TransactionInterface) {
       <div>
         <h2 class="page-title">Transacciones</h2>
         <p class="muted">
-          {{ filtered.length }} movimientos · Ingresos {{ formatToCOP(totals.income) }} · Gastos
-          {{ formatToCOP(totals.expense) }}
+          {{ filtered.length }} movimientos · Ingresos {{ Formatters.formatToCOP(totals.income) }} · Gastos
+          {{ Formatters.formatToCOP(totals.expense) }}
         </p>
       </div>
       <button class="btn btn-primary" @click="router.push({ name: 'transaction-new' })">
@@ -268,7 +268,7 @@ async function removeTx(row: TransactionInterface) {
       </template>
 
       <template #cell-date="{ value }">
-        {{ formatDate(String(value)) }}
+        {{ Formatters.formatDate(String(value)) }}
       </template>
 
       <template #cell-type="{ value }">
@@ -279,7 +279,7 @@ async function removeTx(row: TransactionInterface) {
 
       <template #cell-amount="{ row }">
         <span v-if="row" :class="asTx(row).type === 'income' ? 'amt-in' : 'amt-out'">
-          {{ asTx(row).type === 'income' ? '+' : '−' }}{{ formatToCOP(asTx(row).amount) }}
+          {{ asTx(row).type === 'income' ? '+' : '−' }}{{ Formatters.formatToCOP(asTx(row).amount) }}
         </span>
       </template>
 
