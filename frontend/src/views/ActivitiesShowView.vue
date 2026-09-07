@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Plus, Pencil, Trash2, Target, PiggyBank } from 'lucide-vue-next';
 import { ActivityService } from '@/services/ActivityService.js';
-import { ReportService } from '@/services/ReportService.js';
+import { ReportService } from '@/utils/ReportService.js';
 import { formatToCOP } from '@/utils/formatters.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 
