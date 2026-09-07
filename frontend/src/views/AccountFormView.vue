@@ -83,11 +83,12 @@ async function submit() {
   try {
     if (editing && accountId) {
       const dto: UpdateAccountDTO = {
+        id: accountId,
         name: form.value.name.trim(),
         type: form.value.type,
         balance: Number(form.value.balance),
       };
-      AccountService.update(accountId, dto);
+      AccountService.update(dto);
     } else {
       const dto: CreateAccountDTO = {
         name: form.value.name.trim(),

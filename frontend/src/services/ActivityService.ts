@@ -41,7 +41,8 @@ export class ActivityService {
     return newActivity;
   }
 
-  static update(id: number, dto: UpdateActivityDTO): ActivityInterface | undefined {
+  static update(updateActivityDTO: UpdateActivityDTO): ActivityInterface | undefined {
+    const { id, ...activityUpdates } = updateActivityDTO;
     const activityStore = useActivityStore();
     const index = activityStore.activities.findIndex((activity) => activity.id === id);
     if (index === -1) {
@@ -51,13 +52,13 @@ export class ActivityService {
     const activityToUpdate = activityStore.activities[index];
     if (!activityToUpdate) return undefined;
 
-    const cleanName = dto.name !== undefined ? dto.name.trim() : activityToUpdate.name;
-    if (dto.name !== undefined && !cleanName) throw new Error('Activity name cannot be empty.');
-    if (dto.type !== undefined && !dto.type) throw new Error('Activity type cannot be empty.');
+    const cleanName = activityUpdates.name !== undefined ? activityUpdates.name.trim() : activityToUpdate.name;
+    if (activityUpdates.name !== undefined && !cleanName) throw new Error('Activity name cannot be empty.');
+    if (activityUpdates.type !== undefined && !activityUpdates.type) throw new Error('Activity type cannot be empty.');
 
     const updatedActivity: ActivityInterface = {
       ...activityToUpdate,
-      ...dto,
+      ...activityUpdates,
       name: cleanName,
       updatedAt: new Date().toISOString(),
     };

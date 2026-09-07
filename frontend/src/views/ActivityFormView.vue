@@ -84,12 +84,13 @@ async function submit(): Promise<void> {
   try {
     if (editing && activityId) {
       const dto: UpdateActivityDTO = {
+        id: activityId,
         name: form.value.name.trim(),
         color: form.value.color,
         type: form.value.type,
         targetAmount: Number(form.value.targetAmount),
       };
-      ActivityService.update(activityId, dto);
+      ActivityService.update(dto);
     } else {
       const dto: CreateActivityDTO = {
         name: form.value.name.trim(),

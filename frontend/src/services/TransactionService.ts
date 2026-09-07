@@ -53,34 +53,35 @@ export class TransactionService {
     return newTransaction;
   }
 
-  static update(id: number, dto: UpdateTransactionDTO): TransactionInterface | undefined {
+  static update(updateTransactionDTO: UpdateTransactionDTO): TransactionInterface | undefined {
+    const { id, ...transactionUpdates } = updateTransactionDTO;
     const transactionStore = useTransactionStore();
     const index = transactionStore.transactions.findIndex((transaction) => transaction.id === id);
     if (index === -1) {
       return undefined;
     }
 
-    const txToUpdate = transactionStore.transactions[index];
-    if (!txToUpdate) return undefined;
+    const transactionToUpdate = transactionStore.transactions[index];
+    if (!transactionToUpdate) return undefined;
 
-    if (dto.amount !== undefined && dto.amount <= 0) {
+    if (transactionUpdates.amount !== undefined && transactionUpdates.amount <= 0) {
       throw new Error('Transaction amount must be greater than 0.');
     }
 
-    if (dto.accountId !== undefined && !AccountService.getById(dto.accountId)) {
+    if (transactionUpdates.accountId !== undefined && !AccountService.getById(transactionUpdates.accountId)) {
       throw new Error('The specified account does not exist.');
     }
 
-    if (dto.activityId !== undefined && !ActivityService.getById(dto.activityId)) {
+    if (transactionUpdates.activityId !== undefined && !ActivityService.getById(transactionUpdates.activityId)) {
       throw new Error('The specified activity does not exist.');
     }
 
     const cleanDescription =
-      dto.description !== undefined ? dto.description.trim() : txToUpdate.description;
+      transactionUpdates.description !== undefined ? transactionUpdates.description.trim() : transactionToUpdate.description;
 
     const updatedTransaction: TransactionInterface = {
-      ...txToUpdate,
-      ...dto,
+      ...transactionToUpdate,
+      ...transactionUpdates,
       description: cleanDescription,
       updatedAt: new Date().toISOString(),
     };
