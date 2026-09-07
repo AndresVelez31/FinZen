@@ -18,17 +18,17 @@ const roleOptions = [
   { value: 'user', label: 'Usuario' },
 ];
 
-const currentUser = computed(() => UserService.getCurrentUser());
+const currentUser = computed(() => UserService.getCurrent());
 
 const rows = computed(() =>
-  UserService.getUsers().filter((u) => (fRole.value ? u.role === fRole.value : true)),
+  UserService.getAll().filter((user) => (fRole.value ? user.role === fRole.value : true)),
 );
 
 const stats = computed(() => {
-  const users = UserService.getUsers();
+  const users = UserService.getAll();
   return {
     total: users.length,
-    admins: users.filter((u) => u.role === 'admin').length,
+    admins: users.filter((user) => user.role === 'admin').length,
   };
 });
 
@@ -45,7 +45,7 @@ function initials(name: string): string {
   return name
     .split(' ')
     .slice(0, 2)
-    .map((s) => s[0])
+    .map((word) => word[0])
     .join('')
     .toUpperCase();
 }
@@ -64,7 +64,7 @@ function changeRole(user: UserInterface): void {
     return;
   }
 
-  UserService.updateUserRole(user.id, newRole);
+  UserService.updateRole(user.id, newRole);
 }
 
 function toggleActive(user: UserInterface): void {
@@ -76,7 +76,7 @@ function toggleActive(user: UserInterface): void {
     return;
   }
 
-  UserService.toggleUserActive(user.id);
+  UserService.toggleActive(user.id);
 }
 </script>
 

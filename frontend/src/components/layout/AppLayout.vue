@@ -25,7 +25,7 @@ interface NavItem {
   tag?: string;
 }
 
-const currentUser = computed(() => UserService.getCurrentUser());
+const currentUser = computed(() => UserService.getCurrent());
 const isAdminUser = computed(() => currentUser.value?.role === 'admin');
 
 const themeStore = useThemeStore();

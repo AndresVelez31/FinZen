@@ -2,16 +2,16 @@ import type { UserInterface } from '@/interfaces/UserInterface.js';
 import { useUserStore } from '@/stores/userstore.js';
 
 export class UserService {
-  static getUsers(): UserInterface[] {
+  static getAll(): UserInterface[] {
     return useUserStore().users;
   }
 
-  static getUserById(id: number): UserInterface | undefined {
+  static getById(id: number): UserInterface | undefined {
     return useUserStore().users.find((user) => user.id === id);
   }
 
-  static updateUserRole(id: number, role: string): void {
-    const user = UserService.getUserById(id);
+  static updateRole(id: number, role: string): void {
+    const user = UserService.getById(id);
     if (!user) {
       return;
     }
@@ -19,8 +19,8 @@ export class UserService {
     user.updatedAt = new Date().toISOString();
   }
 
-  static toggleUserActive(id: number): void {
-    const user = UserService.getUserById(id);
+  static toggleActive(id: number): void {
+    const user = UserService.getById(id);
 
     if (!user) {
       return;
@@ -37,7 +37,7 @@ export class UserService {
     const store = useUserStore();
     const cleanEmail = email.trim().toLowerCase();
 
-    const user = store.users.find((u) => u.email.toLowerCase() === cleanEmail);
+    const user = store.users.find((existingUser) => existingUser.email.toLowerCase() === cleanEmail);
     if (!user || user.password !== password) {
       return { ok: false, error: 'Credenciales inválidas.' };
     }
@@ -57,7 +57,7 @@ export class UserService {
     useUserStore().currentUserId = null;
   }
 
-  static getCurrentUser(): UserInterface | undefined {
+  static getCurrent(): UserInterface | undefined {
     const store = useUserStore();
 
     if (store.currentUserId === null) {
@@ -68,6 +68,6 @@ export class UserService {
   }
 
   static isAuthenticated(): boolean {
-    return UserService.getCurrentUser() !== undefined;
+    return UserService.getCurrent() !== undefined;
   }
 }

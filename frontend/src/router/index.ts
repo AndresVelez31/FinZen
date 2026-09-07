@@ -141,7 +141,7 @@ router.beforeEach((to) => {
   }
 
   // Si la ruta es admin y el usuario no es admin -> Dashboard
-  const currentUser = UserService.getCurrentUser();
+  const currentUser = UserService.getCurrent();
   if (to.meta.admin && currentUser?.role !== 'admin') {
     return { name: 'dashboard' };
   }

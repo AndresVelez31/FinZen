@@ -6,10 +6,7 @@ import { useTransactionStore } from '@/stores/transactionstore.js';
 import { useUserStore } from '@/stores/userstore.js';
 
 export class ActivityService {
-  /**
-   * Retrieves all activities for the currently active user.
-   */
-  static getActivities(): ActivityInterface[] {
+  static getAll(): ActivityInterface[] {
     const currentUserId = useUserStore().currentUserId;
     if (!currentUserId) {
       return [];
@@ -17,28 +14,22 @@ export class ActivityService {
     return useActivityStore().activities.filter((activity) => activity.userId === currentUserId);
   }
 
-  /**
-   * Retrieves a specific activity by its ID.
-   */
-  static getActivityById(id: number): ActivityInterface | undefined {
+  static getById(id: number): ActivityInterface | undefined {
     return useActivityStore().activities.find((activity) => activity.id === id);
   }
 
-  /**
-   * Creates a new activity for the currently active user.
-   */
-  static createActivity(dto: CreateActivityDTO): ActivityInterface {
+  static create(createActivityDTO: CreateActivityDTO): ActivityInterface {
     const currentUserId = useUserStore().currentUserId;
     if (!currentUserId) {
       throw new Error('Cannot create activity: No active user session.');
     }
 
-    const cleanName = dto.name.trim();
+    const cleanName = createActivityDTO.name.trim();
     if (!cleanName) throw new Error('Activity name is required.');
-    if (!dto.type) throw new Error('Activity type is required.');
+    if (!createActivityDTO.type) throw new Error('Activity type is required.');
 
     const newActivity: ActivityInterface = {
-      ...dto,
+      ...createActivityDTO,
       name: cleanName,
       id: Date.now(),
       userId: currentUserId,
@@ -50,10 +41,7 @@ export class ActivityService {
     return newActivity;
   }
 
-  /**
-   * Updates an existing activity.
-   */
-  static updateActivity(id: number, dto: UpdateActivityDTO): ActivityInterface | undefined {
+  static update(id: number, dto: UpdateActivityDTO): ActivityInterface | undefined {
     const activityStore = useActivityStore();
     const index = activityStore.activities.findIndex((activity) => activity.id === id);
     if (index === -1) {
@@ -78,10 +66,7 @@ export class ActivityService {
     return updatedActivity;
   }
 
-  /**
-   * Deletes an activity and all its associated transactions.
-   */
-  static deleteActivity(id: number): void {
+  static delete(id: number): void {
     const activityStore = useActivityStore();
     const transactionStore = useTransactionStore();
 

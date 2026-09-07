@@ -17,8 +17,8 @@ const router = useRouter();
 const loading = ref(true);
 onMounted(() => setTimeout(() => (loading.value = false), 500));
 
-const currentUser = computed(() => UserService.getCurrentUser());
-const transactions = computed(() => TransactionService.getTransactions());
+const currentUser = computed(() => UserService.getCurrent());
+const transactions = computed(() => TransactionService.getAll());
 
 const currentMonth = new Date().toISOString().slice(0, 7);
 const monthTransactions = computed(() =>
@@ -42,14 +42,14 @@ const donut = computed(() => {
   const totals = new Map<string, { total: number; color: string }>();
 
   monthExpenses.value.forEach((transaction) => {
-    const activity = ActivityService.getActivityById(transaction.activityId);
+    const activity = ActivityService.getById(transaction.activityId);
     const name = activity ? activity.name : 'Otros';
     const entry = totals.get(name) ?? { total: 0, color: activity?.color ?? '#94a3b8' };
     entry.total += transaction.amount;
     totals.set(name, entry);
   });
 
-  const entries = [...totals.entries()].sort((a, b) => b[1].total - a[1].total);
+  const entries = [...totals.entries()].sort((currentEntry, nextEntry) => nextEntry[1].total - currentEntry[1].total);
 
   return {
     labels: entries.map(([name]) => name),
@@ -154,18 +154,18 @@ function asTransaction(row: unknown): TransactionInterface {
             <div class="tx-desc">
               <span
                 class="dot"
-                :style="{ background: ActivityService.getActivityById(asTransaction(row).activityId)?.color ?? '#94a3b8' }"
+                :style="{ background: ActivityService.getById(asTransaction(row).activityId)?.color ?? '#94a3b8' }"
               ></span>
               <div>
                 <div class="tx-name">{{ asTransaction(row).description }}</div>
                 <div class="soft tx-acc">
-                  {{ AccountService.getAccountById(asTransaction(row).accountId)?.name }}
+                  {{ AccountService.getById(asTransaction(row).accountId)?.name }}
                 </div>
               </div>
             </div>
           </template>
           <template #cell-activityId="{ value }">
-            <span class="chip badge-gray">{{ ActivityService.getActivityById(Number(value))?.name ?? '—' }}</span>
+            <span class="chip badge-gray">{{ ActivityService.getById(Number(value))?.name ?? '—' }}</span>
           </template>
           <template #cell-date="{ value }">{{ Formatters.formatDate(String(value)) }}</template>
           <template #cell-amount="{ row }">
