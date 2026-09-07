@@ -5,7 +5,7 @@ import { computed, ref } from 'vue';
 // Third-party libraries
 import { PiggyBank, TrendingUp, TrendingDown, Wallet } from 'lucide-vue-next';
 
-// Shared components (src/components/share)
+// Components (src/components/share)
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import GenericTable from '@/components/shared/GenericTable.vue';
 import RadialProgress from '@/components/shared/RadialProgress.vue';
@@ -16,9 +16,7 @@ import StatCard from '@/components/shared/StatCard.vue';
 import type { TableColumn } from '@/components/shared/GenericTable.vue';
 
 // Services according to business logic layer (View → Service → Store)
-import { ActivityService } from '@/services/ActivityService.js';
 import { ReportService } from '@/services/ReportService.js';
-import { TransactionService } from '@/services/TransactionService.js';
 import { Formatters } from '@/utils/formatters.js';
 
 // Local presentation types
@@ -57,16 +55,21 @@ const months: FilterOption[] = [
 ];
 
 // Data services
-const transactions = computed(() => TransactionService.getTransactions());
-
 const years = computed<FilterOption[]>(() => {
   const set = new Set(
-    transactions.value.map((transaction) => new Date(transaction.date).getFullYear()),
+    ReportService.getUserTransactions().map((transaction) =>
+      Number(transaction.date.slice(0, 4)),
+    ),
   );
+
   set.add(now.getFullYear());
+
   return [...set]
     .sort((a, b) => b - a)
-    .map((year) => ({ value: String(year), label: String(year) }));
+    .map((year) => ({
+      value: String(year),
+      label: String(year),
+    }));
 });
 
 const monthName = computed(
@@ -82,100 +85,69 @@ const periodEnd = computed(() => {
 const summary = computed(() => ReportService.getPeriodSummary(periodStart.value, periodEnd.value));
 
 // Line chart, cumulative balance evolution across the selected year
-const lineChart = computed(() => {
-  const monthlyTotals = ReportService.getMonthlyTotals(
-    `${selYear.value}-01-01`,
-    `${selYear.value}-12-31`,
-  );
+const cumulativeBalance = computed(() =>
+  ReportService.getCumulativeBalanceByYear(Number(selYear.value)),
+);
 
-  let running = 0;
-  const net = months.map((month) => {
-    const entry = monthlyTotals.find((total) => total.month === `${selYear.value}-${month.value}`);
-    running += (entry?.income ?? 0) - (entry?.expense ?? 0);
-    return Math.round(running);
-  });
-
-  return {
-    labels: months.map((month) => month.label.slice(0, 3)),
-    datasets: [
-      {
-        label: 'Balance acumulado',
-        data: net,
-        borderColor: '#10b981',
-        backgroundColor: 'rgba(16,185,129,0.12)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 3,
-        pointBackgroundColor: '#10b981',
-        borderWidth: 2.5,
-      },
-    ],
-  };
-});
+const lineChart = computed(() => ({
+  labels: months.map((month) => month.label.slice(0, 3)),
+  datasets: [
+    {
+      label: 'Balance acumulado',
+      data: cumulativeBalance.value.map((point) => point.balance),
+      borderColor: '#10b981',
+      backgroundColor: 'rgba(16,185,129,0.12)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 3,
+      pointBackgroundColor: '#10b981',
+      borderWidth: 2.5,
+    },
+  ],
+}));
 
 // Bar chart, budget vs actual (expense activities) for the selected period
-const expenseActivities = computed(() =>
-  ActivityService.getActivities().filter((activity) => activity.type === 'expense'),
-);
-const periodExpensesByActivity = computed(() =>
-  ReportService.getExpensesByActivity(periodStart.value, periodEnd.value),
+const budgetExecution = computed(() =>
+  ReportService.getBudgetExecution(periodStart.value, periodEnd.value),
 );
 
-const budgetChart = computed(() => {
-  const acts = expenseActivities.value;
-  return {
-    labels: acts.map((activity) => activity.name),
-    datasets: [
-      {
-        label: 'Presupuesto',
-        data: acts.map((activity) => activity.targetAmount),
-        backgroundColor: '#cbd5e1',
-        borderRadius: 6,
-        maxBarThickness: 26,
-      },
-      {
-        label: 'Gasto real',
-        data: acts.map((activity) => actualFor(activity.id)),
-        backgroundColor: '#10b981',
-        borderRadius: 6,
-        maxBarThickness: 26,
-      },
-    ],
-  };
-});
-const hasBudget = computed(() => budgetChart.value.labels.length > 0);
+const budgetChart = computed(() => ({
+  labels: budgetExecution.value.map((item) => item.name),
+  datasets: [
+    {
+      label: 'Presupuesto',
+      data: budgetExecution.value.map((item) => item.budget),
+      backgroundColor: '#cbd5e1',
+      borderRadius: 6,
+      maxBarThickness: 26,
+    },
+    {
+      label: 'Gasto real',
+      data: budgetExecution.value.map((item) => item.spent),
+      backgroundColor: '#10b981',
+      borderRadius: 6,
+      maxBarThickness: 26,
+    },
+  ],
+}));
+
+const hasBudget = computed(() => budgetExecution.value.length > 0);
 
 // Saving progress
-const savingsActivities = computed(() =>
-  ActivityService.getActivities().filter((activity) => activity.type === 'savings'),
-);
-const allTimeExpensesByActivity = computed(() => ReportService.getExpensesByActivity());
-
 const savingsActs = computed(() =>
-  savingsActivities.value.map((activity) => {
-    const saved =
-      allTimeExpensesByActivity.value.find((entry) => entry.activityId === activity.id)?.total ?? 0;
-    const percent =
-      activity.targetAmount > 0
-        ? Math.min(100, Math.round((saved / activity.targetAmount) * 100))
-        : 0;
-    return { ...activity, saved, percent };
-  }),
+  ReportService.getSavingsProgress(),
 );
 
 // Summary Table
-const summaryRows = computed(() =>
-  expenseActivities.value.map((activity) => {
-    const spent = actualFor(activity.id);
-    return {
-      id: activity.id,
-      name: activity.name,
-      color: activity.color,
-      budget: activity.targetAmount,
-      spent,
-      diff: activity.targetAmount - spent,
-    };
-  }),
+const summaryRows = computed<SummaryRow[]>(() =>
+  budgetExecution.value.map((item) => ({
+    id: item.activityId,
+    name: item.name,
+    color: item.color,
+    budget: item.budget,
+    spent: item.spent,
+    diff: item.difference,
+  })),
 );
 
 const summaryColumns: TableColumn[] = [
@@ -188,12 +160,6 @@ const summaryColumns: TableColumn[] = [
 // Functions
 function asSummaryRow(row: unknown): SummaryRow {
   return row as SummaryRow;
-}
-
-function actualFor(activityId: number): number {
-  return (
-    periodExpensesByActivity.value.find((entry) => entry.activityId === activityId)?.total ?? 0
-  );
 }
 
 </script>
@@ -250,7 +216,6 @@ function actualFor(activityId: number): number {
           :labels="lineChart.labels"
           :datasets="lineChart.datasets"
           :height="300"
-          :options="{ plugins: { legend: { display: false } } }"
         />
       </section>
 

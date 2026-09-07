@@ -4,13 +4,15 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // Third-party libraries
-import { ArrowLeft, Save, Landmark, PiggyBank, Wallet, Smartphone } from 'lucide-vue-next';
+import { ArrowLeft, Landmark, PiggyBank, Save, Smartphone, Wallet } from 'lucide-vue-next';
 
-// Shared components (src/components/share)
+// Services — business logic layer (View → Service → Store)
 import { AccountService } from '@/services/AccountService.js';
 
+// Types
 import type { CreateAccountDTO } from '@/dtos/CreateAccountDTO.js';
 import type { UpdateAccountDTO } from '@/dtos/UpdateAccountDTO.js';
+
 
 const route = useRoute();
 const router = useRouter();

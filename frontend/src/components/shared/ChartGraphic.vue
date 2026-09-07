@@ -10,10 +10,6 @@ import {
 
 Chart.register(...registerables);
 
-/**
- * Reusable Chart.js wrapper without domain dependencies.
- */
-
 interface Props {
   type: ChartType | string;
   labels?: string[];

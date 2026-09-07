@@ -1,15 +1,30 @@
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
+import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import { useTransactionStore } from '@/stores/transactionstore.js';
 import { ActivityService } from '@/services/ActivityService.js';
 import { AccountService } from '@/services/AccountService.js';
 import { Formatters } from '@/utils/formatters.js';
 
+export interface CumulativeBalancePoint {
+  month: string;
+  balance: number;
+}
+
+export interface BudgetExecutionItem {
+  activityId: number;
+  name: string;
+  color: string;
+  budget: number;
+  spent: number;
+  difference: number;
+}
+
+export interface SavingsProgressItem extends ActivityInterface {
+  saved: number;
+  percent: number;
+}
+
 export class ReportService {
-  /**
-   * Retrieves transactions belonging to the currently active user, optionally
-   * bounded by an ISO (YYYY-MM-DD) date range (inclusive on both ends).
-   * Scoping is done via account ownership, since transactions have no direct userId.
-   */
   static getUserTransactions(startDate?: string, endDate?: string): TransactionInterface[] {
     const accountIds = AccountService.getAccounts().map((account) => account.id);
 
@@ -21,17 +36,13 @@ export class ReportService {
     });
   }
 
-  /**
-   * Groups expense totals by activity, for the currently active user,
-   * optionally bounded by an ISO (YYYY-MM-DD) date range.
-   * Only returns activities that have at least one expense in the period.
-   */
   static getExpensesByActivity(
     startDate?: string,
     endDate?: string,
   ): { activityId: number; name: string; color: string; total: number }[] {
     const activities = ActivityService.getActivities();
-    const expensesByActivity: { activityId: number; name: string; color: string; total: number }[] = [];
+    const expensesByActivity: { activityId: number; name: string; color: string; total: number }[] =
+      [];
 
     activities.forEach((activity) => {
       const activityExpenses = this.getUserTransactions(startDate, endDate).filter(
@@ -52,10 +63,6 @@ export class ReportService {
     return expensesByActivity;
   }
 
-  /**
-   * Groups income and expense totals by month (YYYY-MM), for the currently active user,
-   * optionally bounded by an ISO (YYYY-MM-DD) date range.
-   */
   static getMonthlyTotals(
     startDate?: string,
     endDate?: string,
@@ -83,10 +90,6 @@ export class ReportService {
     );
   }
 
-  /**
-   * Calculates the flat total of incomes, expenses, and net balance for the current user,
-   * optionally bounded by an ISO (YYYY-MM-DD) date range.
-   */
   static getPeriodSummary(
     startDate?: string,
     endDate?: string,
@@ -106,5 +109,66 @@ export class ReportService {
       totalExpense,
       netBalance: totalIncome - totalExpense,
     };
+  }
+
+  static getCumulativeBalanceByYear(year: number): CumulativeBalancePoint[] {
+    const monthlyTotals = this.getMonthlyTotals(`${year}-01-01`, `${year}-12-31`);
+
+    let runningBalance = 0;
+
+    return Array.from({ length: 12 }, (_, index) => {
+      const month = `${year}-${String(index + 1).padStart(2, '0')}`;
+
+      const monthlyTotal = monthlyTotals.find((total) => total.month === month);
+
+      runningBalance += (monthlyTotal?.income ?? 0) - (monthlyTotal?.expense ?? 0);
+
+      return {
+        month,
+        balance: Math.round(runningBalance),
+      };
+    });
+  }
+
+  static getBudgetExecution(startDate?: string, endDate?: string): BudgetExecutionItem[] {
+    const expensesByActivity = this.getExpensesByActivity(startDate, endDate);
+
+    return ActivityService.getActivities()
+      .filter((activity) => activity.type === 'expense')
+      .map((activity) => {
+        const spent =
+          expensesByActivity.find((expense) => expense.activityId === activity.id)?.total ?? 0;
+
+        return {
+          activityId: activity.id,
+          name: activity.name,
+          color: activity.color,
+          budget: activity.targetAmount,
+          spent,
+          difference: activity.targetAmount - spent,
+        };
+      });
+  }
+
+  static getSavingsProgress(): SavingsProgressItem[] {
+    const expensesByActivity = this.getExpensesByActivity();
+
+    return ActivityService.getActivities()
+      .filter((activity) => activity.type === 'savings')
+      .map((activity) => {
+        const saved =
+          expensesByActivity.find((expense) => expense.activityId === activity.id)?.total ?? 0;
+
+        const percent =
+          activity.targetAmount > 0
+            ? Math.min(100, Math.round((saved / activity.targetAmount) * 100))
+            : 0;
+
+        return {
+          ...activity,
+          saved,
+          percent,
+        };
+      });
   }
 }
