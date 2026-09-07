@@ -6,6 +6,7 @@ import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import GenericTable from '@/components/shared/GenericTable.vue';
 import type { TableColumn } from '@/components/shared/GenericTable.vue';
 import StatCard from '@/components/shared/StatCard.vue';
+import RadialProgress from '@/components/shared/RadialProgress.vue';
 import { ActivityService } from '@/services/ActivityService.js';
 import { ReportService } from '@/services/ReportService.js';
 import { TransactionService } from '@/services/TransactionService.js';
@@ -243,14 +244,11 @@ const summaryColumns: TableColumn[] = [
       </div>
       <div class="savings">
         <div v-for="activity in savingsActs" :key="activity.id" class="saving">
+          <RadialProgress :value="activity.percent" :label="activity.name" :color="activity.color" :height="150" />
           <div class="saving-top">
             <span class="saving-name">{{ activity.name }}</span>
             <span class="soft">{{ formatToCOP(activity.saved) }} / {{ formatToCOP(activity.targetAmount) }}</span>
           </div>
-          <div class="bar">
-            <span :style="{ width: activity.percent + '%', background: activity.color }"></span>
-          </div>
-          <div class="saving-pct">{{ activity.percent }}%</div>
         </div>
       </div>
     </section>
@@ -328,35 +326,21 @@ const summaryColumns: TableColumn[] = [
 }
 .savings {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 22px;
+}
+.saving {
+  text-align: center;
 }
 .saving-top {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
   font-size: 0.88rem;
 }
 .saving-name {
   font-weight: 600;
-}
-.bar {
-  height: 9px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  overflow: hidden;
-}
-.bar span {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  transition: width 0.6s ease;
-}
-.saving-pct {
-  margin-top: 6px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-muted);
 }
 .rn {
   display: flex;

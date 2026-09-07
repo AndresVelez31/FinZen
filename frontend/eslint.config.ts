@@ -13,6 +13,7 @@ export default defineConfigWithVueTs(
         document: 'readonly',
         getComputedStyle: 'readonly',
         setTimeout: 'readonly',
+        MutationObserver: 'readonly',
       },
     },
   },
