@@ -1,17 +1,27 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-vue-next';
+// Vue Core
+import { computed, ref } from 'vue';
+
+// Third-party libraries
+import { PiggyBank, TrendingUp, TrendingDown, Wallet } from 'lucide-vue-next';
+
+// Shared components (src/components/share)
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
-import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import GenericTable from '@/components/shared/GenericTable.vue';
-import type { TableColumn } from '@/components/shared/GenericTable.vue';
-import StatCard from '@/components/shared/StatCard.vue';
 import RadialProgress from '@/components/shared/RadialProgress.vue';
+import SelectorFilter from '@/components/shared/SelectorFilter.vue';
+import StatCard from '@/components/shared/StatCard.vue';
+
+// Types (import type required by verbatimModuleSyntax)
+import type { TableColumn } from '@/components/shared/GenericTable.vue';
+
+// Services according to business logic layer (View → Service → Store)
 import { ActivityService } from '@/services/ActivityService.js';
-import { ReportService } from '@/utils/ReportService.js';
+import { ReportService } from '@/services/ReportService.js';
 import { TransactionService } from '@/services/TransactionService.js';
 import { Formatters } from '@/utils/formatters.js';
 
+// Local presentation types
 interface FilterOption {
   label: string;
   value: string;
@@ -26,21 +36,10 @@ interface SummaryRow {
   diff: number;
 }
 
-function asSummaryRow(row: unknown): SummaryRow {
-  return row as SummaryRow;
-}
-
+// Filters (month/year)
 const now = new Date();
 const selYear = ref(String(now.getFullYear()));
 const selMonth = ref(String(now.getMonth() + 1).padStart(2, '0'));
-
-const transactions = computed(() => TransactionService.getTransactions());
-
-const years = computed<FilterOption[]>(() => {
-  const set = new Set(transactions.value.map((transaction) => new Date(transaction.date).getFullYear()));
-  set.add(now.getFullYear());
-  return [...set].sort((a, b) => b - a).map((year) => ({ value: String(year), label: String(year) }));
-});
 
 const months: FilterOption[] = [
   { value: '01', label: 'Enero' },
@@ -57,7 +56,22 @@ const months: FilterOption[] = [
   { value: '12', label: 'Diciembre' },
 ];
 
-const monthName = computed(() => months.find((month) => month.value === selMonth.value)?.label ?? '');
+// Data services
+const transactions = computed(() => TransactionService.getTransactions());
+
+const years = computed<FilterOption[]>(() => {
+  const set = new Set(
+    transactions.value.map((transaction) => new Date(transaction.date).getFullYear()),
+  );
+  set.add(now.getFullYear());
+  return [...set]
+    .sort((a, b) => b - a)
+    .map((year) => ({ value: String(year), label: String(year) }));
+});
+
+const monthName = computed(
+  () => months.find((month) => month.value === selMonth.value)?.label ?? '',
+);
 
 const periodStart = computed(() => `${selYear.value}-${selMonth.value}-01`);
 const periodEnd = computed(() => {
@@ -67,9 +81,12 @@ const periodEnd = computed(() => {
 
 const summary = computed(() => ReportService.getPeriodSummary(periodStart.value, periodEnd.value));
 
-/* ---- Line chart: cumulative balance evolution across the selected year ---- */
+// Line chart, cumulative balance evolution across the selected year
 const lineChart = computed(() => {
-  const monthlyTotals = ReportService.getMonthlyTotals(`${selYear.value}-01-01`, `${selYear.value}-12-31`);
+  const monthlyTotals = ReportService.getMonthlyTotals(
+    `${selYear.value}-01-01`,
+    `${selYear.value}-12-31`,
+  );
 
   let running = 0;
   const net = months.map((month) => {
@@ -96,15 +113,13 @@ const lineChart = computed(() => {
   };
 });
 
-/* ---- Bar chart: budget vs actual (expense activities) for the selected period ---- */
-const expenseActivities = computed(() => ActivityService.getActivities().filter((activity) => activity.type === 'expense'));
+// Bar chart, budget vs actual (expense activities) for the selected period
+const expenseActivities = computed(() =>
+  ActivityService.getActivities().filter((activity) => activity.type === 'expense'),
+);
 const periodExpensesByActivity = computed(() =>
   ReportService.getExpensesByActivity(periodStart.value, periodEnd.value),
 );
-
-function actualFor(activityId: number): number {
-  return periodExpensesByActivity.value.find((entry) => entry.activityId === activityId)?.total ?? 0;
-}
 
 const budgetChart = computed(() => {
   const acts = expenseActivities.value;
@@ -130,20 +145,25 @@ const budgetChart = computed(() => {
 });
 const hasBudget = computed(() => budgetChart.value.labels.length > 0);
 
-/* ---- Savings progress (all-time) ---- */
-const savingsActivities = computed(() => ActivityService.getActivities().filter((activity) => activity.type === 'savings'));
+// Saving progress
+const savingsActivities = computed(() =>
+  ActivityService.getActivities().filter((activity) => activity.type === 'savings'),
+);
 const allTimeExpensesByActivity = computed(() => ReportService.getExpensesByActivity());
 
 const savingsActs = computed(() =>
   savingsActivities.value.map((activity) => {
-    const saved = allTimeExpensesByActivity.value.find((entry) => entry.activityId === activity.id)?.total ?? 0;
+    const saved =
+      allTimeExpensesByActivity.value.find((entry) => entry.activityId === activity.id)?.total ?? 0;
     const percent =
-      activity.targetAmount > 0 ? Math.min(100, Math.round((saved / activity.targetAmount) * 100)) : 0;
+      activity.targetAmount > 0
+        ? Math.min(100, Math.round((saved / activity.targetAmount) * 100))
+        : 0;
     return { ...activity, saved, percent };
   }),
 );
 
-/* ---- Summary table ---- */
+// Summary Table
 const summaryRows = computed(() =>
   expenseActivities.value.map((activity) => {
     const spent = actualFor(activity.id);
@@ -157,12 +177,25 @@ const summaryRows = computed(() =>
     };
   }),
 );
+
 const summaryColumns: TableColumn[] = [
   { key: 'name', label: 'Actividad' },
   { key: 'budget', label: 'Presupuesto', align: 'right' },
   { key: 'spent', label: 'Gasto real', align: 'right' },
   { key: 'diff', label: 'Diferencia', align: 'right' },
 ];
+
+// Functions
+function asSummaryRow(row: unknown): SummaryRow {
+  return row as SummaryRow;
+}
+
+function actualFor(activityId: number): number {
+  return (
+    periodExpensesByActivity.value.find((entry) => entry.activityId === activityId)?.total ?? 0
+  );
+}
+
 </script>
 
 <template>
@@ -244,10 +277,18 @@ const summaryColumns: TableColumn[] = [
       </div>
       <div class="savings">
         <div v-for="activity in savingsActs" :key="activity.id" class="saving">
-          <RadialProgress :value="activity.percent" :label="activity.name" :color="activity.color" :height="150" />
+          <RadialProgress
+            :value="activity.percent"
+            :label="activity.name"
+            :color="activity.color"
+            :height="150"
+          />
           <div class="saving-top">
             <span class="saving-name">{{ activity.name }}</span>
-            <span class="soft">{{ Formatters.formatToCOP(activity.saved) }} / {{ Formatters.formatToCOP(activity.targetAmount) }}</span>
+            <span class="soft"
+              >{{ Formatters.formatToCOP(activity.saved) }} /
+              {{ Formatters.formatToCOP(activity.targetAmount) }}</span
+            >
           </div>
         </div>
       </div>

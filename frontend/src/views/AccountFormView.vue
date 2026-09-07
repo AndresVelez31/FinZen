@@ -1,8 +1,14 @@
 <script setup lang="ts">
+// Vue Core
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
+// Third-party libraries
 import { ArrowLeft, Save, Landmark, PiggyBank, Wallet, Smartphone } from 'lucide-vue-next';
+
+// Shared components (src/components/share)
 import { AccountService } from '@/services/AccountService.js';
+
 import type { CreateAccountDTO } from '@/dtos/CreateAccountDTO.js';
 import type { UpdateAccountDTO } from '@/dtos/UpdateAccountDTO.js';
 
