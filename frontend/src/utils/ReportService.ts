@@ -11,7 +11,7 @@ export class ReportService {
    * Scoping is done via account ownership, since transactions have no direct userId.
    */
   static getUserTransactions(startDate?: string, endDate?: string): TransactionInterface[] {
-    const accountIds = AccountService.getAccounts().map((account) => account.id);
+    const accountIds = AccountService.getAll().map((account) => account.id);
 
     return useTransactionStore().transactions.filter((transaction) => {
       if (!accountIds.includes(transaction.accountId)) return false;
@@ -30,7 +30,7 @@ export class ReportService {
     startDate?: string,
     endDate?: string,
   ): { activityId: number; name: string; color: string; total: number }[] {
-    const activities = ActivityService.getActivities();
+    const activities = ActivityService.getAll();
     const expensesByActivity: { activityId: number; name: string; color: string; total: number }[] = [];
 
     activities.forEach((activity) => {

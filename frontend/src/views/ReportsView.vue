@@ -34,12 +34,14 @@ const now = new Date();
 const selYear = ref(String(now.getFullYear()));
 const selMonth = ref(String(now.getMonth() + 1).padStart(2, '0'));
 
-const transactions = computed(() => TransactionService.getTransactions());
+const transactions = computed(() => TransactionService.getAll());
 
 const years = computed<FilterOption[]>(() => {
   const set = new Set(transactions.value.map((transaction) => new Date(transaction.date).getFullYear()));
   set.add(now.getFullYear());
-  return [...set].sort((a, b) => b - a).map((year) => ({ value: String(year), label: String(year) }));
+  return [...set]
+    .sort((currentYear, nextYear) => nextYear - currentYear)
+    .map((year) => ({ value: String(year), label: String(year) }));
 });
 
 const months: FilterOption[] = [
@@ -97,7 +99,7 @@ const lineChart = computed(() => {
 });
 
 /* ---- Bar chart: budget vs actual (expense activities) for the selected period ---- */
-const expenseActivities = computed(() => ActivityService.getActivities().filter((activity) => activity.type === 'expense'));
+const expenseActivities = computed(() => ActivityService.getAll().filter((activity) => activity.type === 'expense'));
 const periodExpensesByActivity = computed(() =>
   ReportService.getExpensesByActivity(periodStart.value, periodEnd.value),
 );
@@ -131,7 +133,7 @@ const budgetChart = computed(() => {
 const hasBudget = computed(() => budgetChart.value.labels.length > 0);
 
 /* ---- Savings progress (all-time) ---- */
-const savingsActivities = computed(() => ActivityService.getActivities().filter((activity) => activity.type === 'savings'));
+const savingsActivities = computed(() => ActivityService.getAll().filter((activity) => activity.type === 'savings'));
 const allTimeExpensesByActivity = computed(() => ReportService.getExpensesByActivity());
 
 const savingsActs = computed(() =>

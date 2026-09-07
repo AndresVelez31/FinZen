@@ -14,8 +14,8 @@ const router = useRouter();
 const editing = route.name === 'transaction-edit';
 const transactionId = route.params.id ? Number(route.params.id) : null;
 
-const accounts = computed(() => AccountService.getAccounts());
-const activities = computed(() => ActivityService.getActivities());
+const accounts = computed(() => AccountService.getAll());
+const activities = computed(() => ActivityService.getAll());
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -42,7 +42,7 @@ const saving = ref(false);
 onMounted(() => {
   if (editing) {
     const transaction = transactionId
-      ? TransactionService.getTransactionById(transactionId)
+      ? TransactionService.getById(transactionId)
       : undefined;
     if (!transaction) {
       router.replace({ name: 'transactions' });
@@ -108,7 +108,7 @@ async function submit() {
         date: form.value.date,
         description: form.value.description.trim(),
       };
-      TransactionService.updateTransaction(transactionId, dto);
+      TransactionService.update(transactionId, dto);
     } else {
       const dto: CreateTransactionDTO = {
         type: form.value.type,
@@ -118,7 +118,7 @@ async function submit() {
         date: form.value.date,
         description: form.value.description.trim(),
       };
-      TransactionService.createTransaction(dto);
+      TransactionService.create(dto);
     }
 
     await Swal.fire({

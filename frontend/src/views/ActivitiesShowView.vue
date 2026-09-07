@@ -11,7 +11,7 @@ const router = useRouter();
 const loading = ref(true);
 onMounted(() => setTimeout(() => (loading.value = false), 450));
 
-const activities = computed(() => ActivityService.getActivities());
+const activities = computed(() => ActivityService.getAll());
 
 // Presupuestos ('expense') se miden contra el mes actual; metas de ahorro
 // ('savings') se miden contra el histórico completo.
@@ -58,7 +58,7 @@ async function remove(activity: ActivityInterface): Promise<void> {
   });
 
   if (result.isConfirmed) {
-    ActivityService.deleteActivity(activity.id);
+    ActivityService.delete(activity.id);
     await Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
   }
 }

@@ -43,7 +43,7 @@ onMounted(() => {
     return;
   }
 
-  const activity = activityId ? ActivityService.getActivityById(activityId) : undefined;
+  const activity = activityId ? ActivityService.getById(activityId) : undefined;
   if (!activity) {
     router.replace({ name: 'activities' });
     return;
@@ -89,7 +89,7 @@ async function submit(): Promise<void> {
         type: form.value.type,
         targetAmount: Number(form.value.targetAmount),
       };
-      ActivityService.updateActivity(activityId, dto);
+      ActivityService.update(activityId, dto);
     } else {
       const dto: CreateActivityDTO = {
         name: form.value.name.trim(),
@@ -97,7 +97,7 @@ async function submit(): Promise<void> {
         type: form.value.type,
         targetAmount: Number(form.value.targetAmount),
       };
-      ActivityService.createActivity(dto);
+      ActivityService.create(dto);
     }
 
     await Swal.fire({

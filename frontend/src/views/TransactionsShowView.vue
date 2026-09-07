@@ -27,13 +27,13 @@ const fFrom = ref<string>('');
 const fTo = ref<string>('');
 
 const activityOptions = computed<{ value: string; label: string }[]>(() =>
-  ActivityService.getActivities().map((a) => ({ value: String(a.id), label: a.name })),
+  ActivityService.getAll().map((activity) => ({ value: String(activity.id), label: activity.name })),
 );
 
 const accountOptions = computed<{ value: string; label: string }[]>(() =>
-  AccountService.getAccounts().map((a) => ({
-    value: String(a.id),
-    label: `${a.name} · ${a.type}`,
+  AccountService.getAll().map((account) => ({
+    value: String(account.id),
+    label: `${account.name} · ${account.type}`,
   })),
 );
 
@@ -58,13 +58,13 @@ const monthOptions = [
 ];
 
 const filtered = computed<TransactionInterface[]>(() =>
-  TransactionService.getTransactions().filter((t: TransactionInterface) => {
-    if (fActivity.value && String(t.activityId) !== fActivity.value) return false;
-    if (fAccount.value && String(t.accountId) !== fAccount.value) return false;
-    if (fType.value && t.type !== fType.value) return false;
-    if (fMonth.value && t.date.slice(5, 7) !== fMonth.value) return false;
-    if (fFrom.value && t.date < fFrom.value) return false;
-    if (fTo.value && t.date > fTo.value) return false;
+  TransactionService.getAll().filter((transaction: TransactionInterface) => {
+    if (fActivity.value && String(transaction.activityId) !== fActivity.value) return false;
+    if (fAccount.value && String(transaction.accountId) !== fAccount.value) return false;
+    if (fType.value && transaction.type !== fType.value) return false;
+    if (fMonth.value && transaction.date.slice(5, 7) !== fMonth.value) return false;
+    if (fFrom.value && transaction.date < fFrom.value) return false;
+    if (fTo.value && transaction.date > fTo.value) return false;
     return true;
   }),
 );
@@ -89,24 +89,24 @@ const activeFilters = computed(
 const bar = computed(() => {
   const map: Record<string, { total: number; color: string }> = {};
   filtered.value
-    .filter((t: TransactionInterface) => t.type === 'expense')
-    .forEach((t: TransactionInterface) => {
-      const ac = ActivityService.getActivityById(t.activityId);
-      const name = ac ? ac.name : 'Otros';
+    .filter((transaction: TransactionInterface) => transaction.type === 'expense')
+    .forEach((transaction: TransactionInterface) => {
+      const activity = ActivityService.getById(transaction.activityId);
+      const name = activity ? activity.name : 'Otros';
       if (!map[name]) {
-        map[name] = { total: 0, color: ac?.color || '#94a3b8' };
+        map[name] = { total: 0, color: activity?.color || '#94a3b8' };
       }
-      map[name].total += t.amount;
+      map[name].total += transaction.amount;
     });
 
-  const entries = Object.entries(map).sort((a, b) => b[1].total - a[1].total);
+  const entries = Object.entries(map).sort((currentEntry, nextEntry) => nextEntry[1].total - currentEntry[1].total);
   return {
-    labels: entries.map((e) => e[0]),
+    labels: entries.map((entry) => entry[0]),
     datasets: [
       {
         label: 'Gasto',
-        data: entries.map((e) => e[1].total),
-        backgroundColor: entries.map((e) => e[1].color),
+        data: entries.map((entry) => entry[1].total),
+        backgroundColor: entries.map((entry) => entry[1].color),
         borderRadius: 8,
         maxBarThickness: 46,
       },
@@ -118,11 +118,11 @@ const hasBar = computed(() => bar.value.labels.length > 0);
 
 const totals = computed(() => {
   const income = filtered.value
-    .filter((t: TransactionInterface) => t.type === 'income')
-    .reduce((s: number, t: TransactionInterface) => s + t.amount, 0);
+    .filter((transaction: TransactionInterface) => transaction.type === 'income')
+    .reduce((sum: number, transaction: TransactionInterface) => sum + transaction.amount, 0);
   const expense = filtered.value
-    .filter((t: TransactionInterface) => t.type === 'expense')
-    .reduce((s: number, t: TransactionInterface) => s + t.amount, 0);
+    .filter((transaction: TransactionInterface) => transaction.type === 'expense')
+    .reduce((sum: number, transaction: TransactionInterface) => sum + transaction.amount, 0);
   return { income, expense };
 });
 
@@ -140,11 +140,11 @@ function asTx(row: unknown): TransactionInterface {
 }
 
 function getActivity(id: number) {
-  return ActivityService.getActivityById(id);
+  return ActivityService.getById(id);
 }
 
 function getAccount(id: number) {
-  return AccountService.getAccountById(id);
+  return AccountService.getById(id);
 }
 
 async function removeTx(row: TransactionInterface) {
@@ -160,7 +160,7 @@ async function removeTx(row: TransactionInterface) {
     cancelButtonColor: '#94a3b8',
   });
   if (res.isConfirmed) {
-    TransactionService.deleteTransaction(row.id);
+    TransactionService.delete(row.id);
     Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1200, showConfirmButton: false });
   }
 }

@@ -40,7 +40,7 @@ onMounted(() => {
     return;
   }
 
-  const account = accountId ? AccountService.getAccountById(accountId) : undefined;
+  const account = accountId ? AccountService.getById(accountId) : undefined;
   if (!account) {
     router.replace({ name: 'accounts' });
     return;
@@ -87,14 +87,14 @@ async function submit() {
         type: form.value.type,
         balance: Number(form.value.balance),
       };
-      AccountService.updateAccount(accountId, dto);
+      AccountService.update(accountId, dto);
     } else {
       const dto: CreateAccountDTO = {
         name: form.value.name.trim(),
         type: form.value.type,
         balance: Number(form.value.balance),
       };
-      AccountService.createAccount(dto);
+      AccountService.create(dto);
     }
 
     await Swal.fire({

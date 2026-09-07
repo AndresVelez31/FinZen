@@ -7,16 +7,9 @@ import { ActivityService } from '@/services/ActivityService.js';
 import { useUserStore } from '@/stores/userstore.js';
 
 export class TransactionService {
-  /**
-   * Retrieves all transactions for the active user, ordered by date descending.
-   */
-  static getTransactions(): TransactionInterface[] {
-    const currentUserId = useUserStore().currentUserId;
-    if (!currentUserId) {
-      return [];
-    }
+  static getAll(): TransactionInterface[] {
 
-    const userAccounts = AccountService.getAccounts();
+    const userAccounts = AccountService.getAll();
     const userAccountIds = new Set(userAccounts.map((account) => account.id));
 
     const transactions = useTransactionStore().transactions.filter((transaction) =>
@@ -24,37 +17,32 @@ export class TransactionService {
     );
 
     return [...transactions].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+      (currentTransaction, nextTransaction) =>
+        new Date(nextTransaction.date).getTime() - new Date(currentTransaction.date).getTime(),
     );
   }
 
-  /**
-   * Retrieves a specific transaction by its ID.
-   */
-  static getTransactionById(id: number): TransactionInterface | undefined {
+  static getById(id: number): TransactionInterface | undefined {
     return useTransactionStore().transactions.find((transaction) => transaction.id === id);
   }
 
-  /**
-   * Creates a new transaction with validation and persistence.
-   */
-  static createTransaction(dto: CreateTransactionDTO): TransactionInterface {
-    if (dto.amount === undefined || dto.amount <= 0) {
+  static create(createTransactionDTO: CreateTransactionDTO): TransactionInterface {
+    if (createTransactionDTO.amount === undefined || createTransactionDTO.amount <= 0) {
       throw new Error('Transaction amount must be greater than 0.');
     }
 
-    if (!dto.accountId || !AccountService.getAccountById(dto.accountId)) {
+    if (!createTransactionDTO.accountId || !AccountService.getById(createTransactionDTO.accountId)) {
       throw new Error('The specified account does not exist.');
     }
 
-    if (!dto.activityId || !ActivityService.getActivityById(dto.activityId)) {
+    if (!createTransactionDTO.activityId || !ActivityService.getById(createTransactionDTO.activityId)) {
       throw new Error('The specified activity does not exist.');
     }
 
-    const cleanDescription = dto.description ? dto.description.trim() : '';
+    const cleanDescription = createTransactionDTO.description ? createTransactionDTO.description.trim() : '';
 
     const newTransaction: TransactionInterface = {
-      ...dto,
+      ...createTransactionDTO,
       description: cleanDescription,
       id: Date.now(),
       createdAt: new Date().toISOString(),
@@ -65,10 +53,7 @@ export class TransactionService {
     return newTransaction;
   }
 
-  /**
-   * Updates an existing transaction.
-   */
-  static updateTransaction(id: number, dto: UpdateTransactionDTO): TransactionInterface | undefined {
+  static update(id: number, dto: UpdateTransactionDTO): TransactionInterface | undefined {
     const transactionStore = useTransactionStore();
     const index = transactionStore.transactions.findIndex((transaction) => transaction.id === id);
     if (index === -1) {
@@ -82,11 +67,11 @@ export class TransactionService {
       throw new Error('Transaction amount must be greater than 0.');
     }
 
-    if (dto.accountId !== undefined && !AccountService.getAccountById(dto.accountId)) {
+    if (dto.accountId !== undefined && !AccountService.getById(dto.accountId)) {
       throw new Error('The specified account does not exist.');
     }
 
-    if (dto.activityId !== undefined && !ActivityService.getActivityById(dto.activityId)) {
+    if (dto.activityId !== undefined && !ActivityService.getById(dto.activityId)) {
       throw new Error('The specified activity does not exist.');
     }
 
@@ -104,10 +89,7 @@ export class TransactionService {
     return updatedTransaction;
   }
 
-  /**
-   * Deletes a transaction by its ID.
-   */
-  static deleteTransaction(id: number): void {
+  static delete(id: number): void {
     const transactionStore = useTransactionStore();
     transactionStore.transactions = transactionStore.transactions.filter(
       (transaction) => transaction.id !== id,
@@ -118,14 +100,14 @@ export class TransactionService {
    * Filters transactions by type ('income' | 'expense').
    */
   static filterByType(type: 'income' | 'expense'): TransactionInterface[] {
-    return this.getTransactions().filter((transaction) => transaction.type === type);
+    return this.getAll().filter((transaction) => transaction.type === type);
   }
 
   /**
    * Filters transactions by account ID.
    */
   static filterByAccount(accountId: number): TransactionInterface[] {
-    return this.getTransactions().filter((transaction) => transaction.accountId === accountId);
+    return this.getAll().filter((transaction) => transaction.accountId === accountId);
   }
 
   /**
@@ -133,7 +115,7 @@ export class TransactionService {
    */
   static filterByMonth(monthKey: string): TransactionInterface[] {
     const cleanKey = monthKey.trim();
-    return this.getTransactions().filter((transaction) => {
+    return this.getAll().filter((transaction) => {
       const txMonthKey = transaction.date.slice(0, 7);
       return txMonthKey === cleanKey;
     });

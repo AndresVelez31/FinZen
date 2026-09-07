@@ -44,7 +44,7 @@ function themeColors() {
 }
 
 function baseOptions() {
-  const c = themeColors();
+  const colors = themeColors();
   const isPieOrDoughnut = props.type === 'doughnut' || props.type === 'pie';
 
   return {
@@ -55,14 +55,14 @@ function baseOptions() {
         ? {
             display: true,
             text: props.title,
-            color: c.text,
+            color: colors.text,
           }
         : { display: false },
       legend: {
         display: isPieOrDoughnut,
         position: 'bottom',
         labels: {
-          color: c.text,
+          color: colors.text,
           usePointStyle: true,
           pointStyle: 'circle',
           padding: 16,
@@ -85,13 +85,13 @@ function baseOptions() {
       ? {}
       : {
           x: {
-            ticks: { color: c.text, font: { size: 11 } },
-            grid: { color: c.grid, drawBorder: false },
+            ticks: { color: colors.text, font: { size: 11 } },
+            grid: { color: colors.grid, drawBorder: false },
             border: { display: false },
           },
           y: {
-            ticks: { color: c.text, font: { size: 11 } },
-            grid: { color: c.grid, drawBorder: false },
+            ticks: { color: colors.text, font: { size: 11 } },
+            grid: { color: colors.grid, drawBorder: false },
             border: { display: false },
           },
         },

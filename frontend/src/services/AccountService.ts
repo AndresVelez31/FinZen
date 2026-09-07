@@ -6,10 +6,7 @@ import { useTransactionStore } from '@/stores/transactionstore.js';
 import { useUserStore } from '@/stores/userstore.js';
 
 export class AccountService {
-  /**
-   * Retrieves all accounts for the currently active user.
-   */
-  static getAccounts(): AccountInterface[] {
+  static getAll(): AccountInterface[] {
     const currentUserId = useUserStore().currentUserId;
     if (!currentUserId) {
       return [];
@@ -17,28 +14,22 @@ export class AccountService {
     return useAccountStore().accounts.filter((account) => account.userId === currentUserId);
   }
 
-  /**
-   * Retrieves a specific account by its ID.
-   */
-  static getAccountById(id: number): AccountInterface | undefined {
+  static getById(id: number): AccountInterface | undefined {
     return useAccountStore().accounts.find((account) => account.id === id);
   }
 
-  /**
-   * Creates a new account for the currently active user.
-   */
-  static createAccount(dto: CreateAccountDTO): AccountInterface {
+  static create(createAccountDTO: CreateAccountDTO): AccountInterface {
     const currentUserId = useUserStore().currentUserId;
     if (!currentUserId) {
       throw new Error('Cannot create account: No active user session.');
     }
 
-    const cleanName = dto.name.trim();
+    const cleanName = createAccountDTO.name.trim();
     if (!cleanName) throw new Error('Account name is required.');
-    if (!dto.type) throw new Error('Account type is required.');
+    if (!createAccountDTO.type) throw new Error('Account type is required.');
 
     const newAccount: AccountInterface = {
-      ...dto,
+      ...createAccountDTO,
       name: cleanName,
       id: Date.now(),
       userId: currentUserId,
@@ -50,10 +41,7 @@ export class AccountService {
     return newAccount;
   }
 
-  /**
-   * Updates an existing account.
-   */
-  static updateAccount(id: number, dto: UpdateAccountDTO): AccountInterface | undefined {
+  static update(id: number, dto: UpdateAccountDTO): AccountInterface | undefined {
     const accountStore = useAccountStore();
     const index = accountStore.accounts.findIndex((account) => account.id === id);
     if (index === -1) {
@@ -79,10 +67,7 @@ export class AccountService {
     return updatedAccount;
   }
 
-  /**
-   * Deletes an account and all its associated transactions.
-   */
-  static deleteAccount(id: number): void {
+  static delete(id: number): void {
     const accountStore = useAccountStore();
     const transactionStore = useTransactionStore();
 
@@ -98,8 +83,8 @@ export class AccountService {
   /**
    * Calculates the current balance of a specific account based on transactions.
    */
-  static getAccountBalance(id: number): number {
-    const account = this.getAccountById(id);
+  static getBalance(id: number): number {
+    const account = this.getById(id);
     if (!account) {
       return 0;
     }
@@ -118,7 +103,7 @@ export class AccountService {
    * Calculates the total balance across all accounts for the current user.
    */
   static getTotalBalance(): number {
-    const accounts = this.getAccounts();
-    return accounts.reduce((sum, account) => sum + this.getAccountBalance(account.id), 0);
+    const accounts = this.getAll();
+    return accounts.reduce((sum, account) => sum + this.getBalance(account.id), 0);
   }
 }

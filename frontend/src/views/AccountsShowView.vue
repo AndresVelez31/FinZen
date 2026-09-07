@@ -3,10 +3,10 @@ import { computed } from 'vue';
 import { Plus, Pencil, Trash2, Wallet } from 'lucide-vue-next';
 import { AccountService } from '@/services/AccountService.js';
 import { Formatters } from '@/utils/formatters';
-const accounts = computed(() => AccountService.getAccounts());
+const accounts = computed(() => AccountService.getAll());
 
 function getBalance(id: number): number {
-  return AccountService.getAccountBalance(id);
+  return AccountService.getBalance(id);
 }
 
 function deleteAccount(id: number): void {
@@ -18,7 +18,7 @@ function deleteAccount(id: number): void {
     return;
   }
 
-  AccountService.deleteAccount(id);
+  AccountService.delete(id);
 }
 
 </script>
