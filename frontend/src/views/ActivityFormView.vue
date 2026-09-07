@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft, Save, Target, PiggyBank } from 'lucide-vue-next';
 import { ActivityService } from '@/services/ActivityService.js';
@@ -20,8 +20,8 @@ const COLOR_PRESET = [
   '#ef4444',
 ];
 
-const editing = computed(() => route.name === 'activity-edit');
-const activityId = computed(() => (route.params.id ? Number(route.params.id) : null));
+const editing = route.name === 'activity-edit';
+const activityId = route.params.id ? Number(route.params.id) : null;
 
 const form = ref({
   name: '',
@@ -39,11 +39,11 @@ const errors = ref<FormErrors>({});
 const saving = ref(false);
 
 onMounted(() => {
-  if (!editing.value) {
+  if (!editing) {
     return;
   }
 
-  const activity = activityId.value ? ActivityService.getActivityById(activityId.value) : undefined;
+  const activity = activityId ? ActivityService.getActivityById(activityId) : undefined;
   if (!activity) {
     router.replace({ name: 'activities' });
     return;
@@ -82,14 +82,14 @@ async function submit(): Promise<void> {
   const Swal = (await import('sweetalert2')).default;
 
   try {
-    if (editing.value && activityId.value) {
+    if (editing && activityId) {
       const dto: UpdateActivityDTO = {
         name: form.value.name.trim(),
         color: form.value.color,
         type: form.value.type,
         targetAmount: Number(form.value.targetAmount),
       };
-      ActivityService.updateActivity(activityId.value, dto);
+      ActivityService.updateActivity(activityId, dto);
     } else {
       const dto: CreateActivityDTO = {
         name: form.value.name.trim(),
@@ -101,7 +101,7 @@ async function submit(): Promise<void> {
     }
 
     await Swal.fire({
-      title: editing.value ? 'Actividad actualizada' : 'Actividad creada',
+      title: editing ? 'Actividad actualizada' : 'Actividad creada',
       icon: 'success',
       timer: 1200,
       showConfirmButton: false,
