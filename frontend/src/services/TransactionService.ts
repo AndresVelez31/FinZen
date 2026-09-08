@@ -6,6 +6,15 @@ import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
 import { useUserStore } from '@/stores/userstore.js';
 
+export interface TransactionFilterCriteria {
+  activityId?: number | undefined;
+  accountId?: number | undefined;
+  type?: string | undefined;
+  month?: string | undefined;
+  from?: string | undefined;
+  to?: string | undefined;
+}
+
 export class TransactionService {
   static getAll(): TransactionInterface[] {
 
@@ -98,27 +107,19 @@ export class TransactionService {
   }
 
   /**
-   * Filters transactions by type ('income' | 'expense').
+   * Filters transactions by activity, account, type, month (format 'MM'),
+   * and/or an inclusive ISO date range. Every criterion is optional and
+   * unset criteria are ignored.
    */
-  static filterByType(type: 'income' | 'expense'): TransactionInterface[] {
-    return this.getAll().filter((transaction) => transaction.type === type);
-  }
-
-  /**
-   * Filters transactions by account ID.
-   */
-  static filterByAccount(accountId: number): TransactionInterface[] {
-    return this.getAll().filter((transaction) => transaction.accountId === accountId);
-  }
-
-  /**
-   * Filters transactions by month (format 'YYYY-MM').
-   */
-  static filterByMonth(monthKey: string): TransactionInterface[] {
-    const cleanKey = monthKey.trim();
+  static filterTransactions(criteria: TransactionFilterCriteria = {}): TransactionInterface[] {
     return this.getAll().filter((transaction) => {
-      const txMonthKey = transaction.date.slice(0, 7);
-      return txMonthKey === cleanKey;
+      if (criteria.activityId !== undefined && transaction.activityId !== criteria.activityId) return false;
+      if (criteria.accountId !== undefined && transaction.accountId !== criteria.accountId) return false;
+      if (criteria.type !== undefined && transaction.type !== criteria.type) return false;
+      if (criteria.month !== undefined && transaction.date.slice(5, 7) !== criteria.month) return false;
+      if (criteria.from !== undefined && transaction.date < criteria.from) return false;
+      if (criteria.to !== undefined && transaction.date > criteria.to) return false;
+      return true;
     });
   }
 }
