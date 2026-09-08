@@ -1,7 +1,15 @@
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
+import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import { TransactionService } from '@/services/TransactionService.js';
 import { ActivityService } from '@/services/ActivityService.js';
 import { Formatters } from '@/utils/formatters.js';
+import { DateRange } from '@/utils/DateRange.js';
+
+export interface ActivityProgress extends ActivityInterface {
+  used: number;
+  percent: number;
+  over: boolean;
+}
 
 export interface PeriodSummary {
   totalIncome: number;
@@ -45,13 +53,6 @@ export interface SavingsProgress {
   saved: number;
   percent: number;
 }
-
-/**
- * Financial analytics over transactions and activities: aggregations,
- * summaries, and report-ready breakdowns for the currently active user.
- * Reads through TransactionService/ActivityService rather than the Pinia
- * stores directly, so it never touches persistence on its own.
- */
 export class ReportAnalytics {
   // Queries
 
@@ -227,6 +228,33 @@ export class ReportAnalytics {
         targetAmount: activity.targetAmount,
         saved,
         percent,
+      };
+    });
+  }
+
+  /**
+   * Progress for every activity against its target amount. Expense
+   * activities (budgets) are measured against the current month to date;
+   * savings activities are measured against their all-time total, since a
+   * savings goal isn't reset every month the way a budget is.
+   */
+  static getActivityProgress(): ActivityProgress[] {
+    const activities = ActivityService.getAll();
+    const { start, end } = DateRange.currentMonthToDate();
+    const monthlyExpenses = this.getExpensesByActivity(start, end);
+    const allTimeExpenses = this.getExpensesByActivity();
+
+    return activities.map((activity) => {
+      const source = activity.type === 'expense' ? monthlyExpenses : allTimeExpenses;
+      const used = source.find((entry) => entry.activityId === activity.id)?.total ?? 0;
+      const percent =
+        activity.targetAmount > 0 ? Math.min(100, Math.round((used / activity.targetAmount) * 100)) : 0;
+
+      return {
+        ...activity,
+        used,
+        percent,
+        over: activity.type === 'expense' && used > activity.targetAmount,
       };
     });
   }

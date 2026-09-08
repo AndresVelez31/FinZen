@@ -2,25 +2,35 @@
 import { computed } from 'vue';
 import { Plus, Pencil, Trash2, Wallet } from 'lucide-vue-next';
 import { AccountService } from '@/services/AccountService.js';
-import { Formatters } from '@/utils/formatters';
+import { Formatters } from '@/utils/formatters.js';
+
 const accounts = computed(() => AccountService.getAll());
 
 function getBalance(id: number): number {
   return AccountService.getBalance(id);
 }
 
-function deleteAccount(id: number): void {
-  const confirmed = confirm(
-    '¿Está seguro de eliminar esta cuenta? También se eliminarán las transacciones asociadas.',
-  );
+async function deleteAccount(id: number): Promise<void> {
+  const Swal = (await import('sweetalert2')).default;
 
-  if (!confirmed) {
+  const result = await Swal.fire({
+    title: '¿Eliminar cuenta?',
+    text: 'También se eliminarán las transacciones asociadas.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#94a3b8',
+  });
+
+  if (!result.isConfirmed) {
     return;
   }
 
   AccountService.delete(id);
+  await Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
 }
-
 </script>
 
 <template>

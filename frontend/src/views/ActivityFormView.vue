@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft, Save, Target, PiggyBank } from 'lucide-vue-next';
 import { ActivityService } from '@/services/ActivityService.js';
@@ -20,30 +20,36 @@ const COLOR_PRESET = [
   '#ef4444',
 ];
 
-const editing = route.name === 'activity-edit';
-const activityId = route.params.id ? Number(route.params.id) : null;
-
-const form = ref({
-  name: '',
-  color: COLOR_PRESET[0] as string,
-  type: 'expense',
-  targetAmount: '',
-});
+const editing = computed(() => route.name === 'activity-edit');
+const activityId = computed(() => (route.params.id ? Number(route.params.id) : null));
 
 interface FormErrors {
   name?: string;
   targetAmount?: string;
 }
 
+function createInitialFormState() {
+  return {
+    name: '',
+    color: COLOR_PRESET[0] as string,
+    type: 'expense',
+    targetAmount: '',
+  };
+}
+
+const form = ref(createInitialFormState());
 const errors = ref<FormErrors>({});
 const saving = ref(false);
 
-onMounted(() => {
-  if (!editing) {
+function loadForm(): void {
+  errors.value = {};
+
+  if (!editing.value) {
+    form.value = createInitialFormState();
     return;
   }
 
-  const activity = activityId ? ActivityService.getById(activityId) : undefined;
+  const activity = activityId.value ? ActivityService.getById(activityId.value) : undefined;
   if (!activity) {
     router.replace({ name: 'activities' });
     return;
@@ -55,7 +61,12 @@ onMounted(() => {
     type: activity.type,
     targetAmount: String(activity.targetAmount),
   };
-});
+}
+
+// Reruns whenever the route's :id changes, so the form reloads correctly
+// even if Vue Router ever reuses this component instance between two
+// activity-edit navigations instead of remounting it.
+watch([editing, activityId], loadForm, { immediate: true });
 
 function validate(): boolean {
   const validationErrors: FormErrors = {};
@@ -73,8 +84,17 @@ function validate(): boolean {
   return Object.keys(validationErrors).length === 0;
 }
 
+function buildActivityFields(): CreateActivityDTO {
+  return {
+    name: form.value.name.trim(),
+    color: form.value.color,
+    type: form.value.type,
+    targetAmount: Number(form.value.targetAmount),
+  };
+}
+
 async function submit(): Promise<void> {
-  if (!validate()) {
+  if (saving.value || !validate()) {
     return;
   }
 
@@ -82,27 +102,18 @@ async function submit(): Promise<void> {
   const Swal = (await import('sweetalert2')).default;
 
   try {
-    if (editing && activityId) {
-      const dto: UpdateActivityDTO = {
-        id: activityId,
-        name: form.value.name.trim(),
-        color: form.value.color,
-        type: form.value.type,
-        targetAmount: Number(form.value.targetAmount),
-      };
-      ActivityService.update(dto);
+    if (editing.value && activityId.value) {
+      const dto: UpdateActivityDTO = { id: activityId.value, ...buildActivityFields() };
+      const updated = ActivityService.update(dto);
+      if (!updated) {
+        throw new Error('La actividad no existe o no está disponible.');
+      }
     } else {
-      const dto: CreateActivityDTO = {
-        name: form.value.name.trim(),
-        color: form.value.color,
-        type: form.value.type,
-        targetAmount: Number(form.value.targetAmount),
-      };
-      ActivityService.create(dto);
+      ActivityService.create(buildActivityFields());
     }
 
     await Swal.fire({
-      title: editing ? 'Actividad actualizada' : 'Actividad creada',
+      title: editing.value ? 'Actividad actualizada' : 'Actividad creada',
       icon: 'success',
       timer: 1200,
       showConfirmButton: false,
@@ -119,14 +130,14 @@ async function submit(): Promise<void> {
 
 <template>
   <div class="fade-up form-page">
-    <button class="back" @click="router.back()"><ArrowLeft :size="17" /> Volver</button>
+    <button class="back" :disabled="saving" @click="router.back()"><ArrowLeft :size="17" /> Volver</button>
     <h2 class="page-title">{{ editing ? 'Editar actividad' : 'Nueva actividad' }}</h2>
     <p class="muted">Define una categoría de gasto o una meta de ahorro.</p>
 
     <form class="card form" @submit.prevent="submit">
       <div class="field">
         <label for="name">Nombre</label>
-        <input id="name" v-model="form.name" class="input" placeholder="Ej: Alimentación" />
+        <input id="name" v-model="form.name" class="input" placeholder="Ej: Alimentación" :disabled="saving" />
         <span v-if="errors.name" class="err">{{ errors.name }}</span>
       </div>
 
@@ -137,6 +148,7 @@ async function submit(): Promise<void> {
             type="button"
             class="type-opt"
             :class="{ active: form.type === 'expense' }"
+            :disabled="saving"
             @click="form.type = 'expense'"
           >
             <Target :size="16" /> Gasto
@@ -145,6 +157,7 @@ async function submit(): Promise<void> {
             type="button"
             class="type-opt save"
             :class="{ active: form.type === 'savings' }"
+            :disabled="saving"
             @click="form.type = 'savings'"
           >
             <PiggyBank :size="16" /> Ahorro
@@ -166,6 +179,7 @@ async function submit(): Promise<void> {
             min="0"
             step="1000"
             placeholder="0"
+            :disabled="saving"
           />
         </div>
         <span v-if="errors.targetAmount" class="err">{{ errors.targetAmount }}</span>
@@ -182,6 +196,7 @@ async function submit(): Promise<void> {
             :class="{ sel: form.color === color }"
             :style="{ background: color }"
             :aria-label="color"
+            :disabled="saving"
             @click="form.color = color"
           ></button>
           <input
@@ -189,12 +204,13 @@ async function submit(): Promise<void> {
             type="color"
             class="color-input"
             aria-label="Color personalizado"
+            :disabled="saving"
           />
         </div>
       </div>
 
       <div class="actions">
-        <button type="button" class="btn btn-ghost" @click="router.push({ name: 'activities' })">
+        <button type="button" class="btn btn-ghost" :disabled="saving" @click="router.push({ name: 'activities' })">
           Cancelar
         </button>
         <button type="submit" class="btn btn-primary" :disabled="saving">

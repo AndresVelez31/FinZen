@@ -28,4 +28,17 @@ export class Formatters {
   static monthKey(dateStr: string): string {
     return dateStr.slice(0, 7);
   }
+
+  /**
+   * Extracts up to two initials from a full name (e.g. "Ana García" -> "AG").
+   */
+  static initials(name: string): string {
+    if (!name) return '';
+    return name
+      .split(' ')
+      .slice(0, 2)
+      .map((word) => word[0])
+      .join('')
+      .toUpperCase();
+  }
 }

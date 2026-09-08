@@ -4,7 +4,6 @@ import type { UpdateTransactionDTO } from '@/dtos/UpdateTransactionDTO.js';
 import { useTransactionStore } from '@/stores/transactionstore.js';
 import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
-import { useUserStore } from '@/stores/userstore.js';
 
 export interface TransactionFilterCriteria {
   activityId?: number | undefined;
@@ -31,8 +30,16 @@ export class TransactionService {
     );
   }
 
+  // Transactions have no direct userId, so ownership is scoped through the
+  // account: AccountService.getById() is itself ownership-scoped, so a
+  // transaction whose account belongs to someone else resolves to undefined
+  // here too, instead of leaking another user's data by guessing an id.
   static getById(id: number): TransactionInterface | undefined {
-    return useTransactionStore().transactions.find((transaction) => transaction.id === id);
+    const transaction = useTransactionStore().transactions.find((item) => item.id === id);
+    if (!transaction || !AccountService.getById(transaction.accountId)) {
+      return undefined;
+    }
+    return transaction;
   }
 
   static create(createTransactionDTO: CreateTransactionDTO): TransactionInterface {
@@ -65,11 +72,13 @@ export class TransactionService {
   static update(updateTransactionDTO: UpdateTransactionDTO): TransactionInterface | undefined {
     const { id, ...transactionUpdates } = updateTransactionDTO;
     const transactionStore = useTransactionStore();
-    const index = transactionStore.transactions.findIndex((transaction) => transaction.id === id);
-    if (index === -1) {
+
+    // Ownership check, mirroring getById().
+    if (!this.getById(id)) {
       return undefined;
     }
 
+    const index = transactionStore.transactions.findIndex((transaction) => transaction.id === id);
     const transactionToUpdate = transactionStore.transactions[index];
     if (!transactionToUpdate) return undefined;
 
@@ -100,6 +109,12 @@ export class TransactionService {
   }
 
   static delete(id: number): void {
+    // Ownership check, mirroring getById()/update(): silently no-ops on an
+    // id that isn't the current user's.
+    if (!this.getById(id)) {
+      return;
+    }
+
     const transactionStore = useTransactionStore();
     transactionStore.transactions = transactionStore.transactions.filter(
       (transaction) => transaction.id !== id,

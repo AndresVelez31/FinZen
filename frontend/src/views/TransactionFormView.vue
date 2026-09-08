@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft, TrendingUp, TrendingDown, Save } from 'lucide-vue-next';
 import { TransactionService } from '@/services/TransactionService.js';
@@ -11,22 +11,13 @@ import type { UpdateTransactionDTO } from '@/dtos/UpdateTransactionDTO.js';
 const route = useRoute();
 const router = useRouter();
 
-const editing = route.name === 'transaction-edit';
-const transactionId = route.params.id ? Number(route.params.id) : null;
+const editing = computed(() => route.name === 'transaction-edit');
+const transactionId = computed(() => (route.params.id ? Number(route.params.id) : null));
 
 const accounts = computed(() => AccountService.getAll());
 const activities = computed(() => ActivityService.getAll());
 
 const today = new Date().toISOString().slice(0, 10);
-
-const form = ref({
-  type: 'expense',
-  amount: '',
-  accountId: null as number | null,
-  activityId: null as number | null,
-  date: today,
-  description: '',
-});
 
 interface FormErrors {
   amount?: string;
@@ -36,35 +27,49 @@ interface FormErrors {
   description?: string;
 }
 
+function createInitialFormState() {
+  return {
+    type: 'expense',
+    amount: '',
+    accountId: (accounts.value[0]?.id ?? null) as number | null,
+    activityId: (activities.value[0]?.id ?? null) as number | null,
+    date: today,
+    description: '',
+  };
+}
+
+const form = ref(createInitialFormState());
 const errors = ref<FormErrors>({});
 const saving = ref(false);
 
-onMounted(() => {
-  if (editing) {
-    const transaction = transactionId
-      ? TransactionService.getById(transactionId)
-      : undefined;
-    if (!transaction) {
-      router.replace({ name: 'transactions' });
-      return;
-    }
+function loadForm(): void {
+  errors.value = {};
 
-    form.value = {
-      type: transaction.type,
-      amount: String(transaction.amount),
-      accountId: transaction.accountId,
-      activityId: transaction.activityId,
-      date: transaction.date,
-      description: transaction.description,
-    };
+  if (!editing.value) {
+    form.value = createInitialFormState();
     return;
   }
 
-  const firstAccount = accounts.value[0];
-  const firstActivity = activities.value[0];
-  if (firstAccount) form.value.accountId = firstAccount.id;
-  if (firstActivity) form.value.activityId = firstActivity.id;
-});
+  const transaction = transactionId.value ? TransactionService.getById(transactionId.value) : undefined;
+  if (!transaction) {
+    router.replace({ name: 'transactions' });
+    return;
+  }
+
+  form.value = {
+    type: transaction.type,
+    amount: String(transaction.amount),
+    accountId: transaction.accountId,
+    activityId: transaction.activityId,
+    date: transaction.date,
+    description: transaction.description,
+  };
+}
+
+// Reruns whenever the route's :id changes, so the form reloads correctly
+// even if Vue Router ever reuses this component instance between two
+// transaction-edit navigations instead of remounting it.
+watch([editing, transactionId], loadForm, { immediate: true });
 
 function validate(): boolean {
   const validationErrors: FormErrors = {};
@@ -90,8 +95,19 @@ function validate(): boolean {
   return Object.keys(validationErrors).length === 0;
 }
 
-async function submit() {
-  if (!validate() || !form.value.accountId || !form.value.activityId) {
+function buildTransactionFields() {
+  return {
+    type: form.value.type,
+    amount: Number(form.value.amount),
+    accountId: form.value.accountId as number,
+    activityId: form.value.activityId as number,
+    date: form.value.date,
+    description: form.value.description.trim(),
+  };
+}
+
+async function submit(): Promise<void> {
+  if (saving.value || !validate() || !form.value.accountId || !form.value.activityId) {
     return;
   }
 
@@ -99,31 +115,19 @@ async function submit() {
   const Swal = (await import('sweetalert2')).default;
 
   try {
-    if (editing && transactionId) {
-      const dto: UpdateTransactionDTO = {
-        id: transactionId,
-        type: form.value.type,
-        amount: Number(form.value.amount),
-        accountId: form.value.accountId,
-        activityId: form.value.activityId,
-        date: form.value.date,
-        description: form.value.description.trim(),
-      };
-      TransactionService.update(dto);
+    if (editing.value && transactionId.value) {
+      const dto: UpdateTransactionDTO = { id: transactionId.value, ...buildTransactionFields() };
+      const updated = TransactionService.update(dto);
+      if (!updated) {
+        throw new Error('La transacción no existe o no está disponible.');
+      }
     } else {
-      const dto: CreateTransactionDTO = {
-        type: form.value.type,
-        amount: Number(form.value.amount),
-        accountId: form.value.accountId,
-        activityId: form.value.activityId,
-        date: form.value.date,
-        description: form.value.description.trim(),
-      };
+      const dto: CreateTransactionDTO = buildTransactionFields();
       TransactionService.create(dto);
     }
 
     await Swal.fire({
-      title: editing ? 'Transacción actualizada' : 'Transacción creada',
+      title: editing.value ? 'Transacción actualizada' : 'Transacción creada',
       icon: 'success',
       timer: 1300,
       showConfirmButton: false,
@@ -144,7 +148,7 @@ async function submit() {
 
 <template>
   <div class="fade-up form-page">
-    <button class="back" @click="router.back()"><ArrowLeft :size="17" /> Volver</button>
+    <button class="back" :disabled="saving" @click="router.back()"><ArrowLeft :size="17" /> Volver</button>
     <h2 class="page-title">{{ editing ? 'Editar transacción' : 'Nueva transacción' }}</h2>
     <p class="muted">Completa los datos del movimiento.</p>
 
@@ -157,6 +161,7 @@ async function submit() {
             type="button"
             class="type-opt expense"
             :class="{ active: form.type === 'expense' }"
+            :disabled="saving"
             @click="form.type = 'expense'"
           >
             <TrendingDown :size="18" /> Gasto
@@ -165,6 +170,7 @@ async function submit() {
             type="button"
             class="type-opt income"
             :class="{ active: form.type === 'income' }"
+            :disabled="saving"
             @click="form.type = 'income'"
           >
             <TrendingUp :size="18" /> Ingreso
@@ -185,6 +191,7 @@ async function submit() {
             step="1000"
             min="0"
             placeholder="0"
+            :disabled="saving"
           />
         </div>
         <span v-if="errors.amount" class="err">{{ errors.amount }}</span>
@@ -193,7 +200,7 @@ async function submit() {
       <div class="row-2">
         <div class="field">
           <label for="account">Cuenta</label>
-          <select id="account" v-model="form.accountId" class="select">
+          <select id="account" v-model="form.accountId" class="select" :disabled="saving">
             <option :value="null" disabled>Selecciona cuenta</option>
             <option v-for="account in accounts" :key="account.id" :value="account.id">
               {{ account.name }} ({{ account.type }})
@@ -204,7 +211,7 @@ async function submit() {
 
         <div class="field">
           <label for="activity">Actividad</label>
-          <select id="activity" v-model="form.activityId" class="select">
+          <select id="activity" v-model="form.activityId" class="select" :disabled="saving">
             <option :value="null" disabled>Selecciona actividad</option>
             <option v-for="activity in activities" :key="activity.id" :value="activity.id">
               {{ activity.name }} ({{ activity.type === 'expense' ? 'Gasto' : 'Ahorro' }})
@@ -216,7 +223,7 @@ async function submit() {
 
       <div class="field">
         <label for="date">Fecha</label>
-        <input id="date" v-model="form.date" class="input" type="date" />
+        <input id="date" v-model="form.date" class="input" type="date" :disabled="saving" />
         <span v-if="errors.date" class="err">{{ errors.date }}</span>
       </div>
 
@@ -228,12 +235,13 @@ async function submit() {
           class="input"
           rows="2"
           placeholder="Ej: Compra en supermercado"
+          :disabled="saving"
         ></textarea>
         <span v-if="errors.description" class="err">{{ errors.description }}</span>
       </div>
 
       <div class="actions">
-        <button type="button" class="btn btn-ghost" @click="router.push({ name: 'transactions' })">
+        <button type="button" class="btn btn-ghost" :disabled="saving" @click="router.push({ name: 'transactions' })">
           Cancelar
         </button>
         <button type="submit" class="btn btn-primary" :disabled="saving">

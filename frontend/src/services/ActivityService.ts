@@ -14,8 +14,13 @@ export class ActivityService {
     return useActivityStore().activities.filter((activity) => activity.userId === currentUserId);
   }
 
+  // Scoped to the current user: without this check, any authenticated user
+  // could load or edit another user's activity by guessing its id in the URL.
   static getById(id: number): ActivityInterface | undefined {
-    return useActivityStore().activities.find((activity) => activity.id === id);
+    const currentUserId = useUserStore().currentUserId;
+    return useActivityStore().activities.find(
+      (activity) => activity.id === id && activity.userId === currentUserId,
+    );
   }
 
   static create(createActivityDTO: CreateActivityDTO): ActivityInterface {
@@ -43,8 +48,13 @@ export class ActivityService {
 
   static update(updateActivityDTO: UpdateActivityDTO): ActivityInterface | undefined {
     const { id, ...activityUpdates } = updateActivityDTO;
+    const currentUserId = useUserStore().currentUserId;
     const activityStore = useActivityStore();
-    const index = activityStore.activities.findIndex((activity) => activity.id === id);
+
+    // Ownership check, mirroring getById().
+    const index = activityStore.activities.findIndex(
+      (activity) => activity.id === id && activity.userId === currentUserId,
+    );
     if (index === -1) {
       return undefined;
     }
@@ -68,13 +78,20 @@ export class ActivityService {
   }
 
   static delete(id: number): void {
+    const currentUserId = useUserStore().currentUserId;
     const activityStore = useActivityStore();
     const transactionStore = useTransactionStore();
 
-    // Remove the activity
-    activityStore.activities = activityStore.activities.filter((activity) => activity.id !== id);
+    // Ownership check, mirroring getById()/update(): silently no-ops on an
+    // id that isn't the current user's.
+    const activity = activityStore.activities.find(
+      (item) => item.id === id && item.userId === currentUserId,
+    );
+    if (!activity) {
+      return;
+    }
 
-    // Remove all associated transactions
+    activityStore.activities = activityStore.activities.filter((item) => item.id !== id);
     transactionStore.transactions = transactionStore.transactions.filter(
       (transaction) => transaction.activityId !== id,
     );

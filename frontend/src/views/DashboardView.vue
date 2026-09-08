@@ -6,9 +6,10 @@ import StatCard from '@/components/shared/StatCard.vue';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import RecentTransactionsTable from '@/components/dashboard/RecentTransactionsTable.vue';
 import { AccountService } from '@/services/AccountService.js';
-import { ActivityService } from '@/services/ActivityService.js';
 import { TransactionService } from '@/services/TransactionService.js';
 import { UserService } from '@/services/UserService.js';
+import { ReportAnalytics } from '@/utils/ReportAnalytics.js';
+import { DateRange } from '@/utils/DateRange.js';
 import { Formatters } from '@/utils/formatters.js';
 
 const router = useRouter();
@@ -18,43 +19,23 @@ onMounted(() => setTimeout(() => (loading.value = false), 500));
 const currentUser = computed(() => UserService.getCurrent());
 const transactions = computed(() => TransactionService.getAll());
 
-const currentMonth = new Date().toISOString().slice(0, 7);
-const monthTransactions = computed(() =>
-  transactions.value.filter((transaction) => transaction.date.slice(0, 7) === currentMonth),
-);
-
+const monthRange = DateRange.currentMonthFull();
+const monthTransactions = computed(() => ReportAnalytics.getUserTransactions(monthRange.start, monthRange.end));
 const monthExpenses = computed(() => monthTransactions.value.filter((transaction) => transaction.type === 'expense'));
 const monthIncomes = computed(() => monthTransactions.value.filter((transaction) => transaction.type === 'income'));
-
-const monthExpenseTotal = computed(() =>
-  monthExpenses.value.reduce((total, transaction) => total + transaction.amount, 0),
-);
-const monthIncomeTotal = computed(() =>
-  monthIncomes.value.reduce((total, transaction) => total + transaction.amount, 0),
-);
+const monthSummary = computed(() => ReportAnalytics.summarize(monthTransactions.value));
 
 const totalBalance = computed(() => AccountService.getTotalBalance());
 
 // Doughnut: expense by activity this month
 const donut = computed(() => {
-  const totals = new Map<string, { total: number; color: string }>();
-
-  monthExpenses.value.forEach((transaction) => {
-    const activity = ActivityService.getById(transaction.activityId);
-    const name = activity ? activity.name : 'Otros';
-    const entry = totals.get(name) ?? { total: 0, color: activity?.color ?? '#94a3b8' };
-    entry.total += transaction.amount;
-    totals.set(name, entry);
-  });
-
-  const entries = [...totals.entries()].sort((currentEntry, nextEntry) => nextEntry[1].total - currentEntry[1].total);
-
+  const entries = ReportAnalytics.aggregateExpensesByActivity(monthTransactions.value);
   return {
-    labels: entries.map(([name]) => name),
+    labels: entries.map((entry) => entry.name),
     datasets: [
       {
-        data: entries.map(([, entry]) => entry.total),
-        backgroundColor: entries.map(([, entry]) => entry.color),
+        data: entries.map((entry) => entry.total),
+        backgroundColor: entries.map((entry) => entry.color),
         borderWidth: 0,
         hoverOffset: 6,
       },
@@ -88,7 +69,7 @@ const recentTransactions = computed(() => transactions.value.slice(0, 5));
       />
       <StatCard
         title="Gasto del mes"
-        :value="Formatters.formatToCOP(monthExpenseTotal)"
+        :value="Formatters.formatToCOP(monthSummary.totalExpense)"
         :icon="TrendingDown"
         variant="expense"
         :trend="`${monthExpenses.length} movimientos`"
@@ -96,7 +77,7 @@ const recentTransactions = computed(() => transactions.value.slice(0, 5));
       />
       <StatCard
         title="Ingresos del mes"
-        :value="Formatters.formatToCOP(monthIncomeTotal)"
+        :value="Formatters.formatToCOP(monthSummary.totalIncome)"
         :icon="TrendingUp"
         variant="income"
         :trend="`${monthIncomes.length} movimientos`"

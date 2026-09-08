@@ -11,38 +11,7 @@ const router = useRouter();
 const loading = ref(true);
 onMounted(() => setTimeout(() => (loading.value = false), 450));
 
-const activities = computed(() => ActivityService.getAll());
-
-// Presupuestos ('expense') se miden contra el mes actual; metas de ahorro
-// ('savings') se miden contra el histórico completo.
-const today = new Date();
-const monthStart = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
-const monthEnd = today.toISOString().slice(0, 10);
-
-const monthlyExpenses = computed(() => ReportAnalytics.getExpensesByActivity(monthStart, monthEnd));
-const allTimeExpenses = computed(() => ReportAnalytics.getExpensesByActivity());
-
-interface ActivityCard extends ActivityInterface {
-  used: number;
-  percent: number;
-  over: boolean;
-}
-
-const cards = computed<ActivityCard[]>(() =>
-  activities.value.map((activity) => {
-    const source = activity.type === 'expense' ? monthlyExpenses.value : allTimeExpenses.value;
-    const used = source.find((entry) => entry.activityId === activity.id)?.total ?? 0;
-    const percent =
-      activity.targetAmount > 0 ? Math.min(100, Math.round((used / activity.targetAmount) * 100)) : 0;
-
-    return {
-      ...activity,
-      used,
-      percent,
-      over: activity.type === 'expense' && used > activity.targetAmount,
-    };
-  }),
-);
+const cards = computed(() => ReportAnalytics.getActivityProgress());
 
 async function remove(activity: ActivityInterface): Promise<void> {
   const Swal = (await import('sweetalert2')).default;
