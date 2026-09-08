@@ -4,146 +4,86 @@ import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-vue-next';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import BudgetSummaryTable from '@/components/reports/BudgetSummaryTable.vue';
+import type { SummaryRow } from '@/components/reports/BudgetSummaryTable.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import RadialProgress from '@/components/shared/RadialProgress.vue';
-import { ActivityService } from '@/services/ActivityService.js';
-import { ReportService } from '@/utils/ReportService.js';
-import { TransactionService } from '@/services/TransactionService.js';
+import { ReportAnalytics } from '@/utils/ReportAnalytics.js';
 import { Formatters } from '@/utils/formatters.js';
-
-interface FilterOption {
-  label: string;
-  value: string;
-}
+import { DateRange } from '@/utils/DateRange.js';
+import { MONTH_OPTIONS } from '@/utils/constants.js';
+import type { FilterOption } from '@/utils/constants.js';
 
 const now = new Date();
 const selYear = ref(String(now.getFullYear()));
 const selMonth = ref(String(now.getMonth() + 1).padStart(2, '0'));
 
-const transactions = computed(() => TransactionService.getAll());
-
-const years = computed<FilterOption[]>(() => {
-  const set = new Set(transactions.value.map((transaction) => new Date(transaction.date).getFullYear()));
-  set.add(now.getFullYear());
-  return [...set]
-    .sort((currentYear, nextYear) => nextYear - currentYear)
-    .map((year) => ({ value: String(year), label: String(year) }));
-});
-
-const months: FilterOption[] = [
-  { value: '01', label: 'Enero' },
-  { value: '02', label: 'Febrero' },
-  { value: '03', label: 'Marzo' },
-  { value: '04', label: 'Abril' },
-  { value: '05', label: 'Mayo' },
-  { value: '06', label: 'Junio' },
-  { value: '07', label: 'Julio' },
-  { value: '08', label: 'Agosto' },
-  { value: '09', label: 'Septiembre' },
-  { value: '10', label: 'Octubre' },
-  { value: '11', label: 'Noviembre' },
-  { value: '12', label: 'Diciembre' },
-];
-
-const monthName = computed(() => months.find((month) => month.value === selMonth.value)?.label ?? '');
-
-const periodStart = computed(() => `${selYear.value}-${selMonth.value}-01`);
-const periodEnd = computed(() => {
-  const lastDay = new Date(Number(selYear.value), Number(selMonth.value), 0).getDate();
-  return `${selYear.value}-${selMonth.value}-${String(lastDay).padStart(2, '0')}`;
-});
-
-const summary = computed(() => ReportService.getPeriodSummary(periodStart.value, periodEnd.value));
-
-/* ---- Line chart: cumulative balance evolution across the selected year ---- */
-const lineChart = computed(() => {
-  const monthlyTotals = ReportService.getMonthlyTotals(`${selYear.value}-01-01`, `${selYear.value}-12-31`);
-
-  let running = 0;
-  const net = months.map((month) => {
-    const entry = monthlyTotals.find((total) => total.month === `${selYear.value}-${month.value}`);
-    running += (entry?.income ?? 0) - (entry?.expense ?? 0);
-    return Math.round(running);
-  });
-
-  return {
-    labels: months.map((month) => month.label.slice(0, 3)),
-    datasets: [
-      {
-        label: 'Balance acumulado',
-        data: net,
-        borderColor: '#10b981',
-        backgroundColor: 'rgba(16,185,129,0.12)',
-        fill: true,
-        tension: 0.4,
-        pointRadius: 3,
-        pointBackgroundColor: '#10b981',
-        borderWidth: 2.5,
-      },
-    ],
-  };
-});
-
-/* ---- Bar chart: budget vs actual (expense activities) for the selected period ---- */
-const expenseActivities = computed(() => ActivityService.getAll().filter((activity) => activity.type === 'expense'));
-const periodExpensesByActivity = computed(() =>
-  ReportService.getExpensesByActivity(periodStart.value, periodEnd.value),
+const years = computed<FilterOption[]>(() =>
+  ReportAnalytics.getAvailableYears().map((year) => ({ value: String(year), label: String(year) })),
 );
 
-function actualFor(activityId: number): number {
-  return periodExpensesByActivity.value.find((entry) => entry.activityId === activityId)?.total ?? 0;
-}
+const monthName = computed(() => MONTH_OPTIONS.find((month) => month.value === selMonth.value)?.label ?? '');
 
-const budgetChart = computed(() => {
-  const acts = expenseActivities.value;
-  return {
-    labels: acts.map((activity) => activity.name),
-    datasets: [
-      {
-        label: 'Presupuesto',
-        data: acts.map((activity) => activity.targetAmount),
-        backgroundColor: '#cbd5e1',
-        borderRadius: 6,
-        maxBarThickness: 26,
-      },
-      {
-        label: 'Gasto real',
-        data: acts.map((activity) => actualFor(activity.id)),
-        backgroundColor: '#10b981',
-        borderRadius: 6,
-        maxBarThickness: 26,
-      },
-    ],
-  };
-});
+const period = computed(() => DateRange.ofMonth(selYear.value, selMonth.value));
+const periodStart = computed(() => period.value.start);
+const periodEnd = computed(() => period.value.end);
+
+const summary = computed(() => ReportAnalytics.getPeriodSummary(periodStart.value, periodEnd.value));
+
+/* ---- Line chart: cumulative balance evolution across the selected year ---- */
+const lineChart = computed(() => ({
+  labels: MONTH_OPTIONS.map((month) => month.label.slice(0, 3)),
+  datasets: [
+    {
+      label: 'Balance acumulado',
+      data: ReportAnalytics.getCumulativeBalanceByMonth(selYear.value),
+      borderColor: '#10b981',
+      backgroundColor: 'rgba(16,185,129,0.12)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 3,
+      pointBackgroundColor: '#10b981',
+      borderWidth: 2.5,
+    },
+  ],
+}));
+
+/* ---- Bar chart: budget vs actual (expense activities) for the selected period ---- */
+const budgetVsActual = computed(() => ReportAnalytics.getBudgetVsActual(periodStart.value, periodEnd.value));
+
+const budgetChart = computed(() => ({
+  labels: budgetVsActual.value.map((row) => row.name),
+  datasets: [
+    {
+      label: 'Presupuesto',
+      data: budgetVsActual.value.map((row) => row.budget),
+      backgroundColor: '#cbd5e1',
+      borderRadius: 6,
+      maxBarThickness: 26,
+    },
+    {
+      label: 'Gasto real',
+      data: budgetVsActual.value.map((row) => row.spent),
+      backgroundColor: '#10b981',
+      borderRadius: 6,
+      maxBarThickness: 26,
+    },
+  ],
+}));
 const hasBudget = computed(() => budgetChart.value.labels.length > 0);
 
 /* ---- Savings progress (all-time) ---- */
-const savingsActivities = computed(() => ActivityService.getAll().filter((activity) => activity.type === 'savings'));
-const allTimeExpensesByActivity = computed(() => ReportService.getExpensesByActivity());
-
-const savingsActs = computed(() =>
-  savingsActivities.value.map((activity) => {
-    const saved = allTimeExpensesByActivity.value.find((entry) => entry.activityId === activity.id)?.total ?? 0;
-    const percent =
-      activity.targetAmount > 0 ? Math.min(100, Math.round((saved / activity.targetAmount) * 100)) : 0;
-    return { ...activity, saved, percent };
-  }),
-);
+const savingsActs = computed(() => ReportAnalytics.getSavingsProgress());
 
 /* ---- Summary table ---- */
-const summaryRows = computed(() =>
-  expenseActivities.value.map((activity) => {
-    const spent = actualFor(activity.id);
-    return {
-      id: activity.id,
-      name: activity.name,
-      color: activity.color,
-      budget: activity.targetAmount,
-      spent,
-      diff: activity.targetAmount - spent,
-    };
-  }),
+const summaryRows = computed<SummaryRow[]>(() =>
+  budgetVsActual.value.map((row) => ({
+    id: row.activityId,
+    name: row.name,
+    color: row.color,
+    budget: row.budget,
+    spent: row.spent,
+    diff: row.diff,
+  })),
 );
 </script>
 
@@ -155,7 +95,7 @@ const summaryRows = computed(() =>
         <p class="muted">Analiza tu evolución financiera y el cumplimiento de presupuestos.</p>
       </div>
       <div class="period card">
-        <SelectorFilter label="Mes" v-model="selMonth" :options="months" placeholder="" />
+        <SelectorFilter label="Mes" v-model="selMonth" :options="MONTH_OPTIONS" placeholder="" />
         <SelectorFilter label="Año" v-model="selYear" :options="years" placeholder="" />
       </div>
     </div>

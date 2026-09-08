@@ -8,7 +8,10 @@ import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import { TransactionService } from '@/services/TransactionService.js';
 import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
+import { ReportAnalytics } from '@/utils/ReportAnalytics.js';
 import { Formatters } from '@/utils/formatters.js';
+import { MONTH_OPTIONS } from '@/utils/constants.js';
+import type { FilterOption } from '@/utils/constants.js';
 import type { TransactionInterface } from '@/interfaces/TransactionInterface';
 
 const router = useRouter();
@@ -25,46 +28,30 @@ const fMonth = ref<string>('');
 const fFrom = ref<string>('');
 const fTo = ref<string>('');
 
-const activityOptions = computed<{ value: string; label: string }[]>(() =>
+const activityOptions = computed<FilterOption[]>(() =>
   ActivityService.getAll().map((activity) => ({ value: String(activity.id), label: activity.name })),
 );
 
-const accountOptions = computed<{ value: string; label: string }[]>(() =>
+const accountOptions = computed<FilterOption[]>(() =>
   AccountService.getAll().map((account) => ({
     value: String(account.id),
     label: `${account.name} · ${account.type}`,
   })),
 );
 
-const typeOptions = [
+const typeOptions: FilterOption[] = [
   { value: 'income', label: 'Ingreso' },
   { value: 'expense', label: 'Gasto' },
 ];
 
-const monthOptions = [
-  { value: '01', label: 'Enero' },
-  { value: '02', label: 'Febrero' },
-  { value: '03', label: 'Marzo' },
-  { value: '04', label: 'Abril' },
-  { value: '05', label: 'Mayo' },
-  { value: '06', label: 'Junio' },
-  { value: '07', label: 'Julio' },
-  { value: '08', label: 'Agosto' },
-  { value: '09', label: 'Septiembre' },
-  { value: '10', label: 'Octubre' },
-  { value: '11', label: 'Noviembre' },
-  { value: '12', label: 'Diciembre' },
-];
-
 const filtered = computed<TransactionInterface[]>(() =>
-  TransactionService.getAll().filter((transaction: TransactionInterface) => {
-    if (fActivity.value && String(transaction.activityId) !== fActivity.value) return false;
-    if (fAccount.value && String(transaction.accountId) !== fAccount.value) return false;
-    if (fType.value && transaction.type !== fType.value) return false;
-    if (fMonth.value && transaction.date.slice(5, 7) !== fMonth.value) return false;
-    if (fFrom.value && transaction.date < fFrom.value) return false;
-    if (fTo.value && transaction.date > fTo.value) return false;
-    return true;
+  TransactionService.filterTransactions({
+    activityId: fActivity.value ? Number(fActivity.value) : undefined,
+    accountId: fAccount.value ? Number(fAccount.value) : undefined,
+    type: fType.value || undefined,
+    month: fMonth.value || undefined,
+    from: fFrom.value || undefined,
+    to: fTo.value || undefined,
   }),
 );
 
@@ -86,26 +73,14 @@ const activeFilters = computed(
 
 // Bar chart: expense by activity for the filtered set
 const bar = computed(() => {
-  const map: Record<string, { total: number; color: string }> = {};
-  filtered.value
-    .filter((transaction: TransactionInterface) => transaction.type === 'expense')
-    .forEach((transaction: TransactionInterface) => {
-      const activity = ActivityService.getById(transaction.activityId);
-      const name = activity ? activity.name : 'Otros';
-      if (!map[name]) {
-        map[name] = { total: 0, color: activity?.color || '#94a3b8' };
-      }
-      map[name].total += transaction.amount;
-    });
-
-  const entries = Object.entries(map).sort((currentEntry, nextEntry) => nextEntry[1].total - currentEntry[1].total);
+  const entries = ReportAnalytics.aggregateExpensesByActivity(filtered.value);
   return {
-    labels: entries.map((entry) => entry[0]),
+    labels: entries.map((entry) => entry.name),
     datasets: [
       {
         label: 'Gasto',
-        data: entries.map((entry) => entry[1].total),
-        backgroundColor: entries.map((entry) => entry[1].color),
+        data: entries.map((entry) => entry.total),
+        backgroundColor: entries.map((entry) => entry.color),
         borderRadius: 8,
         maxBarThickness: 46,
       },
@@ -116,13 +91,8 @@ const bar = computed(() => {
 const hasBar = computed(() => bar.value.labels.length > 0);
 
 const totals = computed(() => {
-  const income = filtered.value
-    .filter((transaction: TransactionInterface) => transaction.type === 'income')
-    .reduce((sum: number, transaction: TransactionInterface) => sum + transaction.amount, 0);
-  const expense = filtered.value
-    .filter((transaction: TransactionInterface) => transaction.type === 'expense')
-    .reduce((sum: number, transaction: TransactionInterface) => sum + transaction.amount, 0);
-  return { income, expense };
+  const summary = ReportAnalytics.summarize(filtered.value);
+  return { income: summary.totalIncome, expense: summary.totalExpense };
 });
 
 function onEdit(transaction: TransactionInterface) {
@@ -185,7 +155,7 @@ async function removeTx(row: TransactionInterface) {
         />
 
         <SelectorFilter label="Tipo" v-model="fType" :options="typeOptions" placeholder="Todos" />
-        <SelectorFilter label="Mes" v-model="fMonth" :options="monthOptions" placeholder="Todos" />
+        <SelectorFilter label="Mes" v-model="fMonth" :options="MONTH_OPTIONS" placeholder="Todos" />
         <div class="field">
           <label>Desde</label>
           <input v-model="fFrom" type="date" class="input" />

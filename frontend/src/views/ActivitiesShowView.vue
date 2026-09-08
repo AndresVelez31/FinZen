@@ -3,7 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Plus, Pencil, Trash2, Target, PiggyBank } from 'lucide-vue-next';
 import { ActivityService } from '@/services/ActivityService.js';
-import { ReportService } from '@/utils/ReportService.js';
+import { ReportAnalytics } from '@/utils/ReportAnalytics.js';
 import { Formatters } from '@/utils/formatters.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 
@@ -19,8 +19,8 @@ const today = new Date();
 const monthStart = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
 const monthEnd = today.toISOString().slice(0, 10);
 
-const monthlyExpenses = computed(() => ReportService.getExpensesByActivity(monthStart, monthEnd));
-const allTimeExpenses = computed(() => ReportService.getExpensesByActivity());
+const monthlyExpenses = computed(() => ReportAnalytics.getExpensesByActivity(monthStart, monthEnd));
+const allTimeExpenses = computed(() => ReportAnalytics.getExpensesByActivity());
 
 interface ActivityCard extends ActivityInterface {
   used: number;

@@ -1,8 +1,5 @@
 <script setup lang="ts">
-interface FilterOption {
-  label: string;
-  value: string;
-}
+import type { FilterOption } from '@/utils/constants.js';
 
 const props = defineProps<{
   label?: string;

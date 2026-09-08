@@ -30,24 +30,44 @@ const stats = computed(() => {
   };
 });
 
-function changeRole(user: UserInterface): void {
+async function changeRole(user: UserInterface): Promise<void> {
   const newRole = user.role === 'admin' ? 'user' : 'admin';
+  const Swal = (await import('sweetalert2')).default;
 
-  const confirmed = confirm(`¿Desea cambiar el rol de ${user.name}?`);
+  const result = await Swal.fire({
+    title: '¿Cambiar rol?',
+    text: `¿Desea cambiar el rol de ${user.name}?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: 'Cambiar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#10b981',
+    cancelButtonColor: '#94a3b8',
+  });
 
-  if (!confirmed) {
+  if (!result.isConfirmed) {
     return;
   }
 
   UserService.updateRole(user.id, newRole);
 }
 
-function toggleActive(user: UserInterface): void {
+async function toggleActive(user: UserInterface): Promise<void> {
   const action = user.active ? 'desactivar' : 'activar';
+  const Swal = (await import('sweetalert2')).default;
 
-  const confirmed = confirm(`¿Desea ${action} al usuario ${user.name}?`);
+  const result = await Swal.fire({
+    title: `¿${action.charAt(0).toUpperCase() + action.slice(1)} usuario?`,
+    text: `¿Desea ${action} al usuario ${user.name}?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonText: action.charAt(0).toUpperCase() + action.slice(1),
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#10b981',
+    cancelButtonColor: '#94a3b8',
+  });
 
-  if (!confirmed) {
+  if (!result.isConfirmed) {
     return;
   }
 
