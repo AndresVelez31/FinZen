@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router';
 import { Wallet, TrendingDown, TrendingUp, Plus, ArrowRight } from 'lucide-vue-next';
 import StatCard from '@/components/shared/StatCard.vue';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
-import RecentTransactionsTable from '@/components/dashboard/RecentTransactionsTable.vue';
+import RecentTransactionsTable from '@/components/overview/RecentTransactionsTable.vue';
 import { AccountService } from '@/services/AccountService.js';
 import { TransactionService } from '@/services/TransactionService.js';
 import { AuthService } from '@/auth/AuthService.js';

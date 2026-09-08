@@ -59,7 +59,7 @@ async function submit(): Promise<void> {
       return;
     }
 
-    await router.push({ name: 'dashboard' });
+    await router.push({ name: 'overview' });
   } catch {
     errorMessage.value = 'No fue posible iniciar sesión. Inténtalo nuevamente.';
   } finally {
