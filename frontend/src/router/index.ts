@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginView from '@/views/LoginView.vue';
-import DashboardView from '@/views/DashboardView.vue';
+import OverviewView from '@/views/OverviewView.vue';
 import TransactionsShowView from '@/views/TransactionsShowView.vue';
 import TransactionFormView from '@/views/TransactionFormView.vue';
 import AccountsShowView from '@/views/AccountsShowView.vue';
@@ -35,8 +35,8 @@ const router = createRouter({
     },
     {
       path: '/',
-      name: 'dashboard',
-      component: DashboardView,
+      name: 'overview',
+      component: OverviewView,
       meta: {
         title: 'Resumen | FinZen',
       },
