@@ -3,11 +3,11 @@ import type { CreateAccountDTO } from '@/dtos/CreateAccountDTO.js';
 import type { UpdateAccountDTO } from '@/dtos/UpdateAccountDTO.js';
 import { useAccountStore } from '@/stores/accountstore.js';
 import { useTransactionStore } from '@/stores/transactionstore.js';
-import { useUserStore } from '@/stores/userstore.js';
+import { useAuthStore } from '@/auth/authstore.js';
 
 export class AccountService {
   static getAll(): AccountInterface[] {
-    const currentUserId = useUserStore().currentUserId;
+    const currentUserId = useAuthStore().currentUserId;
     if (!currentUserId) {
       return [];
     }
@@ -17,14 +17,14 @@ export class AccountService {
   // Scoped to the current user: without this check, any authenticated user
   // could load or edit another user's account by guessing its id in the URL.
   static getById(id: number): AccountInterface | undefined {
-    const currentUserId = useUserStore().currentUserId;
+    const currentUserId = useAuthStore().currentUserId;
     return useAccountStore().accounts.find(
       (account) => account.id === id && account.userId === currentUserId,
     );
   }
 
   static create(createAccountDTO: CreateAccountDTO): AccountInterface {
-    const currentUserId = useUserStore().currentUserId;
+    const currentUserId = useAuthStore().currentUserId;
     if (!currentUserId) {
       throw new Error('Cannot create account: No active user session.');
     }
@@ -51,7 +51,7 @@ export class AccountService {
 
   static update(updateAccountDTO: UpdateAccountDTO): AccountInterface | undefined {
     const { id, ...accountUpdates } = updateAccountDTO;
-    const currentUserId = useUserStore().currentUserId;
+    const currentUserId = useAuthStore().currentUserId;
     const accountStore = useAccountStore();
 
     // Ownership check, mirroring getById(): an index into another user's
@@ -88,7 +88,7 @@ export class AccountService {
   }
 
   static delete(id: number): void {
-    const currentUserId = useUserStore().currentUserId;
+    const currentUserId = useAuthStore().currentUserId;
     const accountStore = useAccountStore();
     const transactionStore = useTransactionStore();
 

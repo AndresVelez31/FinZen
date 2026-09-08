@@ -7,7 +7,7 @@ import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import RecentTransactionsTable from '@/components/dashboard/RecentTransactionsTable.vue';
 import { AccountService } from '@/services/AccountService.js';
 import { TransactionService } from '@/services/TransactionService.js';
-import { UserService } from '@/services/UserService.js';
+import { AuthService } from '@/auth/AuthService.js';
 import { ReportAnalytics } from '@/utils/ReportAnalytics.js';
 import { DateRange } from '@/utils/DateRange.js';
 import { Formatters } from '@/utils/formatters.js';
@@ -16,7 +16,7 @@ const router = useRouter();
 const loading = ref(true);
 onMounted(() => setTimeout(() => (loading.value = false), 500));
 
-const currentUser = computed(() => UserService.getCurrent());
+const currentUser = computed(() => AuthService.getCurrentUser());
 const transactions = computed(() => TransactionService.getAll());
 
 const monthRange = DateRange.currentMonthFull();

@@ -3,11 +3,11 @@ import type { CreateActivityDTO } from '@/dtos/CreateActivityDTO.js';
 import type { UpdateActivityDTO } from '@/dtos/UpdateActivityDTO.js';
 import { useActivityStore } from '@/stores/activitystore.js';
 import { useTransactionStore } from '@/stores/transactionstore.js';
-import { useUserStore } from '@/stores/userstore.js';
+import { useAuthStore } from '@/auth/authstore.js';
 
 export class ActivityService {
   static getAll(): ActivityInterface[] {
-    const currentUserId = useUserStore().currentUserId;
+    const currentUserId = useAuthStore().currentUserId;
     if (!currentUserId) {
       return [];
     }
@@ -17,14 +17,14 @@ export class ActivityService {
   // Scoped to the current user: without this check, any authenticated user
   // could load or edit another user's activity by guessing its id in the URL.
   static getById(id: number): ActivityInterface | undefined {
-    const currentUserId = useUserStore().currentUserId;
+    const currentUserId = useAuthStore().currentUserId;
     return useActivityStore().activities.find(
       (activity) => activity.id === id && activity.userId === currentUserId,
     );
   }
 
   static create(createActivityDTO: CreateActivityDTO): ActivityInterface {
-    const currentUserId = useUserStore().currentUserId;
+    const currentUserId = useAuthStore().currentUserId;
     if (!currentUserId) {
       throw new Error('Cannot create activity: No active user session.');
     }
@@ -48,7 +48,7 @@ export class ActivityService {
 
   static update(updateActivityDTO: UpdateActivityDTO): ActivityInterface | undefined {
     const { id, ...activityUpdates } = updateActivityDTO;
-    const currentUserId = useUserStore().currentUserId;
+    const currentUserId = useAuthStore().currentUserId;
     const activityStore = useActivityStore();
 
     // Ownership check, mirroring getById().
@@ -78,7 +78,7 @@ export class ActivityService {
   }
 
   static delete(id: number): void {
-    const currentUserId = useUserStore().currentUserId;
+    const currentUserId = useAuthStore().currentUserId;
     const activityStore = useActivityStore();
     const transactionStore = useTransactionStore();
 

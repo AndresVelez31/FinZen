@@ -29,45 +29,4 @@ export class UserService {
     user.active = !user.active;
     user.updatedAt = new Date().toISOString();
   }
-
-  static login(
-    email: string,
-    password: string,
-  ): { ok: true; user: UserInterface } | { ok: false; error: string } {
-    const store = useUserStore();
-    const cleanEmail = email.trim().toLowerCase();
-
-    const user = store.users.find((existingUser) => existingUser.email.toLowerCase() === cleanEmail);
-    if (!user || user.password !== password) {
-      return { ok: false, error: 'Credenciales inválidas.' };
-    }
-
-    if (!user.active) {
-      return {
-        ok: false,
-        error: 'Tu cuenta se encuentra inactiva.',
-      };
-    }
-
-    store.currentUserId = user.id;
-    return { ok: true, user };
-  }
-
-  static logout(): void {
-    useUserStore().currentUserId = null;
-  }
-
-  static getCurrent(): UserInterface | undefined {
-    const store = useUserStore();
-
-    if (store.currentUserId === null) {
-      return undefined;
-    }
-
-    return store.users.find((user) => user.id === store.currentUserId);
-  }
-
-  static isAuthenticated(): boolean {
-    return UserService.getCurrent() !== undefined;
-  }
 }
