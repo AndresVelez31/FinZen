@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft, TrendingUp, TrendingDown, Save } from 'lucide-vue-next';
@@ -8,17 +9,7 @@ import { ActivityService } from '@/services/ActivityService.js';
 import type { CreateTransactionDTO } from '@/dtos/CreateTransactionDTO.js';
 import type { UpdateTransactionDTO } from '@/dtos/UpdateTransactionDTO.js';
 
-const route = useRoute();
-const router = useRouter();
-
-const editing = computed(() => route.name === 'transactions.edit');
-const transactionId = computed(() => (route.params.id ? Number(route.params.id) : null));
-
-const accounts = computed(() => AccountService.getAll());
-const activities = computed(() => ActivityService.getAll());
-
-const today = new Date().toISOString().slice(0, 10);
-
+// Types
 interface FormErrors {
   amount?: string;
   accountId?: string;
@@ -26,6 +17,20 @@ interface FormErrors {
   date?: string;
   description?: string;
 }
+
+// State
+const route = useRoute();
+const router = useRouter();
+
+// Computed
+const editing = computed(() => route.name === 'transactions.edit');
+const transactionId = computed(() => (route.params.id ? Number(route.params.id) : null));
+
+const accounts = computed(() => AccountService.getAll());
+const activities = computed(() => ActivityService.getAll());
+
+// State
+const today = new Date().toISOString().slice(0, 10);
 
 function createInitialFormState() {
   return {
@@ -42,6 +47,7 @@ const form = ref(createInitialFormState());
 const errors = ref<FormErrors>({});
 const saving = ref(false);
 
+// Actions
 function loadForm(): void {
   errors.value = {};
 
@@ -153,7 +159,6 @@ async function submit(): Promise<void> {
     <p class="muted">Completa los datos del movimiento.</p>
 
     <form class="card form" @submit.prevent="submit">
-      <!-- Type toggle -->
       <div class="field">
         <label>Tipo de movimiento</label>
         <div class="type-toggle">
@@ -178,7 +183,6 @@ async function submit(): Promise<void> {
         </div>
       </div>
 
-      <!-- Amount -->
       <div class="field">
         <label for="amount">Importe</label>
         <div class="amount-wrap">

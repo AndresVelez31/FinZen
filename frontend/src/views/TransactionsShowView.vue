@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Plus, Filter, RotateCcw } from 'lucide-vue-next';
@@ -14,12 +15,9 @@ import { MONTH_OPTIONS } from '@/utils/constants.js';
 import type { FilterOption } from '@/utils/constants.js';
 import type { TransactionInterface } from '@/interfaces/TransactionInterface';
 
+// State
 const router = useRouter();
 const loading = ref(true);
-
-onMounted(() => {
-  setTimeout(() => (loading.value = false), 450);
-});
 
 const fActivity = ref<string>('');
 const fAccount = ref<string>('');
@@ -28,6 +26,12 @@ const fMonth = ref<string>('');
 const fFrom = ref<string>('');
 const fTo = ref<string>('');
 
+const typeOptions: FilterOption[] = [
+  { value: 'income', label: 'Ingreso' },
+  { value: 'expense', label: 'Gasto' },
+];
+
+// Computed
 const activityOptions = computed<FilterOption[]>(() =>
   ActivityService.getAll().map((activity) => ({ value: String(activity.id), label: activity.name })),
 );
@@ -39,11 +43,6 @@ const accountOptions = computed<FilterOption[]>(() =>
   })),
 );
 
-const typeOptions: FilterOption[] = [
-  { value: 'income', label: 'Ingreso' },
-  { value: 'expense', label: 'Gasto' },
-];
-
 const filtered = computed<TransactionInterface[]>(() =>
   TransactionService.filterTransactions({
     activityId: fActivity.value ? Number(fActivity.value) : undefined,
@@ -54,15 +53,6 @@ const filtered = computed<TransactionInterface[]>(() =>
     to: fTo.value || undefined,
   }),
 );
-
-function resetFilters() {
-  fActivity.value = '';
-  fAccount.value = '';
-  fType.value = '';
-  fMonth.value = '';
-  fFrom.value = '';
-  fTo.value = '';
-}
 
 const activeFilters = computed(
   () =>
@@ -95,6 +85,16 @@ const totals = computed(() => {
   return { income: summary.totalIncome, expense: summary.totalExpense };
 });
 
+// Actions
+function resetFilters() {
+  fActivity.value = '';
+  fAccount.value = '';
+  fType.value = '';
+  fMonth.value = '';
+  fFrom.value = '';
+  fTo.value = '';
+}
+
 function onEdit(transaction: TransactionInterface) {
   router.push({ name: 'transactions.edit', params: { id: transaction.id } });
 }
@@ -116,6 +116,11 @@ async function removeTx(row: TransactionInterface) {
     Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1200, showConfirmButton: false });
   }
 }
+
+// Lifecycle
+onMounted(() => {
+  setTimeout(() => (loading.value = false), 450);
+});
 </script>
 
 <template>

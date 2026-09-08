@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft, Save, Target, PiggyBank } from 'lucide-vue-next';
@@ -6,6 +7,13 @@ import { ActivityService } from '@/services/ActivityService.js';
 import type { CreateActivityDTO } from '@/dtos/CreateActivityDTO.js';
 import type { UpdateActivityDTO } from '@/dtos/UpdateActivityDTO.js';
 
+// Types
+interface FormErrors {
+  name?: string;
+  targetAmount?: string;
+}
+
+// State
 const route = useRoute();
 const router = useRouter();
 
@@ -20,14 +28,11 @@ const COLOR_PRESET = [
   '#ef4444',
 ];
 
+// Computed
 const editing = computed(() => route.name === 'activities.edit');
 const activityId = computed(() => (route.params.id ? Number(route.params.id) : null));
 
-interface FormErrors {
-  name?: string;
-  targetAmount?: string;
-}
-
+// State
 function createInitialFormState() {
   return {
     name: '',
@@ -41,6 +46,7 @@ const form = ref(createInitialFormState());
 const errors = ref<FormErrors>({});
 const saving = ref(false);
 
+// Actions
 function loadForm(): void {
   errors.value = {};
 

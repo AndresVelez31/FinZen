@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { ref, computed } from 'vue';
 import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-vue-next';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
@@ -13,10 +14,12 @@ import { DateRange } from '@/utils/DateRange.js';
 import { MONTH_OPTIONS } from '@/utils/constants.js';
 import type { FilterOption } from '@/utils/constants.js';
 
+// State
 const now = new Date();
 const selYear = ref(String(now.getFullYear()));
 const selMonth = ref(String(now.getMonth() + 1).padStart(2, '0'));
 
+// Computed
 const years = computed<FilterOption[]>(() =>
   ReportAnalytics.getAvailableYears().map((year) => ({ value: String(year), label: String(year) })),
 );
@@ -29,7 +32,7 @@ const periodEnd = computed(() => period.value.end);
 
 const summary = computed(() => ReportAnalytics.getPeriodSummary(periodStart.value, periodEnd.value));
 
-/* ---- Line chart: cumulative balance evolution across the selected year ---- */
+// Line chart: cumulative balance evolution across the selected year
 const lineChart = computed(() => ({
   labels: MONTH_OPTIONS.map((month) => month.label.slice(0, 3)),
   datasets: [
@@ -47,7 +50,7 @@ const lineChart = computed(() => ({
   ],
 }));
 
-/* ---- Bar chart: budget vs actual (expense activities) for the selected period ---- */
+// Bar chart: budget vs actual (expense activities) for the selected period
 const budgetVsActual = computed(() => ReportAnalytics.getBudgetVsActual(periodStart.value, periodEnd.value));
 
 const budgetChart = computed(() => ({
@@ -71,10 +74,9 @@ const budgetChart = computed(() => ({
 }));
 const hasBudget = computed(() => budgetChart.value.labels.length > 0);
 
-/* ---- Savings progress (all-time) ---- */
+// Savings progress (all-time, unlike the budget/expense figures above which are period-scoped)
 const savingsActs = computed(() => ReportAnalytics.getSavingsProgress());
 
-/* ---- Summary table ---- */
 const summaryRows = computed<SummaryRow[]>(() =>
   budgetVsActual.value.map((row) => ({
     id: row.activityId,

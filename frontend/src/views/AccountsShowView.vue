@@ -1,11 +1,14 @@
 <script setup lang="ts">
+// Imports
 import { computed } from 'vue';
 import { Plus, Pencil, Trash2, Wallet } from 'lucide-vue-next';
 import { AccountService } from '@/services/AccountService.js';
 import { Formatters } from '@/utils/formatters.js';
 
+// Computed
 const accounts = computed(() => AccountService.getAll());
 
+// Actions
 function getBalance(id: number): number {
   return AccountService.getBalance(id);
 }
