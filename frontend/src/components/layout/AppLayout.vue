@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { UserService } from '@/services/UserService.js';
+import { AuthService } from '@/auth/AuthService.js';
 import { useThemeStore } from '@/stores/themestore.js';
 import { Formatters } from '@/utils/formatters.js';
 import {
@@ -26,8 +26,8 @@ interface NavItem {
   tag?: string;
 }
 
-const currentUser = computed(() => UserService.getCurrent());
-const isAdminUser = computed(() => currentUser.value?.role === 'admin');
+const currentUser = computed(() => AuthService.getCurrentUser());
+const isAdminUser = computed(() => AuthService.isAdmin());
 
 const themeStore = useThemeStore();
 
@@ -73,7 +73,7 @@ async function handleLogout(): Promise<void> {
     cancelButtonColor: '#94a3b8',
   });
   if (result.isConfirmed) {
-    UserService.logout();
+    AuthService.logout();
     await router.push({ name: 'login' });
   }
 }

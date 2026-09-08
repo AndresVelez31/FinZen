@@ -9,7 +9,7 @@ import ReportsView from '@/views/ReportsView.vue';
 import ActivitiesShowView from '@/views/ActivitiesShowView.vue';
 import ActivityFormView from '@/views/ActivityFormView.vue';
 import UsersShowView from '@/views/UsersShowView.vue';
-import { UserService } from '@/services/UserService.js';
+import { authGuard, adminGuard } from '@/auth/guards.js';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -130,30 +130,10 @@ router.beforeEach((to) => {
     return { name: fallback };
   }
 
-  const authenticated = UserService.isAuthenticated();
-
-  // Si ya está autenticado e intenta ir a login -> Dashboard
-  if (to.name === 'login' && authenticated) {
-    return { name: 'dashboard' };
-  }
-
-  // Si la ruta es pública -> Permitir
-  if (to.meta.public) {
-    return true;
-  }
-
-  // Si no está autenticado -> Login
-  if (!authenticated) {
-    return { name: 'login' };
-  }
-
-  // Si la ruta es admin y el usuario no es admin -> Dashboard
-  const currentUser = UserService.getCurrent();
-  if (to.meta.admin && currentUser?.role !== 'admin') {
-    return { name: 'dashboard' };
-  }
-
   return true;
 });
+
+router.beforeEach(authGuard);
+router.beforeEach(adminGuard);
 
 export default router;

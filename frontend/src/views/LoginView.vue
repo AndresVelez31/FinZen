@@ -11,7 +11,7 @@ import {
   TrendingUp,
   PieChart,
 } from 'lucide-vue-next';
-import { UserService } from '@/services/UserService.js';
+import { AuthService } from '@/auth/AuthService.js';
 
 interface DemoAccount {
   role: string;
@@ -48,7 +48,7 @@ async function submit(): Promise<void> {
   loading.value = true;
 
   try {
-    const result = UserService.login(email.value, password.value);
+    const result = AuthService.login(email.value, password.value);
 
     if (!result.ok) {
       errorMessage.value = result.error;

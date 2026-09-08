@@ -5,6 +5,7 @@ import UsersTable from '@/components/users/UsersTable.vue';
 import SelectorFilter from '@/components/shared/SelectorFilter.vue';
 import StatCard from '@/components/shared/StatCard.vue';
 import { UserService } from '@/services/UserService.js';
+import { AuthService } from '@/auth/AuthService.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
 
 const loading = ref(true);
@@ -16,7 +17,7 @@ const roleOptions = [
   { value: 'user', label: 'Usuario' },
 ];
 
-const currentUser = computed(() => UserService.getCurrent());
+const currentUser = computed(() => AuthService.getCurrentUser());
 
 const rows = computed(() =>
   UserService.getAll().filter((user) => (fRole.value ? user.role === fRole.value : true)),
