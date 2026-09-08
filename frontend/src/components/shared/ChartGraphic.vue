@@ -1,12 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
-import {
-  Chart,
-  registerables,
-  type ChartType,
-  type ChartDataset,
-  type ChartOptions,
-} from 'chart.js';
+import {Chart, registerables, type ChartType, type ChartDataset, type ChartOptions} from 'chart.js';
 
 Chart.register(...registerables);
 
@@ -17,8 +11,8 @@ Chart.register(...registerables);
 interface Props {
   type: ChartType | string;
   labels?: string[];
-  datasets?: ChartDataset[] | any[];
-  options?: ChartOptions | Record<string, any>;
+  datasets?: ChartDataset[] | unknown[];
+  options?: ChartOptions | Record<string, unknown>;
   title?: string;
   height?: number;
 }
@@ -109,7 +103,7 @@ function renderChart() {
     type: props.type as ChartType,
     data: {
       labels: props.labels,
-      datasets: props.datasets,
+      datasets: props.datasets as ChartDataset[],
     },
     options: baseOptions() as ChartOptions,
   });
@@ -118,7 +112,7 @@ function renderChart() {
 onMounted(() => {
   renderChart();
 
-  // Escuchar cambios de tema (dark mode) mediante cambios de atributos en <html>
+  // Listen for theme changes (dark mode) via attribute changes on <html>
   themeObserver = new MutationObserver(() => {
     nextTick(renderChart);
   });

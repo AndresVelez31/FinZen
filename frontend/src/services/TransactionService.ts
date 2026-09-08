@@ -5,15 +5,6 @@ import { useTransactionStore } from '@/stores/transactionstore.js';
 import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
 
-export interface TransactionFilterCriteria {
-  activityId?: number | undefined;
-  accountId?: number | undefined;
-  type?: string | undefined;
-  month?: string | undefined;
-  from?: string | undefined;
-  to?: string | undefined;
-}
-
 export class TransactionService {
   static getAll(): TransactionInterface[] {
 
@@ -118,22 +109,5 @@ export class TransactionService {
     transactionStore.transactions = transactionStore.transactions.filter(
       (transaction) => transaction.id !== id,
     );
-  }
-
-  /**
-   * Filters transactions by activity, account, type, month (format 'MM'),
-   * and/or an inclusive ISO date range. Every criterion is optional and
-   * unset criteria are ignored.
-   */
-  static filterTransactions(criteria: TransactionFilterCriteria = {}): TransactionInterface[] {
-    return this.getAll().filter((transaction) => {
-      if (criteria.activityId !== undefined && transaction.activityId !== criteria.activityId) return false;
-      if (criteria.accountId !== undefined && transaction.accountId !== criteria.accountId) return false;
-      if (criteria.type !== undefined && transaction.type !== criteria.type) return false;
-      if (criteria.month !== undefined && transaction.date.slice(5, 7) !== criteria.month) return false;
-      if (criteria.from !== undefined && transaction.date < criteria.from) return false;
-      if (criteria.to !== undefined && transaction.date > criteria.to) return false;
-      return true;
-    });
   }
 }

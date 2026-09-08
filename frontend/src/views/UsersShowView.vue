@@ -11,7 +11,7 @@ import type { UserInterface } from '@/interfaces/UserInterface.js';
 
 // State
 const loading = ref(true);
-const fRole = ref('');
+const filterRole = ref('');
 const roleOptions = [
   { value: 'admin', label: 'Administrador' },
   { value: 'user', label: 'Usuario' },
@@ -21,7 +21,7 @@ const roleOptions = [
 const currentUser = computed(() => AuthService.getCurrentUser());
 
 const rows = computed(() =>
-  UserService.getAll().filter((user) => (fRole.value ? user.role === fRole.value : true)),
+  UserService.getAll().filter((user) => (filterRole.value ? user.role === filterRole.value : true)),
 );
 
 const stats = computed(() => {
@@ -99,7 +99,7 @@ onMounted(() => setTimeout(() => (loading.value = false), 450));
     <div class="card toolbar">
       <SelectorFilter
         label="Filtrar por rol"
-        v-model="fRole"
+        v-model="filterRole"
         :options="roleOptions"
         placeholder="Todos los roles"
       />
