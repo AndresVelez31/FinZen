@@ -40,7 +40,7 @@ async function remove(activity: ActivityInterface): Promise<void> {
         <h2 class="page-title">Actividades</h2>
         <p class="muted">Gestiona tus categorías de gasto y metas de ahorro.</p>
       </div>
-      <button class="btn btn-primary" @click="router.push({ name: 'activity-new' })">
+      <button class="btn btn-primary" @click="router.push({ name: 'activities.create' })">
         <Plus :size="18" /> Nueva actividad
       </button>
     </div>
@@ -63,7 +63,7 @@ async function remove(activity: ActivityInterface): Promise<void> {
           <div class="act-actions">
             <button
               class="btn btn-ghost btn-icon"
-              @click="router.push({ name: 'activity-edit', params: { id: activity.id } })"
+              @click="router.push({ name: 'activities.edit', params: { id: activity.id } })"
               aria-label="Editar"
             >
               <Pencil :size="15" />
@@ -105,7 +105,7 @@ async function remove(activity: ActivityInterface): Promise<void> {
       <div class="empty-icon"><Target :size="26" /></div>
       <h4>Aún no tienes actividades</h4>
       <p class="muted">Crea tu primera categoría de gasto o meta de ahorro.</p>
-      <button class="btn btn-primary" @click="router.push({ name: 'activity-new' })">
+      <button class="btn btn-primary" @click="router.push({ name: 'activities.create' })">
         <Plus :size="17" /> Crear actividad
       </button>
     </div>

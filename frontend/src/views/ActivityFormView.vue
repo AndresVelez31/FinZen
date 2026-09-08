@@ -20,7 +20,7 @@ const COLOR_PRESET = [
   '#ef4444',
 ];
 
-const editing = computed(() => route.name === 'activity-edit');
+const editing = computed(() => route.name === 'activities.edit');
 const activityId = computed(() => (route.params.id ? Number(route.params.id) : null));
 
 interface FormErrors {

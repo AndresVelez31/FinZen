@@ -54,7 +54,7 @@ const recentTransactions = computed(() => transactions.value.slice(0, 5));
         <h2 class="page-title">Hola, {{ currentUser?.name?.split(' ')[0] }}</h2>
         <p class="muted">Este es el resumen de tus finanzas de este mes.</p>
       </div>
-      <button class="btn btn-primary" @click="router.push({ name: 'transaction-new' })">
+      <button class="btn btn-primary" @click="router.push({ name: 'transactions.create' })">
         <Plus :size="18" /> Nueva transacción
       </button>
     </div>
