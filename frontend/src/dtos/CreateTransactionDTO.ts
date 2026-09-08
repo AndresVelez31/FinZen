@@ -1,3 +1,3 @@
 import type { TransactionInterface } from '../interfaces/TransactionInterface.js';
 
-export type CreateTransactionDTO = Omit<TransactionInterface, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateTransactionDTO = Omit<TransactionInterface, 'id' | 'updatedAt'>;

@@ -10,7 +10,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 185000,
     date: '2026-02-03',
     description: 'Mercado semanal',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -21,7 +20,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 72000,
     date: '2026-02-07',
     description: 'Gasolina',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -32,7 +30,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 135000,
     date: '2026-02-10',
     description: 'Factura electricidad',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -43,7 +40,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 400000,
     date: '2026-02-15',
     description: 'Aporte fondo de emergencias',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -54,7 +50,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 65000,
     date: '2026-02-20',
     description: 'Streaming y apps',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   // --- March 2026 ---
@@ -66,7 +61,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 210000,
     date: '2026-03-02',
     description: 'Mercado mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -77,7 +71,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 55000,
     date: '2026-03-08',
     description: 'Cita médica',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -88,7 +81,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 80000,
     date: '2026-03-14',
     description: 'Mantenimiento carro',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -99,7 +91,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 250000,
     date: '2026-03-16',
     description: 'Ahorro vacaciones diciembre',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -110,7 +101,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 150000,
     date: '2026-03-20',
     description: 'Internet y teléfono',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   // --- April 2026 ---
@@ -122,7 +112,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 195000,
     date: '2026-04-01',
     description: 'Mercado semanal',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -133,7 +122,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 800000,
     date: '2026-04-05',
     description: 'Aporte extra fondo emergencias',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -144,7 +132,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 120000,
     date: '2026-04-12',
     description: 'Concierto',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -155,7 +142,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 45000,
     date: '2026-04-18',
     description: 'Farmacia',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -166,7 +152,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 68000,
     date: '2026-04-22',
     description: 'Recarga tarjeta transporte',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   // --- May 2026 ---
@@ -178,7 +163,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 220000,
     date: '2026-05-03',
     description: 'Mercado mensual completo',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -189,7 +173,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 300000,
     date: '2026-05-10',
     description: 'Ahorro vacaciones',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -200,7 +183,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 140000,
     date: '2026-05-15',
     description: 'Servicios del mes',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -211,7 +193,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 90000,
     date: '2026-05-20',
     description: 'Cena con amigos',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -222,7 +203,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 600000,
     date: '2026-05-28',
     description: 'Transferencia inversión',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   // --- June 2026 ---
@@ -234,7 +214,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 175000,
     date: '2026-06-04',
     description: 'Mercado semanal',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -245,7 +224,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 180000,
     date: '2026-06-09',
     description: 'Dentista',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -256,7 +234,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 76000,
     date: '2026-06-15',
     description: 'Gasolina',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -267,7 +244,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 350000,
     date: '2026-06-20',
     description: 'Aporte mensual fondo',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -278,7 +254,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 55000,
     date: '2026-06-26',
     description: 'Plataformas digitales',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   // --- July 2026 ---
@@ -290,7 +265,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 205000,
     date: '2026-07-03',
     description: 'Mercado mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -301,7 +275,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 160000,
     date: '2026-07-10',
     description: 'Factura gas y agua',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -312,7 +285,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 500000,
     date: '2026-07-15',
     description: 'Ahorro vacaciones diciembre',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -323,7 +295,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 130000,
     date: '2026-07-21',
     description: 'Ropa y accesorios',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
@@ -334,7 +305,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 750000,
     date: '2026-07-29',
     description: 'Ahorro fin de año',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
     // --- August 2026 ---
@@ -346,7 +316,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 230000,
     date: '2026-08-03',
     description: 'Mercado mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -357,7 +326,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 145000,
     date: '2026-08-08',
     description: 'Servicios públicos',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -368,7 +336,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 90000,
     date: '2026-08-14',
     description: 'Gasolina',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -379,7 +346,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 2800000,
     date: '2026-08-15',
     description: 'Pago de nómina',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -390,7 +356,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 110000,
     date: '2026-08-23',
     description: 'Salida con amigos',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 
@@ -403,7 +368,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 3000000,
     date: '2026-09-01',
     description: 'Pago de nómina',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -414,7 +378,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 250000,
     date: '2026-09-01',
     description: 'Mercado mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -425,7 +388,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 85000,
     date: '2026-09-01',
     description: 'Gasolina',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -436,7 +398,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 170000,
     date: '2026-09-01',
     description: 'Internet y servicios',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -447,7 +408,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 400000,
     date: '2026-09-01',
     description: 'Ahorro del mes',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 
@@ -464,7 +424,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 2200000,
     date: '2026-02-01',
     description: 'Salario mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -475,7 +434,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 165000,
     date: '2026-02-04',
     description: 'Mercado semanal',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -486,7 +444,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 60000,
     date: '2026-02-09',
     description: 'Gasolina',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -497,7 +454,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 200000,
     date: '2026-02-14',
     description: 'Aporte fondo emergencia',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -508,7 +464,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 90000,
     date: '2026-02-20',
     description: 'Factura servicios',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 
@@ -521,7 +476,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 2200000,
     date: '2026-03-01',
     description: 'Salario mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -532,7 +486,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 180000,
     date: '2026-03-05',
     description: 'Mercado mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -543,7 +496,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 45000,
     date: '2026-03-10',
     description: 'Farmacia',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -554,7 +506,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 60000,
     date: '2026-03-15',
     description: 'Cine',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -565,7 +516,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 150000,
     date: '2026-03-22',
     description: 'Ahorro viaje Japón',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 
@@ -578,7 +528,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 2200000,
     date: '2026-04-01',
     description: 'Salario mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -589,7 +538,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 190000,
     date: '2026-04-04',
     description: 'Mercado semanal',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -600,7 +548,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 55000,
     date: '2026-04-11',
     description: 'Recarga transporte',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -611,7 +558,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 250000,
     date: '2026-04-18',
     description: 'Aporte fondo emergencia',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -622,7 +568,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 85000,
     date: '2026-04-24',
     description: 'Internet y teléfono',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 
@@ -635,7 +580,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 2300000,
     date: '2026-05-01',
     description: 'Salario mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -646,7 +590,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 200000,
     date: '2026-05-05',
     description: 'Mercado mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -657,7 +600,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 38000,
     date: '2026-05-12',
     description: 'Cita médica',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -668,7 +610,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 70000,
     date: '2026-05-18',
     description: 'Salida con amigos',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -679,7 +620,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 180000,
     date: '2026-05-25',
     description: 'Ahorro viaje Japón',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 
@@ -692,7 +632,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 2300000,
     date: '2026-06-01',
     description: 'Salario mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -703,7 +642,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 175000,
     date: '2026-06-04',
     description: 'Mercado semanal',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -714,7 +652,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 62000,
     date: '2026-06-10',
     description: 'Gasolina',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -725,7 +662,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 300000,
     date: '2026-06-16',
     description: 'Aporte fondo emergencia',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -736,7 +672,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 95000,
     date: '2026-06-23',
     description: 'Servicios del mes',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 
@@ -749,7 +684,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 2300000,
     date: '2026-07-01',
     description: 'Salario mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -760,7 +694,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 210000,
     date: '2026-07-05',
     description: 'Mercado mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -771,7 +704,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 65000,
     date: '2026-07-12',
     description: 'Cine y cena',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -782,7 +714,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 50000,
     date: '2026-07-19',
     description: 'Farmacia',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -793,7 +724,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 200000,
     date: '2026-07-27',
     description: 'Ahorro viaje Japón',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 
@@ -806,7 +736,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 2400000,
     date: '2026-08-01',
     description: 'Salario mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -817,7 +746,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 220000,
     date: '2026-08-04',
     description: 'Mercado mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -828,7 +756,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 58000,
     date: '2026-08-11',
     description: 'Gasolina',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -839,7 +766,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 350000,
     date: '2026-08-17',
     description: 'Aporte fondo emergencia',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -850,7 +776,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 100000,
     date: '2026-08-24',
     description: 'Internet y servicios',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 
@@ -863,7 +788,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 2400000,
     date: '2026-09-01',
     description: 'Salario mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -874,7 +798,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 230000,
     date: '2026-09-01',
     description: 'Mercado mensual',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -885,7 +808,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 65000,
     date: '2026-09-01',
     description: 'Gasolina',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -896,7 +818,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 400000,
     date: '2026-09-01',
     description: 'Aporte fondo emergencia',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
   {
@@ -907,7 +828,6 @@ export const transactionSeeder: TransactionInterface[] = [
     amount: 80000,
     date: '2026-09-01',
     description: 'Salida con amigos',
-    createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
 ];

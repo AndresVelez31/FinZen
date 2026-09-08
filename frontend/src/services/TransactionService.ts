@@ -61,7 +61,6 @@ export class TransactionService {
       ...createTransactionDTO,
       description: cleanDescription,
       id: Date.now(),
-      createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
