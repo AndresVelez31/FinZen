@@ -69,9 +69,6 @@ function loadForm(): void {
   };
 }
 
-// Reruns whenever the route's :id changes, so the form reloads correctly
-// even if Vue Router ever reuses this component instance between two
-// activity-edit navigations instead of remounting it.
 watch([editing, activityId], loadForm, { immediate: true });
 
 function validate(): boolean {

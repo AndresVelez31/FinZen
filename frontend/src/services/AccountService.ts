@@ -14,8 +14,6 @@ export class AccountService {
     return useAccountStore().accounts.filter((account) => account.userId === currentUserId);
   }
 
-  // Scoped to the current user: without this check, any authenticated user
-  // could load or edit another user's account by guessing its id in the URL.
   static getById(id: number): AccountInterface | undefined {
     const currentUserId = useAuthStore().currentUserId;
     return useAccountStore().accounts.find(
@@ -54,8 +52,6 @@ export class AccountService {
     const currentUserId = useAuthStore().currentUserId;
     const accountStore = useAccountStore();
 
-    // Ownership check, mirroring getById(): an index into another user's
-    // account is treated as not found, not as a valid update target.
     const index = accountStore.accounts.findIndex(
       (account) => account.id === id && account.userId === currentUserId,
     );
@@ -92,9 +88,6 @@ export class AccountService {
     const accountStore = useAccountStore();
     const transactionStore = useTransactionStore();
 
-    // Ownership check, mirroring getById()/update(): silently no-ops on an
-    // id that isn't the current user's, instead of deleting data that
-    // doesn't belong to the caller.
     const account = accountStore.accounts.find(
       (item) => item.id === id && item.userId === currentUserId,
     );
