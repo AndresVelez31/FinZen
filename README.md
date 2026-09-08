@@ -5,6 +5,12 @@
 >
 > University Project — Web Application Software Engineering (6th Semester).
 
+## Project team
+
+- Sebastian Salazar Henao
+- Andres Felipe Velez Alvarez
+- Nathalia Cardoza
+
 ## About the project
 
 FinZen helps users understand their financial activity from a single interface. The application
