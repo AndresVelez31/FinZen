@@ -1,7 +1,6 @@
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import { TransactionService } from '@/services/TransactionService.js';
-import type { TransactionFilterCriteria } from '@/services/TransactionService.js';
 import { ActivityService } from '@/services/ActivityService.js';
 import { AccountService } from '@/services/AccountService.js';
 import { Formatters } from '@/utils/formatters.js';
@@ -55,6 +54,15 @@ export interface SavingsProgress {
   saved: number;
   percent: number;
 }
+export interface TransactionFilterCriteria {
+  activityId?: number | undefined;
+  accountId?: number | undefined;
+  type?: string | undefined;
+  month?: string | undefined;
+  from?: string | undefined;
+  to?: string | undefined;
+}
+
 export interface TransactionRowInterface extends TransactionInterface {
   activityName: string;
   activityColor: string;
@@ -65,11 +73,30 @@ export class ReportAnalytics {
   // Queries
 
   /**
+   * Filters transactions by activity, account, type, month (format 'MM'),
+   * and/or an inclusive ISO date range. Every criterion is optional and
+   * unset criteria are ignored. Cross-entity, display-shaping logic — not a
+   * CRUD operation on the Transaction entity — so it lives here rather than
+   * on TransactionService, consistent with getTransactionRows() below.
+   */
+  static filterTransactions(criteria: TransactionFilterCriteria = {}): TransactionInterface[] {
+    return TransactionService.getAll().filter((transaction) => {
+      if (criteria.activityId !== undefined && transaction.activityId !== criteria.activityId) return false;
+      if (criteria.accountId !== undefined && transaction.accountId !== criteria.accountId) return false;
+      if (criteria.type !== undefined && transaction.type !== criteria.type) return false;
+      if (criteria.month !== undefined && transaction.date.slice(5, 7) !== criteria.month) return false;
+      if (criteria.from !== undefined && transaction.date < criteria.from) return false;
+      if (criteria.to !== undefined && transaction.date > criteria.to) return false;
+      return true;
+    });
+  }
+
+  /**
    * Transactions for the currently active user, optionally bounded by an
    * ISO (YYYY-MM-DD) date range (inclusive on both ends).
    */
   static getUserTransactions(startDate?: string, endDate?: string): TransactionInterface[] {
-    return TransactionService.filterTransactions({ from: startDate, to: endDate });
+    return this.filterTransactions({ from: startDate, to: endDate });
   }
 
   // Aggregations
@@ -268,14 +295,13 @@ export class ReportAnalytics {
   }
 
   /**
-   * Same filtering as TransactionService.filterTransactions(), but with
-   * each row already joined against its activity and account (name, and
-   * the activity's color) in a single pass over two Maps, instead of a
-   * getById() call per cell in the template. Preserves the underlying
-   * date-desc order.
+   * Same filtering as filterTransactions() above, but with each row already
+   * joined against its activity and account (name, and the activity's
+   * color) in a single pass over two Maps, instead of a getById() call per
+   * cell in the template. Preserves the underlying date-desc order.
    */
   static getTransactionRows(criteria?: TransactionFilterCriteria): TransactionRowInterface[] {
-    const transactions = TransactionService.filterTransactions(criteria);
+    const transactions = this.filterTransactions(criteria);
     const accountsById = new Map(AccountService.getAll().map((account) => [account.id, account]));
     const activitiesById = new Map(ActivityService.getAll().map((activity) => [activity.id, activity]));
 

@@ -16,17 +16,17 @@ import type { FilterOption } from '@/utils/constants.js';
 
 // State
 const now = new Date();
-const selYear = ref(String(now.getFullYear()));
-const selMonth = ref(String(now.getMonth() + 1).padStart(2, '0'));
+const selectedYear = ref(String(now.getFullYear()));
+const selectedMonth = ref(String(now.getMonth() + 1).padStart(2, '0'));
 
 // Computed
 const years = computed<FilterOption[]>(() =>
   ReportAnalytics.getAvailableYears().map((year) => ({ value: String(year), label: String(year) })),
 );
 
-const monthName = computed(() => MONTH_OPTIONS.find((month) => month.value === selMonth.value)?.label ?? '');
+const monthName = computed(() => MONTH_OPTIONS.find((month) => month.value === selectedMonth.value)?.label ?? '');
 
-const period = computed(() => DateRange.ofMonth(selYear.value, selMonth.value));
+const period = computed(() => DateRange.ofMonth(selectedYear.value, selectedMonth.value));
 const periodStart = computed(() => period.value.start);
 const periodEnd = computed(() => period.value.end);
 
@@ -38,7 +38,7 @@ const lineChart = computed(() => ({
   datasets: [
     {
       label: 'Balance acumulado',
-      data: ReportAnalytics.getCumulativeBalanceByMonth(selYear.value),
+      data: ReportAnalytics.getCumulativeBalanceByMonth(selectedYear.value),
       borderColor: '#10b981',
       backgroundColor: 'rgba(16,185,129,0.12)',
       fill: true,
@@ -75,7 +75,7 @@ const budgetChart = computed(() => ({
 const hasBudget = computed(() => budgetChart.value.labels.length > 0);
 
 // Savings progress (all-time, unlike the budget/expense figures above which are period-scoped)
-const savingsActs = computed(() => ReportAnalytics.getSavingsProgress());
+const savingsActivities = computed(() => ReportAnalytics.getSavingsProgress());
 
 const summaryRows = computed<SummaryRow[]>(() =>
   budgetVsActual.value.map((row) => ({
@@ -97,8 +97,8 @@ const summaryRows = computed<SummaryRow[]>(() =>
         <p class="muted">Analiza tu evolución financiera y el cumplimiento de presupuestos.</p>
       </div>
       <div class="period card">
-        <SelectorFilter label="Mes" v-model="selMonth" :options="MONTH_OPTIONS" placeholder="" />
-        <SelectorFilter label="Año" v-model="selYear" :options="years" placeholder="" />
+        <SelectorFilter label="Mes" v-model="selectedMonth" :options="MONTH_OPTIONS" placeholder="" />
+        <SelectorFilter label="Año" v-model="selectedYear" :options="years" placeholder="" />
       </div>
     </div>
 
@@ -109,14 +109,14 @@ const summaryRows = computed<SummaryRow[]>(() =>
         :value="Formatters.formatToCOP(summary.totalIncome)"
         :icon="TrendingUp"
         variant="income"
-        :trend="`${monthName} ${selYear}`"
+        :trend="`${monthName} ${selectedYear}`"
       />
       <StatCard
         title="Gastos del periodo"
         :value="Formatters.formatToCOP(summary.totalExpense)"
         :icon="TrendingDown"
         variant="expense"
-        :trend="`${monthName} ${selYear}`"
+        :trend="`${monthName} ${selectedYear}`"
         :trendUp="false"
       />
       <StatCard
@@ -134,7 +134,7 @@ const summaryRows = computed<SummaryRow[]>(() =>
       <section class="card panel">
         <div class="panel-head">
           <h3>Evolución del balance</h3>
-          <span class="badge badge-gray">{{ selYear }}</span>
+          <span class="badge badge-gray">{{ selectedYear }}</span>
         </div>
         <ChartGraphic
           type="line"
@@ -162,12 +162,12 @@ const summaryRows = computed<SummaryRow[]>(() =>
     </div>
 
     <!-- Savings progress -->
-    <section v-if="savingsActs.length" class="card panel mb">
+    <section v-if="savingsActivities.length" class="card panel mb">
       <div class="panel-head">
         <h3><PiggyBank :size="18" style="vertical-align: -3px" /> Progreso de metas de ahorro</h3>
       </div>
       <div class="savings">
-        <div v-for="activity in savingsActs" :key="activity.id" class="saving">
+        <div v-for="activity in savingsActivities" :key="activity.id" class="saving">
           <RadialProgress :value="activity.percent" :label="activity.name" :color="activity.color" :height="150" />
           <div class="saving-top">
             <span class="saving-name">{{ activity.name }}</span>
@@ -179,7 +179,7 @@ const summaryRows = computed<SummaryRow[]>(() =>
 
     <!-- Summary table -->
     <section>
-      <h3 class="section-title">Resumen por actividad · {{ monthName }} {{ selYear }}</h3>
+      <h3 class="section-title">Resumen por actividad · {{ monthName }} {{ selectedYear }}</h3>
       <BudgetSummaryTable :rows="summaryRows" />
     </section>
   </div>

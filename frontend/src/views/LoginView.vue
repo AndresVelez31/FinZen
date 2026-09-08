@@ -2,16 +2,7 @@
 // Imports
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import {
-  Wallet,
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  ShieldCheck,
-  TrendingUp,
-  PieChart,
-} from 'lucide-vue-next';
+import {Wallet, Mail, Lock, Eye, EyeOff, ShieldCheck, TrendingUp, PieChart} from 'lucide-vue-next';
 import { AuthService } from '@/auth/AuthService.js';
 
 // Types
