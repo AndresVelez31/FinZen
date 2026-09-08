@@ -14,8 +14,6 @@ export class ActivityService {
     return useActivityStore().activities.filter((activity) => activity.userId === currentUserId);
   }
 
-  // Scoped to the current user: without this check, any authenticated user
-  // could load or edit another user's activity by guessing its id in the URL.
   static getById(id: number): ActivityInterface | undefined {
     const currentUserId = useAuthStore().currentUserId;
     return useActivityStore().activities.find(
@@ -51,7 +49,6 @@ export class ActivityService {
     const currentUserId = useAuthStore().currentUserId;
     const activityStore = useActivityStore();
 
-    // Ownership check, mirroring getById().
     const index = activityStore.activities.findIndex(
       (activity) => activity.id === id && activity.userId === currentUserId,
     );
@@ -82,8 +79,6 @@ export class ActivityService {
     const activityStore = useActivityStore();
     const transactionStore = useTransactionStore();
 
-    // Ownership check, mirroring getById()/update(): silently no-ops on an
-    // id that isn't the current user's.
     const activity = activityStore.activities.find(
       (item) => item.id === id && item.userId === currentUserId,
     );

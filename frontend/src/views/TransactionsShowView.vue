@@ -19,12 +19,12 @@ import type { TransactionRowInterface } from '@/utils/ReportAnalytics.js';
 const router = useRouter();
 const loading = ref(true);
 
-const fActivity = ref<string>('');
-const fAccount = ref<string>('');
-const fType = ref<string>('');
-const fMonth = ref<string>('');
-const fFrom = ref<string>('');
-const fTo = ref<string>('');
+const filterActivity = ref<string>('');
+const filterAccount = ref<string>('');
+const filterType = ref<string>('');
+const filterMonth = ref<string>('');
+const filterFrom = ref<string>('');
+const filterTo = ref<string>('');
 
 const typeOptions: FilterOption[] = [
   { value: 'income', label: 'Ingreso' },
@@ -45,24 +45,24 @@ const accountOptions = computed<FilterOption[]>(() =>
 
 const filtered = computed<TransactionRowInterface[]>(() =>
   ReportAnalytics.getTransactionRows({
-    activityId: fActivity.value ? Number(fActivity.value) : undefined,
-    accountId: fAccount.value ? Number(fAccount.value) : undefined,
-    type: fType.value || undefined,
-    month: fMonth.value || undefined,
-    from: fFrom.value || undefined,
-    to: fTo.value || undefined,
+    activityId: filterActivity.value ? Number(filterActivity.value) : undefined,
+    accountId: filterAccount.value ? Number(filterAccount.value) : undefined,
+    type: filterType.value || undefined,
+    month: filterMonth.value || undefined,
+    from: filterFrom.value || undefined,
+    to: filterTo.value || undefined,
   }),
 );
 
 const activeFilters = computed(
   () =>
-    [fActivity.value, fAccount.value, fType.value, fMonth.value, fFrom.value, fTo.value].filter(
+    [filterActivity.value, filterAccount.value, filterType.value, filterMonth.value, filterFrom.value, filterTo.value].filter(
       Boolean,
     ).length,
 );
 
 // Bar chart: expense by activity for the filtered set
-const bar = computed(() => {
+const barChart = computed(() => {
   const entries = ReportAnalytics.aggregateExpensesByActivity(filtered.value);
   return {
     labels: entries.map((entry) => entry.name),
@@ -78,7 +78,7 @@ const bar = computed(() => {
   };
 });
 
-const hasBar = computed(() => bar.value.labels.length > 0);
+const hasBarChart = computed(() => barChart.value.labels.length > 0);
 
 const totals = computed(() => {
   const summary = ReportAnalytics.summarize(filtered.value);
@@ -87,21 +87,21 @@ const totals = computed(() => {
 
 // Actions
 function resetFilters() {
-  fActivity.value = '';
-  fAccount.value = '';
-  fType.value = '';
-  fMonth.value = '';
-  fFrom.value = '';
-  fTo.value = '';
+  filterActivity.value = '';
+  filterAccount.value = '';
+  filterType.value = '';
+  filterMonth.value = '';
+  filterFrom.value = '';
+  filterTo.value = '';
 }
 
 function onEdit(transaction: TransactionRowInterface) {
   router.push({ name: 'transactions.edit', params: { id: transaction.id } });
 }
 
-async function removeTx(row: TransactionRowInterface) {
+async function removeTransaction(row: TransactionRowInterface) {
   const Swal = (await import('sweetalert2')).default;
-  const res = await Swal.fire({
+  const result = await Swal.fire({
     title: '¿Eliminar transacción?',
     html: `<b>${row.description}</b><br>${Formatters.formatToCOP(row.amount)}`,
     icon: 'warning',
@@ -111,7 +111,7 @@ async function removeTx(row: TransactionRowInterface) {
     confirmButtonColor: '#ef4444',
     cancelButtonColor: '#94a3b8',
   });
-  if (res.isConfirmed) {
+  if (result.isConfirmed) {
     TransactionService.delete(row.id);
     Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1200, showConfirmButton: false });
   }
@@ -147,28 +147,28 @@ onMounted(() => {
       <div class="filters-grid">
         <SelectorFilter
           label="Actividad"
-          v-model="fActivity"
+          v-model="filterActivity"
           :options="activityOptions"
           placeholder="Todas"
         />
 
         <SelectorFilter
           label="Cuenta"
-          v-model="fAccount"
+          v-model="filterAccount"
           :options="accountOptions"
           placeholder="Todas"
         />
 
-        <SelectorFilter label="Tipo" v-model="fType" :options="typeOptions" placeholder="Todos" />
-        <SelectorFilter label="Mes" v-model="fMonth" :options="MONTH_OPTIONS" placeholder="Todos" />
+        <SelectorFilter label="Tipo" v-model="filterType" :options="typeOptions" placeholder="Todos" />
+        <SelectorFilter label="Mes" v-model="filterMonth" :options="MONTH_OPTIONS" placeholder="Todos" />
         <div class="field">
           <label>Desde</label>
-          <input v-model="fFrom" type="date" class="input" />
+          <input v-model="filterFrom" type="date" class="input" />
         </div>
 
         <div class="field">
           <label>Hasta</label>
-          <input v-model="fTo" type="date" class="input" />
+          <input v-model="filterTo" type="date" class="input" />
         </div>
 
         <button class="btn btn-ghost reset" @click="resetFilters">
@@ -185,10 +185,10 @@ onMounted(() => {
         <span class="badge badge-gray">Según filtros</span>
       </div>
       <ChartGraphic
-        v-if="hasBar"
+        v-if="hasBarChart"
         type="bar"
-        :labels="bar.labels"
-        :datasets="bar.datasets"
+        :labels="barChart.labels"
+        :datasets="barChart.datasets"
         :height="260"
         :options="{ plugins: { legend: { display: false } } }"
       />
@@ -198,7 +198,7 @@ onMounted(() => {
     </section>
 
     <!-- Table -->
-    <TransactionsTable :rows="filtered" :loading="loading" @edit="onEdit" @delete="removeTx" />
+    <TransactionsTable :rows="filtered" :loading="loading" @edit="onEdit" @delete="removeTransaction" />
   </div>
 </template>
 

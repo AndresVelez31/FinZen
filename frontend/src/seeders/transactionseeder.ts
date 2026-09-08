@@ -412,7 +412,7 @@ export const transactionSeeder: TransactionInterface[] = [
   },
 
   // ===========================================================
-  // Usuario Demo (userId 2) — accounts 5-8, activities 8-14
+  // Demo User (userId 2) — accounts 5-8, activities 8-14
   // ===========================================================
 
   // --- February 2026 ---

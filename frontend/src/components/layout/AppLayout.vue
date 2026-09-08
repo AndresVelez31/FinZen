@@ -4,19 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { AuthService } from '@/auth/AuthService.js';
 import { useThemeStore } from '@/stores/themestore.js';
 import { Formatters } from '@/utils/formatters.js';
-import {
-  LayoutDashboard,
-  ArrowLeftRight,
-  Tags,
-  Users,
-  PieChart,
-  LogOut,
-  Menu,
-  X,
-  Moon,
-  Sun,
-  Wallet,
-} from 'lucide-vue-next';
+import {LayoutDashboard, ArrowLeftRight, Tags, Users, PieChart, LogOut, Menu, X, Moon, Sun, Wallet} from 'lucide-vue-next';
 
 // Interfaces
 interface NavItem {

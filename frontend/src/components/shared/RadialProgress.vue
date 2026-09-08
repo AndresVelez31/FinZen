@@ -57,7 +57,7 @@ const options = computed<ApexOptions>(() => ({
           fontSize: '1.05rem',
           fontWeight: 700,
           color: isDark.value ? '#f1f5f9' : '#0f1720',
-          formatter: (val: number) => `${Math.round(val)}%`,
+          formatter: (value: number) => `${Math.round(value)}%`,
         },
       },
     },

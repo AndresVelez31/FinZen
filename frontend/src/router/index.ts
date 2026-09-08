@@ -124,7 +124,7 @@ router.beforeEach((to) => {
     document.title = to.meta.title;
   }
 
-  // Validar parámetro :id para rutas de edición
+  // Validate the :id param for edit routes
   const fallback = ROUTES_REQUIRING_ID[String(to.name)];
   if (fallback && !to.params.id) {
     return { name: fallback };
