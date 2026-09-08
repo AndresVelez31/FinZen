@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { ref, computed, onMounted } from 'vue';
 import { ShieldCheck, Users as UsersIcon } from 'lucide-vue-next';
 import UsersTable from '@/components/users/UsersTable.vue';
@@ -8,15 +9,15 @@ import { UserService } from '@/services/UserService.js';
 import { AuthService } from '@/auth/AuthService.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
 
+// State
 const loading = ref(true);
-onMounted(() => setTimeout(() => (loading.value = false), 450));
-
 const fRole = ref('');
 const roleOptions = [
   { value: 'admin', label: 'Administrador' },
   { value: 'user', label: 'Usuario' },
 ];
 
+// Computed
 const currentUser = computed(() => AuthService.getCurrentUser());
 
 const rows = computed(() =>
@@ -31,6 +32,7 @@ const stats = computed(() => {
   };
 });
 
+// Actions
 async function changeRole(user: UserInterface): Promise<void> {
   const newRole = user.role === 'admin' ? 'user' : 'admin';
   const Swal = (await import('sweetalert2')).default;
@@ -74,6 +76,9 @@ async function toggleActive(user: UserInterface): Promise<void> {
 
   UserService.toggleActive(user.id);
 }
+
+// Lifecycle
+onMounted(() => setTimeout(() => (loading.value = false), 450));
 </script>
 
 <template>

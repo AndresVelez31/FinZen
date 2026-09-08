@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Plus, Pencil, Trash2, Target, PiggyBank } from 'lucide-vue-next';
@@ -7,12 +8,14 @@ import { ReportAnalytics } from '@/utils/ReportAnalytics.js';
 import { Formatters } from '@/utils/formatters.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 
+// State
 const router = useRouter();
 const loading = ref(true);
-onMounted(() => setTimeout(() => (loading.value = false), 450));
 
+// Computed
 const cards = computed(() => ReportAnalytics.getActivityProgress());
 
+// Actions
 async function remove(activity: ActivityInterface): Promise<void> {
   const Swal = (await import('sweetalert2')).default;
   const result = await Swal.fire({
@@ -31,6 +34,9 @@ async function remove(activity: ActivityInterface): Promise<void> {
     await Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
   }
 }
+
+// Lifecycle
+onMounted(() => setTimeout(() => (loading.value = false), 450));
 </script>
 
 <template>

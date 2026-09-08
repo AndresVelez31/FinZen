@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import {
@@ -13,12 +14,14 @@ import {
 } from 'lucide-vue-next';
 import { AuthService } from '@/auth/AuthService.js';
 
+// Types
 interface DemoAccount {
   role: string;
   email: string;
   password: string;
 }
 
+// State
 const router = useRouter();
 const email = ref('');
 const password = ref('');
@@ -31,6 +34,7 @@ const demoAccounts: DemoAccount[] = [
   { role: 'Usuario', email: 'user@finzen.app', password: 'user123' },
 ];
 
+// Actions
 function useDemoAccount(account: DemoAccount): void {
   email.value = account.email;
   password.value = account.password;

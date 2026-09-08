@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft, Save, Landmark, PiggyBank, Wallet, Smartphone } from 'lucide-vue-next';
@@ -6,6 +7,14 @@ import { AccountService } from '@/services/AccountService.js';
 import type { CreateAccountDTO } from '@/dtos/CreateAccountDTO.js';
 import type { UpdateAccountDTO } from '@/dtos/UpdateAccountDTO.js';
 
+// Types
+interface FormErrors {
+  name?: string;
+  type?: string;
+  balance?: string;
+}
+
+// State
 const route = useRoute();
 const router = useRouter();
 
@@ -17,15 +26,11 @@ const TYPES = [
   { value: 'Inversión', label: 'Inversión', icon: Landmark },
 ];
 
+// Computed
 const editing = computed(() => route.name === 'accounts.edit');
 const accountId = computed(() => (route.params.id ? Number(route.params.id) : null));
 
-interface FormErrors {
-  name?: string;
-  type?: string;
-  balance?: string;
-}
-
+// State
 function createInitialFormState() {
   return {
     name: '',
@@ -38,6 +43,7 @@ const form = ref(createInitialFormState());
 const errors = ref<FormErrors>({});
 const saving = ref(false);
 
+// Actions
 function loadForm(): void {
   errors.value = {};
 
@@ -144,14 +150,12 @@ async function submit(): Promise<void> {
     <p class="muted">Completa los datos de tu cuenta.</p>
 
     <form class="card form" @submit.prevent="submit">
-      <!-- Nombre -->
       <div class="field">
         <label for="name">Nombre de la cuenta</label>
         <input id="name" class="input" v-model="form.name" placeholder="Ej: Bancolombia" :disabled="saving" />
         <span v-if="errors.name" class="err">{{ errors.name }}</span>
       </div>
 
-      <!-- Tipo -->
       <div class="field">
         <label>Tipo de cuenta</label>
 
@@ -173,7 +177,6 @@ async function submit(): Promise<void> {
         <span v-if="errors.type" class="err">{{ errors.type }}</span>
       </div>
 
-      <!-- Saldo -->
       <div class="field">
         <label for="balance">Saldo inicial</label>
         <div class="amount-wrap">
@@ -193,7 +196,6 @@ async function submit(): Promise<void> {
         <span v-if="errors.balance" class="err">{{ errors.balance }}</span>
       </div>
 
-      <!-- Botones -->
       <div class="actions">
         <button type="button" class="btn btn-ghost" :disabled="saving" @click="router.push({ name: 'accounts' })">
           Cancelar

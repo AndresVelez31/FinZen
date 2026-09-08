@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Wallet, TrendingDown, TrendingUp, Plus, ArrowRight } from 'lucide-vue-next';
@@ -12,14 +13,15 @@ import { ReportAnalytics } from '@/utils/ReportAnalytics.js';
 import { DateRange } from '@/utils/DateRange.js';
 import { Formatters } from '@/utils/formatters.js';
 
+// State
 const router = useRouter();
 const loading = ref(true);
-onMounted(() => setTimeout(() => (loading.value = false), 500));
+const monthRange = DateRange.currentMonthFull();
 
+// Computed
 const currentUser = computed(() => AuthService.getCurrentUser());
 const transactions = computed(() => TransactionService.getAll());
 
-const monthRange = DateRange.currentMonthFull();
 const monthTransactions = computed(() => ReportAnalytics.getUserTransactions(monthRange.start, monthRange.end));
 const monthExpenses = computed(() => monthTransactions.value.filter((transaction) => transaction.type === 'expense'));
 const monthIncomes = computed(() => monthTransactions.value.filter((transaction) => transaction.type === 'income'));
@@ -45,6 +47,9 @@ const donut = computed(() => {
 const hasDonut = computed(() => donut.value.labels.length > 0);
 
 const recentTransactions = computed(() => transactions.value.slice(0, 5));
+
+// Lifecycle
+onMounted(() => setTimeout(() => (loading.value = false), 500));
 </script>
 
 <template>
