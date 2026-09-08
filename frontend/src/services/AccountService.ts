@@ -14,8 +14,13 @@ export class AccountService {
     return useAccountStore().accounts.filter((account) => account.userId === currentUserId);
   }
 
+  // Scoped to the current user: without this check, any authenticated user
+  // could load or edit another user's account by guessing its id in the URL.
   static getById(id: number): AccountInterface | undefined {
-    return useAccountStore().accounts.find((account) => account.id === id);
+    const currentUserId = useUserStore().currentUserId;
+    return useAccountStore().accounts.find(
+      (account) => account.id === id && account.userId === currentUserId,
+    );
   }
 
   static create(createAccountDTO: CreateAccountDTO): AccountInterface {
@@ -27,6 +32,9 @@ export class AccountService {
     const cleanName = createAccountDTO.name.trim();
     if (!cleanName) throw new Error('Account name is required.');
     if (!createAccountDTO.type) throw new Error('Account type is required.');
+    if (!Number.isFinite(createAccountDTO.balance) || createAccountDTO.balance < 0) {
+      throw new Error('Account balance must be zero or greater.');
+    }
 
     const newAccount: AccountInterface = {
       ...createAccountDTO,
@@ -43,8 +51,14 @@ export class AccountService {
 
   static update(updateAccountDTO: UpdateAccountDTO): AccountInterface | undefined {
     const { id, ...accountUpdates } = updateAccountDTO;
+    const currentUserId = useUserStore().currentUserId;
     const accountStore = useAccountStore();
-    const index = accountStore.accounts.findIndex((account) => account.id === id);
+
+    // Ownership check, mirroring getById(): an index into another user's
+    // account is treated as not found, not as a valid update target.
+    const index = accountStore.accounts.findIndex(
+      (account) => account.id === id && account.userId === currentUserId,
+    );
     if (index === -1) {
       return undefined;
     }
@@ -55,6 +69,12 @@ export class AccountService {
     const cleanName = accountUpdates.name !== undefined ? accountUpdates.name.trim() : accountToUpdate.name;
     if (accountUpdates.name !== undefined && !cleanName) throw new Error('Account name cannot be empty.');
     if (accountUpdates.type !== undefined && !accountUpdates.type) throw new Error('Account type cannot be empty.');
+    if (
+      accountUpdates.balance !== undefined &&
+      (!Number.isFinite(accountUpdates.balance) || accountUpdates.balance < 0)
+    ) {
+      throw new Error('Account balance must be zero or greater.');
+    }
 
     const updatedAccount: AccountInterface = {
       ...accountToUpdate,
@@ -68,13 +88,21 @@ export class AccountService {
   }
 
   static delete(id: number): void {
+    const currentUserId = useUserStore().currentUserId;
     const accountStore = useAccountStore();
     const transactionStore = useTransactionStore();
 
-    // Remove the account
-    accountStore.accounts = accountStore.accounts.filter((account) => account.id !== id);
+    // Ownership check, mirroring getById()/update(): silently no-ops on an
+    // id that isn't the current user's, instead of deleting data that
+    // doesn't belong to the caller.
+    const account = accountStore.accounts.find(
+      (item) => item.id === id && item.userId === currentUserId,
+    );
+    if (!account) {
+      return;
+    }
 
-    // Remove all associated transactions
+    accountStore.accounts = accountStore.accounts.filter((item) => item.id !== id);
     transactionStore.transactions = transactionStore.transactions.filter(
       (transaction) => transaction.accountId !== id,
     );

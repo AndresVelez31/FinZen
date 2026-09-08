@@ -3,6 +3,7 @@ import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { UserService } from '@/services/UserService.js';
 import { useThemeStore } from '@/stores/themestore.js';
+import { Formatters } from '@/utils/formatters.js';
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -52,15 +53,7 @@ const navItems = computed<NavItem[]>(() => [
     : []),
 ]);
 
-const userInitials = computed<string>(() => {
-  const fullName = currentUser.value?.name ?? '?';
-  return fullName
-    .split(' ')
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join('')
-    .toUpperCase();
-});
+const userInitials = computed<string>(() => Formatters.initials(currentUser.value?.name ?? '?'));
 
 function navigateTo(routeName: string): void {
   router.push({ name: routeName });

@@ -20,16 +20,6 @@ const emit = defineEmits<{
   changeRole: [user: UserInterface];
   toggleActive: [user: UserInterface];
 }>();
-
-function initials(name: string): string {
-  if (!name) return '';
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join('')
-    .toUpperCase();
-}
 </script>
 
 <template>
@@ -54,7 +44,7 @@ function initials(name: string): string {
             <td>
               <div class="u">
                 <span class="u-avatar" :class="{ admin: user.role === 'admin' }">
-                  {{ initials(user.name) }}
+                  {{ Formatters.initials(user.name) }}
                 </span>
                 <div class="u-name">
                   {{ user.name }}

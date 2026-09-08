@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft, Save, Landmark, PiggyBank, Wallet, Smartphone } from 'lucide-vue-next';
 import { AccountService } from '@/services/AccountService.js';
@@ -17,14 +17,8 @@ const TYPES = [
   { value: 'Inversión', label: 'Inversión', icon: Landmark },
 ];
 
-const editing = route.name === 'account-edit';
-const accountId = route.params.id ? Number(route.params.id) : null;
-
-const form = ref({
-  name: '',
-  type: 'checking',
-  balance: '',
-});
+const editing = computed(() => route.name === 'account-edit');
+const accountId = computed(() => (route.params.id ? Number(route.params.id) : null));
 
 interface FormErrors {
   name?: string;
@@ -32,15 +26,27 @@ interface FormErrors {
   balance?: string;
 }
 
+function createInitialFormState() {
+  return {
+    name: '',
+    type: TYPES[0]!.value,
+    balance: '',
+  };
+}
+
+const form = ref(createInitialFormState());
 const errors = ref<FormErrors>({});
 const saving = ref(false);
 
-onMounted(() => {
-  if (!editing) {
+function loadForm(): void {
+  errors.value = {};
+
+  if (!editing.value) {
+    form.value = createInitialFormState();
     return;
   }
 
-  const account = accountId ? AccountService.getById(accountId) : undefined;
+  const account = accountId.value ? AccountService.getById(accountId.value) : undefined;
   if (!account) {
     router.replace({ name: 'accounts' });
     return;
@@ -51,29 +57,42 @@ onMounted(() => {
     type: account.type,
     balance: String(account.balance),
   };
-});
+}
+
+// Reruns whenever the route's :id changes, so the form reloads correctly
+// even if Vue Router ever reuses this component instance between two
+// account-edit navigations instead of remounting it.
+watch([editing, accountId], loadForm, { immediate: true });
 
 function validate(): boolean {
-  const e: FormErrors = {};
+  const validationErrors: FormErrors = {};
 
   if (!form.value.name.trim()) {
-    e.name = 'El nombre de la cuenta es obligatorio.';
+    validationErrors.name = 'El nombre de la cuenta es obligatorio.';
   }
   if (!form.value.type) {
-    e.type = 'Selecciona un tipo de cuenta.';
+    validationErrors.type = 'Selecciona un tipo de cuenta.';
   }
 
   const amount = Number(form.value.balance);
   if (form.value.balance === '' || Number.isNaN(amount) || amount < 0) {
-    e.balance = 'Introduce un saldo inicial válido (mayor o igual a 0).';
+    validationErrors.balance = 'Introduce un saldo inicial válido (mayor o igual a 0).';
   }
 
-  errors.value = e;
-  return Object.keys(e).length === 0;
+  errors.value = validationErrors;
+  return Object.keys(validationErrors).length === 0;
 }
 
-async function submit() {
-  if (!validate()) {
+function buildAccountFields(): CreateAccountDTO {
+  return {
+    name: form.value.name.trim(),
+    type: form.value.type,
+    balance: Number(form.value.balance),
+  };
+}
+
+async function submit(): Promise<void> {
+  if (saving.value || !validate()) {
     return;
   }
 
@@ -81,25 +100,18 @@ async function submit() {
   const Swal = (await import('sweetalert2')).default;
 
   try {
-    if (editing && accountId) {
-      const dto: UpdateAccountDTO = {
-        id: accountId,
-        name: form.value.name.trim(),
-        type: form.value.type,
-        balance: Number(form.value.balance),
-      };
-      AccountService.update(dto);
+    if (editing.value && accountId.value) {
+      const dto: UpdateAccountDTO = { id: accountId.value, ...buildAccountFields() };
+      const updated = AccountService.update(dto);
+      if (!updated) {
+        throw new Error('La cuenta no existe o no está disponible.');
+      }
     } else {
-      const dto: CreateAccountDTO = {
-        name: form.value.name.trim(),
-        type: form.value.type,
-        balance: Number(form.value.balance),
-      };
-      AccountService.create(dto);
+      AccountService.create(buildAccountFields());
     }
 
     await Swal.fire({
-      title: editing ? 'Cuenta actualizada' : 'Cuenta creada',
+      title: editing.value ? 'Cuenta actualizada' : 'Cuenta creada',
       icon: 'success',
       timer: 1300,
       showConfirmButton: false,
@@ -120,7 +132,7 @@ async function submit() {
 
 <template>
   <div class="fade-up form-page">
-    <button class="back" @click="router.back()">
+    <button class="back" :disabled="saving" @click="router.back()">
       <ArrowLeft :size="17" />
       Volver
     </button>
@@ -135,7 +147,7 @@ async function submit() {
       <!-- Nombre -->
       <div class="field">
         <label for="name">Nombre de la cuenta</label>
-        <input id="name" class="input" v-model="form.name" placeholder="Ej: Bancolombia" />
+        <input id="name" class="input" v-model="form.name" placeholder="Ej: Bancolombia" :disabled="saving" />
         <span v-if="errors.name" class="err">{{ errors.name }}</span>
       </div>
 
@@ -150,6 +162,7 @@ async function submit() {
             type="button"
             class="type-opt"
             :class="{ active: form.type === type.value }"
+            :disabled="saving"
             @click="form.type = type.value"
           >
             <component :is="type.icon" :size="17" />
@@ -174,6 +187,7 @@ async function submit() {
             min="0"
             step="1000"
             placeholder="0"
+            :disabled="saving"
           />
         </div>
         <span v-if="errors.balance" class="err">{{ errors.balance }}</span>
@@ -181,14 +195,14 @@ async function submit() {
 
       <!-- Botones -->
       <div class="actions">
-        <button type="button" class="btn btn-ghost" @click="router.push({ name: 'accounts' })">
+        <button type="button" class="btn btn-ghost" :disabled="saving" @click="router.push({ name: 'accounts' })">
           Cancelar
         </button>
 
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary" :disabled="saving">
           <Save :size="17" />
 
-          {{ editing ? 'Guardar cambios' : 'Crear cuenta' }}
+          {{ saving ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear cuenta' }}
         </button>
       </div>
     </form>
