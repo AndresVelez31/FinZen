@@ -1,5 +1,14 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import type { RouteRecordRaw } from 'vue-router';
+import LoginView from '@/views/LoginView.vue';
+import DashboardView from '@/views/DashboardView.vue';
+import TransactionsShowView from '@/views/TransactionsShowView.vue';
+import TransactionFormView from '@/views/TransactionFormView.vue';
+import AccountsShowView from '@/views/AccountsShowView.vue';
+import AccountFormView from '@/views/AccountFormView.vue';
+import ReportsView from '@/views/ReportsView.vue';
+import ActivitiesShowView from '@/views/ActivitiesShowView.vue';
+import ActivityFormView from '@/views/ActivityFormView.vue';
+import UsersShowView from '@/views/UsersShowView.vue';
 import { UserService } from '@/services/UserService.js';
 
 declare module 'vue-router' {
@@ -11,105 +20,103 @@ declare module 'vue-router' {
   }
 }
 
-const routes: RouteRecordRaw[] = [
-  {
-    path: '/login',
-    name: 'login',
-    component: () => import('@/views/LoginView.vue'),
-    meta: {
-      title: 'Iniciar sesión | FinZen',
-      public: true,
-      layout: 'blank',
-    },
-  },
-  {
-    path: '/',
-    name: 'dashboard',
-    component: () => import('@/views/DashboardView.vue'),
-    meta: {
-      title: 'Resumen | FinZen',
-    },
-  },
-  {
-    path: '/transactions',
-    name: 'transactions',
-    component: () => import('@/views/TransactionsShowView.vue'),
-    meta: { title: 'Transacciones | FinZen' },
-  },
-  {
-    path: '/transactions/new',
-    name: 'transaction-new',
-    component: () => import('@/views/TransactionFormView.vue'),
-    meta: { title: 'Nueva transacción | FinZen' },
-  },
-  {
-    path: '/transactions/:id/edit',
-    name: 'transaction-edit',
-    component: () => import('@/views/TransactionFormView.vue'),
-    meta: { title: 'Editar transacción | FinZen' },
-  },
-  {
-    path: '/accounts',
-    name: 'accounts',
-    component: () => import('@/views/AccountsShowView.vue'),
-    meta: { title: 'Cuentas | FinZen' },
-  },
-  {
-    path: '/accounts/new',
-    name: 'account-new',
-    component: () => import('@/views/AccountFormView.vue'),
-    meta: { title: 'Nueva cuenta | FinZen' },
-  },
-  {
-    path: '/accounts/:id/edit',
-    name: 'account-edit',
-    component: () => import('@/views/AccountFormView.vue'),
-    meta: { title: 'Editar cuenta | FinZen' },
-  },
-  {
-    path: '/reports',
-    name: 'reports',
-    component: () => import('@/views/ReportsView.vue'),
-    meta: { title: 'Reportes | FinZen' },
-  },
-  {
-    path: '/activities',
-    name: 'activities',
-    component: () => import('@/views/ActivitiesShowView.vue'),
-    meta: { title: 'Actividades | FinZen', admin: true },
-  },
-  {
-    path: '/activities/new',
-    name: 'activity-new',
-    component: () => import('@/views/ActivityFormView.vue'),
-    meta: { title: 'Nueva actividad | FinZen', admin: true },
-  },
-  {
-    path: '/activities/:id/edit',
-    name: 'activity-edit',
-    component: () => import('@/views/ActivityFormView.vue'),
-    meta: { title: 'Editar actividad | FinZen', admin: true },
-  },
-  {
-    path: '/users',
-    name: 'users',
-    component: () => import('@/views/UsersShowView.vue'),
-    meta: {
-      title: 'Usuarios | FinZen',
-      admin: true,
-    },
-  },
-];
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes,
+  routes: [
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView,
+      meta: {
+        title: 'Iniciar sesión | FinZen',
+        public: true,
+        layout: 'blank',
+      },
+    },
+    {
+      path: '/',
+      name: 'dashboard',
+      component: DashboardView,
+      meta: {
+        title: 'Resumen | FinZen',
+      },
+    },
+    {
+      path: '/transactions',
+      name: 'transactions',
+      component: TransactionsShowView,
+      meta: { title: 'Transacciones | FinZen' },
+    },
+    {
+      path: '/transactions/new',
+      name: 'transactions.create',
+      component: TransactionFormView,
+      meta: { title: 'Nueva transacción | FinZen' },
+    },
+    {
+      path: '/transactions/:id/edit',
+      name: 'transactions.edit',
+      component: TransactionFormView,
+      meta: { title: 'Editar transacción | FinZen' },
+    },
+    {
+      path: '/accounts',
+      name: 'accounts',
+      component: AccountsShowView,
+      meta: { title: 'Cuentas | FinZen' },
+    },
+    {
+      path: '/accounts/new',
+      name: 'accounts.create',
+      component: AccountFormView,
+      meta: { title: 'Nueva cuenta | FinZen' },
+    },
+    {
+      path: '/accounts/:id/edit',
+      name: 'accounts.edit',
+      component: AccountFormView,
+      meta: { title: 'Editar cuenta | FinZen' },
+    },
+    {
+      path: '/reports',
+      name: 'reports',
+      component: ReportsView,
+      meta: { title: 'Reportes | FinZen' },
+    },
+    {
+      path: '/activities',
+      name: 'activities',
+      component: ActivitiesShowView,
+      meta: { title: 'Actividades | FinZen', admin: true },
+    },
+    {
+      path: '/activities/new',
+      name: 'activities.create',
+      component: ActivityFormView,
+      meta: { title: 'Nueva actividad | FinZen', admin: true },
+    },
+    {
+      path: '/activities/:id/edit',
+      name: 'activities.edit',
+      component: ActivityFormView,
+      meta: { title: 'Editar actividad | FinZen', admin: true },
+    },
+    {
+      path: '/users',
+      name: 'users',
+      component: UsersShowView,
+      meta: {
+        title: 'Usuarios | FinZen',
+        admin: true,
+      },
+    },
+  ],
 });
 
 const ROUTES_REQUIRING_ID: Record<string, string> = {
-  'transaction-edit': 'transactions',
-  'account-edit': 'accounts',
-  'activity-edit': 'activities',
+  'transactions.edit': 'transactions',
+  'accounts.edit': 'accounts',
+  'activities.edit': 'activities',
 };
 
 router.beforeEach((to) => {

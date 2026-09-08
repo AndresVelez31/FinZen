@@ -11,7 +11,7 @@ import type { UpdateTransactionDTO } from '@/dtos/UpdateTransactionDTO.js';
 const route = useRoute();
 const router = useRouter();
 
-const editing = computed(() => route.name === 'transaction-edit');
+const editing = computed(() => route.name === 'transactions.edit');
 const transactionId = computed(() => (route.params.id ? Number(route.params.id) : null));
 
 const accounts = computed(() => AccountService.getAll());

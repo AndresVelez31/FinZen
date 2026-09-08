@@ -17,7 +17,7 @@ const TYPES = [
   { value: 'Inversión', label: 'Inversión', icon: Landmark },
 ];
 
-const editing = computed(() => route.name === 'account-edit');
+const editing = computed(() => route.name === 'accounts.edit');
 const accountId = computed(() => (route.params.id ? Number(route.params.id) : null));
 
 interface FormErrors {

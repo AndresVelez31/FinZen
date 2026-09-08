@@ -96,7 +96,7 @@ const totals = computed(() => {
 });
 
 function onEdit(transaction: TransactionInterface) {
-  router.push({ name: 'transaction-edit', params: { id: transaction.id } });
+  router.push({ name: 'transactions.edit', params: { id: transaction.id } });
 }
 
 async function removeTx(row: TransactionInterface) {
@@ -128,7 +128,7 @@ async function removeTx(row: TransactionInterface) {
           {{ Formatters.formatToCOP(totals.expense) }}
         </p>
       </div>
-      <button class="btn btn-primary" @click="router.push({ name: 'transaction-new' })">
+      <button class="btn btn-primary" @click="router.push({ name: 'transactions.create' })">
         <Plus :size="18" /> Nueva transacción
       </button>
     </div>
