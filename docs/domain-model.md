@@ -28,12 +28,10 @@ classDiagram
         -int id
         -int userId
         -string name
-        -string type
+        -string type "Corriente | Ahorros | Efectivo | Digital | Inversión"
         -decimal balance
         -datetime createdAt
         -datetime updatedAt
-        -User user
-        -Transaction[] transactions
         +CRUD()
         +getters()
         +setters()
@@ -79,15 +77,26 @@ classDiagram
 ## Atributos
 
 ### User
+
 `id: int`, `name: string`, `role: string`, `email: string`, `password: string`, `createdAt: datetime`, `updatedAt: datetime`, `accounts: Account[]`, `activities: Activity[]`.
 
 ### Account
-`id: int`, `userId: int`, `name: string`, `type: string`, `balance: decimal`, `createdAt: datetime`, `updatedAt: datetime`, `user: User`, `transactions: Transaction[]`.
+
+`id: int`, `userId: int`, `name: string`, `type: "Corriente" | "Ahorros" | "Efectivo" | "Digital" | "Inversión"`, `balance: decimal`, `createdAt: datetime`, `updatedAt: datetime`.
+
+Reglas de negocio de `Account`:
+
+- `name` se sanea con `trim()` y no puede quedar vacío.
+- `type` debe ser exactamente uno de los cinco valores permitidos indicados arriba.
+- `balance` debe ser un número finito mayor o igual que `0`.
+- Toda consulta, actualización, eliminación o cálculo por `id` se restringe a las cuentas del usuario de la sesión activa. Una cuenta de otro usuario se trata como no disponible y no puede modificarse ni eliminarse.
 
 ### Activity
+
 `id: int`, `userId: int`, `name: string`, `color: string`, `type: string`, `targetAmount: decimal`, `createdAt: datetime`, `updatedAt: datetime`, `user: User`, `transactions: Transaction[]`.
 
 ### Transaction
+
 `id: int`, `accountId: int`, `activityId: int`, `type: string`, `amount: decimal`, `date: datetime`, `description: string`, `account: Account`, `activity: Activity`.
 
 ## Relaciones

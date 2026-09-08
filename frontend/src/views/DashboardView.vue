@@ -2,10 +2,12 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { Wallet, TrendingDown, TrendingUp, Plus, ArrowRight } from 'lucide-vue-next';
+
 import StatCard from '@/components/shared/StatCard.vue';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import GenericTable from '@/components/shared/GenericTable.vue';
 import type { TableColumn } from '@/components/shared/GenericTable.vue';
+
 import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
 import { TransactionService } from '@/services/TransactionService.js';
@@ -35,7 +37,7 @@ const monthIncomeTotal = computed(() =>
   monthIncomes.value.reduce((total, transaction) => total + transaction.amount, 0),
 );
 
-const totalBalance = computed(() => AccountService.getTotalBalance());
+const totalBalance = computed(() => AccountService.getBalance());
 
 // Doughnut: expense by activity this month
 const donut = computed(() => {
@@ -159,7 +161,7 @@ function asTransaction(row: unknown): TransactionInterface {
               <div>
                 <div class="tx-name">{{ asTransaction(row).description }}</div>
                 <div class="soft tx-acc">
-                  {{ AccountService.getAccountById(asTransaction(row).accountId)?.name }}
+                  {{ AccountService.getById(asTransaction(row).accountId)?.name }}
                 </div>
               </div>
             </div>

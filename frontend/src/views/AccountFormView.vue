@@ -1,22 +1,37 @@
 <script setup lang="ts">
-// Vue Core
-import { ref, onMounted } from 'vue';
+// Vue core
+import { computed, ref, watch, type Component } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-
+ 
 // Third-party libraries
 import { ArrowLeft, Landmark, PiggyBank, Save, Smartphone, Wallet } from 'lucide-vue-next';
-
+ 
 // Services — business logic layer (View → Service → Store)
 import { AccountService } from '@/services/AccountService.js';
-
+ 
 // Types
 import type { CreateAccountDTO } from '@/dtos/CreateAccountDTO.js';
-import type { UpdateAccountDTO } from '@/dtos/UpdateAccountDTO.js';
+import type { AccountType } from '@/interfaces/AccountInterface.js';
+ 
+interface AccountTypeOption {
+  value: AccountType;
+  label: string;
+  icon: Component;
+}
+ 
+interface FormErrors {
+  name?: string;
+  type?: string;
+  balance?: string;
+}
+ 
+interface AccountFormState {
+  name: string;
+  type: AccountType;
+  balance: string;
+}
 
-
-const route = useRoute();
-const router = useRouter();
-
+// Constants
 const TYPES = [
   { value: 'Corriente', label: 'Corriente', icon: Landmark },
   { value: 'Ahorros', label: 'Ahorros', icon: PiggyBank },
@@ -25,88 +40,92 @@ const TYPES = [
   { value: 'Inversión', label: 'Inversión', icon: Landmark },
 ];
 
-const editing = route.name === 'account-edit';
-const accountId = route.params.id ? Number(route.params.id) : null;
+// Router-derived state
+const route = useRoute();
+const router = useRouter();
 
-const form = ref({
-  name: '',
-  type: 'checking',
-  balance: '',
-});
+const editing = computed(() => route.name === 'account-edit');
+const accountId = computed(() => (route.params.id ? Number(route.params.id) : null));
 
-interface FormErrors {
-  name?: string;
-  type?: string;
-  balance?: string;
+// Form State
+function createInitialFormState(): AccountFormState {
+  return { name: '', type: 'Corriente', balance: '' };
 }
-
+ 
+const form = ref<AccountFormState>(createInitialFormState());
 const errors = ref<FormErrors>({});
 const saving = ref(false);
 
-onMounted(() => {
-  if (!editing) {
+// Functions
+function buildAccountData(): CreateAccountDTO {
+  return {
+    name: form.value.name.trim(),
+    type: form.value.type,
+    balance: Number(form.value.balance),
+  };
+}
+ 
+function loadAccountForm(): void {
+  errors.value = {};
+ 
+  if (!editing.value) {
+    form.value = createInitialFormState();
     return;
   }
-
-  const account = accountId ? AccountService.getAccountById(accountId) : undefined;
+ 
+  const account = accountId.value ? AccountService.getById(accountId.value) : undefined;
   if (!account) {
     router.replace({ name: 'accounts' });
     return;
   }
-
+ 
   form.value = {
     name: account.name,
     type: account.type,
     balance: String(account.balance),
   };
-});
-
-function validate(): boolean {
-  const e: FormErrors = {};
-
-  if (!form.value.name.trim()) {
-    e.name = 'El nombre de la cuenta es obligatorio.';
-  }
-  if (!form.value.type) {
-    e.type = 'Selecciona un tipo de cuenta.';
-  }
-
-  const amount = Number(form.value.balance);
-  if (form.value.balance === '' || Number.isNaN(amount) || amount < 0) {
-    e.balance = 'Introduce un saldo inicial válido (mayor o igual a 0).';
-  }
-
-  errors.value = e;
-  return Object.keys(e).length === 0;
 }
 
-async function submit() {
-  if (!validate()) {
+// UI Level validation
+function validate(): boolean {
+  const nextErrors: FormErrors = {};
+ 
+  if (!form.value.name.trim()) {
+    nextErrors.name = 'El nombre de la cuenta es obligatorio.';
+  }
+  if (!form.value.type) {
+    nextErrors.type = 'Selecciona un tipo de cuenta.';
+  }
+ 
+  const amount = Number(form.value.balance);
+  if (form.value.balance === '' || Number.isNaN(amount) || amount < 0) {
+    nextErrors.balance = 'Introduce un saldo inicial válido (mayor o igual a 0).';
+  }
+ 
+  errors.value = nextErrors;
+  return Object.keys(nextErrors).length === 0;
+}
+ 
+async function submit(): Promise<void> {
+  if (saving.value || !validate()) {
     return;
   }
-
+ 
   saving.value = true;
   const Swal = (await import('sweetalert2')).default;
-
+ 
   try {
-    if (editing && accountId) {
-      const dto: UpdateAccountDTO = {
-        name: form.value.name.trim(),
-        type: form.value.type,
-        balance: Number(form.value.balance),
-      };
-      AccountService.updateAccount(accountId, dto);
+    if (editing.value && accountId.value) {
+      const updated = AccountService.update(accountId.value, buildAccountData());
+      if (!updated) {
+        throw new Error('La cuenta no existe o no está disponible.');
+      }
     } else {
-      const dto: CreateAccountDTO = {
-        name: form.value.name.trim(),
-        type: form.value.type,
-        balance: Number(form.value.balance),
-      };
-      AccountService.createAccount(dto);
+      AccountService.create(buildAccountData());
     }
-
+ 
     await Swal.fire({
-      title: editing ? 'Cuenta actualizada' : 'Cuenta creada',
+      title: editing.value ? 'Cuenta actualizada' : 'Cuenta creada',
       icon: 'success',
       timer: 1300,
       showConfirmButton: false,
@@ -123,11 +142,15 @@ async function submit() {
     saving.value = false;
   }
 }
+
+// Lifecycle
+watch([editing, accountId], loadAccountForm, { immediate: true });
+
 </script>
 
 <template>
   <div class="fade-up form-page">
-    <button class="back" @click="router.back()">
+    <button class="back" :disabled="saving" @click="router.back()">
       <ArrowLeft :size="17" />
       Volver
     </button>
@@ -142,7 +165,7 @@ async function submit() {
       <!-- Nombre -->
       <div class="field">
         <label for="name">Nombre de la cuenta</label>
-        <input id="name" class="input" v-model="form.name" placeholder="Ej: Bancolombia" />
+        <input id="name" class="input" v-model="form.name" placeholder="Ej: Bancolombia" :disabled="saving"/>
         <span v-if="errors.name" class="err">{{ errors.name }}</span>
       </div>
 
@@ -157,6 +180,7 @@ async function submit() {
             type="button"
             class="type-opt"
             :class="{ active: form.type === type.value }"
+            :disabled="saving"
             @click="form.type = type.value"
           >
             <component :is="type.icon" :size="17" />
@@ -181,6 +205,7 @@ async function submit() {
             min="0"
             step="1000"
             placeholder="0"
+            :disabled="saving"
           />
         </div>
         <span v-if="errors.balance" class="err">{{ errors.balance }}</span>
@@ -188,11 +213,11 @@ async function submit() {
 
       <!-- Botones -->
       <div class="actions">
-        <button type="button" class="btn btn-ghost" @click="router.push({ name: 'accounts' })">
+        <button type="button" class="btn btn-ghost" :disabled="saving" @click="router.push({ name: 'accounts' })">
           Cancelar
         </button>
 
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary"> :disabled="saving"
           <Save :size="17" />
 
           {{ editing ? 'Guardar cambios' : 'Crear cuenta' }}

@@ -1,22 +1,21 @@
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 import type { CreateTransactionDTO } from '@/dtos/CreateTransactionDTO.js';
 import type { UpdateTransactionDTO } from '@/dtos/UpdateTransactionDTO.js';
+
 import { useTransactionStore } from '@/stores/transactionstore.js';
 import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
 import { useUserStore } from '@/stores/userstore.js';
 
 export class TransactionService {
-  /**
-   * Retrieves all transactions for the active user, ordered by date descending.
-   */
+  // Retrieves all transactions for the active user, ordered by date descending.
   static getTransactions(): TransactionInterface[] {
     const currentUserId = useUserStore().currentUserId;
     if (!currentUserId) {
       return [];
     }
 
-    const userAccounts = AccountService.getAccounts();
+    const userAccounts = AccountService.getAll();
     const userAccountIds = new Set(userAccounts.map((account) => account.id));
 
     const transactions = useTransactionStore().transactions.filter((transaction) =>
@@ -28,22 +27,18 @@ export class TransactionService {
     );
   }
 
-  /**
-   * Retrieves a specific transaction by its ID.
-   */
+  // Retrieves a specific transaction by its ID.
   static getTransactionById(id: number): TransactionInterface | undefined {
     return useTransactionStore().transactions.find((transaction) => transaction.id === id);
   }
 
-  /**
-   * Creates a new transaction with validation and persistence.
-   */
+  //Creates a new transaction with validation and persistence.
   static createTransaction(dto: CreateTransactionDTO): TransactionInterface {
     if (dto.amount === undefined || dto.amount <= 0) {
       throw new Error('Transaction amount must be greater than 0.');
     }
 
-    if (!dto.accountId || !AccountService.getAccountById(dto.accountId)) {
+    if (!dto.accountId || !AccountService.getById(dto.accountId)) {
       throw new Error('The specified account does not exist.');
     }
 
@@ -65,9 +60,7 @@ export class TransactionService {
     return newTransaction;
   }
 
-  /**
-   * Updates an existing transaction.
-   */
+  // Updates an existing transaction
   static updateTransaction(id: number, dto: UpdateTransactionDTO): TransactionInterface | undefined {
     const transactionStore = useTransactionStore();
     const index = transactionStore.transactions.findIndex((transaction) => transaction.id === id);
@@ -82,7 +75,7 @@ export class TransactionService {
       throw new Error('Transaction amount must be greater than 0.');
     }
 
-    if (dto.accountId !== undefined && !AccountService.getAccountById(dto.accountId)) {
+    if (dto.accountId !== undefined && !AccountService.getById(dto.accountId)) {
       throw new Error('The specified account does not exist.');
     }
 
@@ -104,9 +97,7 @@ export class TransactionService {
     return updatedTransaction;
   }
 
-  /**
-   * Deletes a transaction by its ID.
-   */
+  // Deletes a transaction by its ID.
   static deleteTransaction(id: number): void {
     const transactionStore = useTransactionStore();
     transactionStore.transactions = transactionStore.transactions.filter(
@@ -114,23 +105,17 @@ export class TransactionService {
     );
   }
 
-  /**
-   * Filters transactions by type ('income' | 'expense').
-   */
+  // Filters transactions by type ('income' | 'expense').
   static filterByType(type: 'income' | 'expense'): TransactionInterface[] {
     return this.getTransactions().filter((transaction) => transaction.type === type);
   }
 
-  /**
-   * Filters transactions by account ID.
-   */
+  // Filters transactions by account ID.
   static filterByAccount(accountId: number): TransactionInterface[] {
     return this.getTransactions().filter((transaction) => transaction.accountId === accountId);
   }
 
-  /**
-   * Filters transactions by month (format 'YYYY-MM').
-   */
+  // Filters transactions by month (format 'YYYY-MM').
   static filterByMonth(monthKey: string): TransactionInterface[] {
     const cleanKey = monthKey.trim();
     return this.getTransactions().filter((transaction) => {

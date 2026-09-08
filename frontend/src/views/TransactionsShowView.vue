@@ -31,7 +31,7 @@ const activityOptions = computed<{ value: string; label: string }[]>(() =>
 );
 
 const accountOptions = computed<{ value: string; label: string }[]>(() =>
-  AccountService.getAccounts().map((a) => ({
+  AccountService.getAll().map((a) => ({
     value: String(a.id),
     label: `${a.name} · ${a.type}`,
   })),
@@ -144,7 +144,7 @@ function getActivity(id: number) {
 }
 
 function getAccount(id: number) {
-  return AccountService.getAccountById(id);
+  return AccountService.getById(id);
 }
 
 async function removeTx(row: TransactionInterface) {

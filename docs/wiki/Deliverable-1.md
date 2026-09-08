@@ -28,12 +28,13 @@ erDiagram
     }
 
     ACCOUNT {
-        string id PK
-        string userId FK
-        string type "checking | savings | cash | digital"
-        string accountNumber
-        string bank
-        number initialBalance
+        int id PK
+        int userId FK
+        string name
+        string type "Corriente | Ahorros | Efectivo | Digital | Inversión"
+        number balance
+        string createdAt
+        string updatedAt
     }
 
     ACTIVITY {
@@ -60,9 +61,16 @@ erDiagram
 ### Entity Contracts
 
 1. **User**: Represents authentication, identity, and role-based permissions (`admin` vs `user`).
-2. **Account**: Financial buckets (Bank accounts, Cash wallets, Digital wallets) with an `initialBalance` and dynamically computed current balance.
+2. **Account**: Financial buckets (bank accounts, cash wallets, digital wallets, and investments) with a stored base `balance` used to calculate the current balance.
 3. **Activity**: Financial category / bucket with color tagging, type (`expense` or `savings`), and target budgeting amounts.
 4. **Transaction**: Individual financial movement linking an account and an activity with a signed amount, date, and description.
+
+### Account Business Rules
+
+- `name` is sanitized with `trim()` and must not be empty.
+- `type` must be exactly `Corriente`, `Ahorros`, `Efectivo`, `Digital`, or `Inversión`.
+- `balance` must be a finite number greater than or equal to `0`.
+- Every lookup, update, deletion, or balance calculation by account `id` is restricted to the user in the active session. Another user's account is treated as unavailable and cannot be changed or deleted.
 
 ---
 
@@ -70,18 +78,18 @@ erDiagram
 
 The application features **9 structured routes / views**:
 
-| # | Route | View Component | Access Role | Description |
-|---|---|---|---|---|
-| 1 | `/login` | `LoginView.vue` | Public | Authentication with email & password |
-| 2 | `/` | `DashboardView.vue` | User / Admin | Overview: net balance, metric cards, 6-month trend chart, recent movements |
-| 3 | `/transactions` | `TransactionsView.vue` | User / Admin | Transactions table with combined filtering (type, account, month) and actions |
-| 4 | `/transactions/new` | `TransactionFormView.vue` | User / Admin | Form to record new transactions |
-| 5 | `/transactions/:id/edit` | `TransactionFormView.vue` | User / Admin | Form to modify existing transactions |
-| 6 | `/accounts` | `AccountsView.vue` | User / Admin | Accounts summary with real-time balance calculations |
-| 7 | `/accounts/new` | `AccountFormView.vue` | User / Admin | Form to create a new financial account |
-| 8 | `/reports` | `ReportsView.vue` | User / Admin | Interactive Chart.js analytics by category, trend, and period |
-| 9 | `/activities` | `ActivitiesView.vue` | **Admin Only** | Administrative CRUD for expense/savings categories |
-| 10 | `/users` | `UsersView.vue` | **Admin Only** | Administrative user directory, role switcher, and activation toggle |
+| #   | Route                    | View Component            | Access Role    | Description                                                                   |
+| --- | ------------------------ | ------------------------- | -------------- | ----------------------------------------------------------------------------- |
+| 1   | `/login`                 | `LoginView.vue`           | Public         | Authentication with email & password                                          |
+| 2   | `/`                      | `DashboardView.vue`       | User / Admin   | Overview: net balance, metric cards, 6-month trend chart, recent movements    |
+| 3   | `/transactions`          | `TransactionsView.vue`    | User / Admin   | Transactions table with combined filtering (type, account, month) and actions |
+| 4   | `/transactions/new`      | `TransactionFormView.vue` | User / Admin   | Form to record new transactions                                               |
+| 5   | `/transactions/:id/edit` | `TransactionFormView.vue` | User / Admin   | Form to modify existing transactions                                          |
+| 6   | `/accounts`              | `AccountsView.vue`        | User / Admin   | Accounts summary with real-time balance calculations                          |
+| 7   | `/accounts/new`          | `AccountFormView.vue`     | User / Admin   | Form to create a new financial account                                        |
+| 8   | `/reports`               | `ReportsView.vue`         | User / Admin   | Interactive Chart.js analytics by category, trend, and period                 |
+| 9   | `/activities`            | `ActivitiesView.vue`      | **Admin Only** | Administrative CRUD for expense/savings categories                            |
+| 10  | `/users`                 | `UsersView.vue`           | **Admin Only** | Administrative user directory, role switcher, and activation toggle           |
 
 ---
 
@@ -115,6 +123,7 @@ FinZen is built as a **Single Page Application (SPA)** with **Client-Side Render
 ```
 
 ### Persistence and Seeders Flow
+
 1. On application startup, `PiniaConfig` checks if `localStorage` contains state.
 2. **If empty**: It loads pre-configured `seeders` (`userseeder`, `accountseeder`, `activityseeder`, `transactionseeder`) with rich mock data.
 3. **If populated**: It hydrates stores from `localStorage`.
@@ -125,11 +134,13 @@ FinZen is built as a **Single Page Application (SPA)** with **Client-Side Render
 ## 4. Reusable Components & Route Guards
 
 ### Reusable UI Components
+
 - **`TablaGenerica.vue`**: Configurable table component accepting dynamic `columns` and `rows` props with `#actions` scoped slot. Reused in Transactions, Activities, and Users views.
 - **`SelectorFiltro.vue`**: Generic dropdown/select filter with `v-model` support. Reused in Transactions and Reports.
 - **`GraficoChart.vue`**: Chart.js wrapper handling canvas lifecycle and responsive re-rendering. Reused in Dashboard and Reports.
 - **`StatCard.vue`**: Visual metric card for financial KPIs. Reused in Dashboard and Reports.
 
 ### Route Guards
+
 - **Authentication Guard**: Unauthenticated users visiting private routes are intercepted and redirected to `/login`.
 - **Role-Based Authorization Guard**: Non-admin users attempting to access `/activities` or `/users` are redirected to `/`.

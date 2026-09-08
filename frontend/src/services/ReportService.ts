@@ -26,7 +26,7 @@ export interface SavingsProgressItem extends ActivityInterface {
 
 export class ReportService {
   static getUserTransactions(startDate?: string, endDate?: string): TransactionInterface[] {
-    const accountIds = AccountService.getAccounts().map((account) => account.id);
+    const accountIds = AccountService.getAll().map((account) => account.id);
 
     return useTransactionStore().transactions.filter((transaction) => {
       if (!accountIds.includes(transaction.accountId)) return false;

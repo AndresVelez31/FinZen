@@ -14,7 +14,7 @@ const router = useRouter();
 const editing = route.name === 'transaction-edit';
 const transactionId = route.params.id ? Number(route.params.id) : null;
 
-const accounts = computed(() => AccountService.getAccounts());
+const accounts = computed(() => AccountService.getAll());
 const activities = computed(() => ActivityService.getActivities());
 
 const today = new Date().toISOString().slice(0, 10);
