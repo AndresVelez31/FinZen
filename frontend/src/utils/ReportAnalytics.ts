@@ -71,14 +71,6 @@ export interface TransactionRowInterface extends TransactionInterface {
 
 export class ReportAnalytics {
   // Queries
-
-  /**
-   * Filters transactions by activity, account, type, month (format 'MM'),
-   * and/or an inclusive ISO date range. Every criterion is optional and
-   * unset criteria are ignored. Cross-entity, display-shaping logic — not a
-   * CRUD operation on the Transaction entity — so it lives here rather than
-   * on TransactionService, consistent with getTransactionRows() below.
-   */
   static filterTransactions(criteria: TransactionFilterCriteria = {}): TransactionInterface[] {
     return TransactionService.getAll().filter((transaction) => {
       if (criteria.activityId !== undefined && transaction.activityId !== criteria.activityId) return false;
@@ -91,21 +83,12 @@ export class ReportAnalytics {
     });
   }
 
-  /**
-   * Transactions for the currently active user, optionally bounded by an
-   * ISO (YYYY-MM-DD) date range (inclusive on both ends).
-   */
   static getUserTransactions(startDate?: string, endDate?: string): TransactionInterface[] {
     return this.filterTransactions({ from: startDate, to: endDate });
   }
 
   // Aggregations
 
-  /**
-   * Groups expense totals by activity, for the currently active user,
-   * optionally bounded by an ISO (YYYY-MM-DD) date range.
-   * Only returns activities that have at least one expense in the period.
-   */
   static getExpensesByActivity(startDate?: string, endDate?: string): ActivityExpenseEntry[] {
     const activities = ActivityService.getAll();
     const transactions = this.getUserTransactions(startDate, endDate);
