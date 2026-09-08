@@ -41,7 +41,7 @@ const router = useRouter();
 const isMobileMenuOpen = ref(false);
 
 const navItems = computed<NavItem[]>(() => [
-  { name: 'dashboard', label: 'Resumen', icon: LayoutDashboard },
+  { name: 'overview', label: 'Resumen', icon: LayoutDashboard },
   { name: 'accounts', label: 'Cuentas', icon: Wallet },
   { name: 'transactions', label: 'Transacciones', icon: ArrowLeftRight },
   { name: 'reports', label: 'Reportes', icon: PieChart },

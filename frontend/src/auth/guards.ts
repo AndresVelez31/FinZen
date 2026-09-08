@@ -8,7 +8,7 @@ export const authGuard: NavigationGuardWithThis<undefined> = (to) => {
   const authenticated = AuthService.isAuthenticated();
 
   if (to.name === 'login' && authenticated) {
-    return { name: 'dashboard' };
+    return { name: 'overview' };
   }
 
   if (to.meta.public) {
@@ -22,12 +22,12 @@ export const authGuard: NavigationGuardWithThis<undefined> = (to) => {
   return true;
 };
 
-// Sends a non-admin user back to the dashboard on any route flagged
+// Sends a non-admin user back to the overview on any route flagged
 // meta.admin. Runs after authGuard, so by the time this executes the user
 // is either authenticated or already being redirected to /login.
 export const adminGuard: NavigationGuardWithThis<undefined> = (to) => {
   if (to.meta.admin && !AuthService.isAdmin()) {
-    return { name: 'dashboard' };
+    return { name: 'overview' };
   }
 
   return true;
