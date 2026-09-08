@@ -2,13 +2,11 @@
 import { Inbox, Pencil, Trash2 } from 'lucide-vue-next';
 import TableSkeleton from '@/components/shared/TableSkeleton.vue';
 import EmptyState from '@/components/shared/EmptyState.vue';
-import { ActivityService } from '@/services/ActivityService.js';
-import { AccountService } from '@/services/AccountService.js';
 import { Formatters } from '@/utils/formatters.js';
-import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
+import type { TransactionRowInterface } from '@/utils/ReportAnalytics.js';
 
 interface Props {
-  rows: TransactionInterface[];
+  rows: TransactionRowInterface[];
   loading?: boolean;
 }
 
@@ -17,17 +15,9 @@ withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  edit: [transaction: TransactionInterface];
-  delete: [transaction: TransactionInterface];
+  edit: [transaction: TransactionRowInterface];
+  delete: [transaction: TransactionRowInterface];
 }>();
-
-function getActivity(id: number) {
-  return ActivityService.getById(id);
-}
-
-function getAccount(id: number) {
-  return AccountService.getById(id);
-}
 </script>
 
 <template>
@@ -52,17 +42,14 @@ function getAccount(id: number) {
           <tr v-for="transaction in rows" :key="transaction.id">
             <td>
               <div class="tx-desc">
-                <span
-                  class="dot"
-                  :style="{ background: getActivity(transaction.activityId)?.color || '#94a3b8' }"
-                ></span>
+                <span class="dot" :style="{ background: transaction.activityColor }"></span>
                 <span class="tx-name">{{ transaction.description }}</span>
               </div>
             </td>
             <td>
-              <span class="chip badge-gray">{{ getActivity(transaction.activityId)?.name || '—' }}</span>
+              <span class="chip badge-gray">{{ transaction.activityName }}</span>
             </td>
-            <td>{{ getAccount(transaction.accountId)?.name || '—' }}</td>
+            <td>{{ transaction.accountName }}</td>
             <td>{{ Formatters.formatDate(transaction.date) }}</td>
             <td>
               <span class="badge" :class="transaction.type === 'income' ? 'badge-green' : 'badge-red'">

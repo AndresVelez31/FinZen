@@ -13,7 +13,7 @@ import { ReportAnalytics } from '@/utils/ReportAnalytics.js';
 import { Formatters } from '@/utils/formatters.js';
 import { MONTH_OPTIONS } from '@/utils/constants.js';
 import type { FilterOption } from '@/utils/constants.js';
-import type { TransactionInterface } from '@/interfaces/TransactionInterface';
+import type { TransactionRowInterface } from '@/utils/ReportAnalytics.js';
 
 // State
 const router = useRouter();
@@ -43,8 +43,8 @@ const accountOptions = computed<FilterOption[]>(() =>
   })),
 );
 
-const filtered = computed<TransactionInterface[]>(() =>
-  TransactionService.filterTransactions({
+const filtered = computed<TransactionRowInterface[]>(() =>
+  ReportAnalytics.getTransactionRows({
     activityId: fActivity.value ? Number(fActivity.value) : undefined,
     accountId: fAccount.value ? Number(fAccount.value) : undefined,
     type: fType.value || undefined,
@@ -95,11 +95,11 @@ function resetFilters() {
   fTo.value = '';
 }
 
-function onEdit(transaction: TransactionInterface) {
+function onEdit(transaction: TransactionRowInterface) {
   router.push({ name: 'transactions.edit', params: { id: transaction.id } });
 }
 
-async function removeTx(row: TransactionInterface) {
+async function removeTx(row: TransactionRowInterface) {
   const Swal = (await import('sweetalert2')).default;
   const res = await Swal.fire({
     title: '¿Eliminar transacción?',

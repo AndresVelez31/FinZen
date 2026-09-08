@@ -7,7 +7,6 @@ import StatCard from '@/components/shared/StatCard.vue';
 import ChartGraphic from '@/components/shared/ChartGraphic.vue';
 import RecentTransactionsTable from '@/components/overview/RecentTransactionsTable.vue';
 import { AccountService } from '@/services/AccountService.js';
-import { TransactionService } from '@/services/TransactionService.js';
 import { AuthService } from '@/auth/AuthService.js';
 import { ReportAnalytics } from '@/utils/ReportAnalytics.js';
 import { DateRange } from '@/utils/DateRange.js';
@@ -20,7 +19,6 @@ const monthRange = DateRange.currentMonthFull();
 
 // Computed
 const currentUser = computed(() => AuthService.getCurrentUser());
-const transactions = computed(() => TransactionService.getAll());
 
 const monthTransactions = computed(() => ReportAnalytics.getUserTransactions(monthRange.start, monthRange.end));
 const monthExpenses = computed(() => monthTransactions.value.filter((transaction) => transaction.type === 'expense'));
@@ -46,7 +44,7 @@ const donut = computed(() => {
 });
 const hasDonut = computed(() => donut.value.labels.length > 0);
 
-const recentTransactions = computed(() => transactions.value.slice(0, 5));
+const recentTransactions = computed(() => ReportAnalytics.getTransactionRows().slice(0, 5));
 
 // Lifecycle
 onMounted(() => setTimeout(() => (loading.value = false), 500));
