@@ -2,13 +2,11 @@
 import { Inbox } from 'lucide-vue-next';
 import TableSkeleton from '@/components/shared/TableSkeleton.vue';
 import EmptyState from '@/components/shared/EmptyState.vue';
-import { ActivityService } from '@/services/ActivityService.js';
-import { AccountService } from '@/services/AccountService.js';
 import { Formatters } from '@/utils/formatters.js';
-import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
+import type { TransactionRowInterface } from '@/utils/ReportAnalytics.js';
 
 interface Props {
-  rows: TransactionInterface[];
+  rows: TransactionRowInterface[];
   loading?: boolean;
 }
 
@@ -36,20 +34,15 @@ withDefaults(defineProps<Props>(), {
           <tr v-for="transaction in rows" :key="transaction.id">
             <td>
               <div class="tx-desc">
-                <span
-                  class="dot"
-                  :style="{ background: ActivityService.getById(transaction.activityId)?.color ?? '#94a3b8' }"
-                ></span>
+                <span class="dot" :style="{ background: transaction.activityColor }"></span>
                 <div>
                   <div class="tx-name">{{ transaction.description }}</div>
-                  <div class="soft tx-acc">
-                    {{ AccountService.getById(transaction.accountId)?.name }}
-                  </div>
+                  <div class="soft tx-acc">{{ transaction.accountName }}</div>
                 </div>
               </div>
             </td>
             <td>
-              <span class="chip badge-gray">{{ ActivityService.getById(transaction.activityId)?.name ?? '—' }}</span>
+              <span class="chip badge-gray">{{ transaction.activityName }}</span>
             </td>
             <td>{{ Formatters.formatDate(transaction.date) }}</td>
             <td style="text-align: right">

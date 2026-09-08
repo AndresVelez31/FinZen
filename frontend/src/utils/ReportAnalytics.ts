@@ -1,7 +1,9 @@
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import { TransactionService } from '@/services/TransactionService.js';
+import type { TransactionFilterCriteria } from '@/services/TransactionService.js';
 import { ActivityService } from '@/services/ActivityService.js';
+import { AccountService } from '@/services/AccountService.js';
 import { Formatters } from '@/utils/formatters.js';
 import { DateRange } from '@/utils/DateRange.js';
 
@@ -53,6 +55,12 @@ export interface SavingsProgress {
   saved: number;
   percent: number;
 }
+export interface TransactionRowInterface extends TransactionInterface {
+  activityName: string;
+  activityColor: string;
+  accountName: string;
+}
+
 export class ReportAnalytics {
   // Queries
 
@@ -255,6 +263,31 @@ export class ReportAnalytics {
         used,
         percent,
         over: activity.type === 'expense' && used > activity.targetAmount,
+      };
+    });
+  }
+
+  /**
+   * Same filtering as TransactionService.filterTransactions(), but with
+   * each row already joined against its activity and account (name, and
+   * the activity's color) in a single pass over two Maps, instead of a
+   * getById() call per cell in the template. Preserves the underlying
+   * date-desc order.
+   */
+  static getTransactionRows(criteria?: TransactionFilterCriteria): TransactionRowInterface[] {
+    const transactions = TransactionService.filterTransactions(criteria);
+    const accountsById = new Map(AccountService.getAll().map((account) => [account.id, account]));
+    const activitiesById = new Map(ActivityService.getAll().map((activity) => [activity.id, activity]));
+
+    return transactions.map((transaction) => {
+      const activity = activitiesById.get(transaction.activityId);
+      const account = accountsById.get(transaction.accountId);
+
+      return {
+        ...transaction,
+        activityName: activity?.name ?? 'Otros',
+        activityColor: activity?.color ?? '#94a3b8',
+        accountName: account?.name ?? '—',
       };
     });
   }
