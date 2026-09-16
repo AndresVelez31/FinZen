@@ -128,8 +128,6 @@ export class TransactionService {
   }
 
   static delete(id: number): void {
-    // Ownership check, mirroring getById()/update(): silently no-ops on an
-    // id that isn't the current user's.
     if (!this.getById(id)) {
       return;
     }
