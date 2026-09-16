@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Formatters } from '@/utils/formatters';
+import { Formatters } from '@/utils/FormattersUtil.js';
 
 describe('Formatters.formatToCOP', () => {
   it('formats a positive amount as COP currency', () => {

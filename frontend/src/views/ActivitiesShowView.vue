@@ -1,19 +1,17 @@
 <script setup lang="ts">
 // Imports
-import { ref, onMounted, computed } from 'vue';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Plus, Pencil, Trash2, Target, PiggyBank } from 'lucide-vue-next';
 import { ActivityService } from '@/services/ActivityService.js';
-import { ReportAnalytics } from '@/utils/ReportAnalytics.js';
-import { Formatters } from '@/utils/formatters.js';
+import { Formatters } from '@/utils/FormattersUtil.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 
 // State
 const router = useRouter();
-const loading = ref(true);
 
 // Computed
-const cards = computed(() => ReportAnalytics.getActivityProgress());
+const cards = computed(() => ActivityService.getProgress());
 
 // Actions
 async function remove(activity: ActivityInterface): Promise<void> {
@@ -34,9 +32,6 @@ async function remove(activity: ActivityInterface): Promise<void> {
     await Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
   }
 }
-
-// Lifecycle
-onMounted(() => setTimeout(() => (loading.value = false), 450));
 </script>
 
 <template>
@@ -51,11 +46,7 @@ onMounted(() => setTimeout(() => (loading.value = false), 450));
       </button>
     </div>
 
-    <div v-if="loading" class="grid">
-      <div v-for="n in 3" :key="n" class="card act skeleton-card"></div>
-    </div>
-
-    <div v-else-if="cards.length" class="grid">
+    <div v-if="cards.length" class="grid">
       <article v-for="activity in cards" :key="activity.id" class="card act" :style="{ '--c': activity.color }">
         <div class="act-top">
           <span class="act-dot"></span>
@@ -141,20 +132,6 @@ onMounted(() => setTimeout(() => (loading.value = false), 450));
 .act:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-md);
-}
-.skeleton-card {
-  height: 176px;
-  background: linear-gradient(90deg, var(--surface-2) 25%, var(--border) 50%, var(--surface-2) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.2s infinite;
-}
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
 }
 .act-top {
   display: flex;

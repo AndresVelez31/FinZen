@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { AuthService } from '@/auth/AuthService.js';
+import { AuthService } from '@/services/AuthService.js';
 import { useThemeStore } from '@/stores/themestore.js';
-import { Formatters } from '@/utils/formatters.js';
+import { Formatters } from '@/utils/FormattersUtil.js';
 import {LayoutDashboard, ArrowLeftRight, Tags, Users, PieChart, LogOut, Menu, X, Moon, Sun, Wallet} from 'lucide-vue-next';
 
 // Interfaces

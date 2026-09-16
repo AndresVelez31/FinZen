@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import { Inbox, ShieldCheck, User } from 'lucide-vue-next';
-import TableSkeleton from '@/components/shared/TableSkeleton.vue';
-import EmptyState from '@/components/shared/EmptyState.vue';
-import { Formatters } from '@/utils/formatters.js';
+import EmptyState from '@/components/shared/EmptyStateComponent.vue';
+import { Formatters } from '@/utils/FormattersUtil.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
 
-interface Props {
-  users: UserInterface[];
-  loading?: boolean;
-  currentUserId?: number | null;
-}
-
-withDefaults(defineProps<Props>(), {
-  loading: false,
-  currentUserId: null,
-});
+const props = withDefaults(
+  defineProps<{
+    users: UserInterface[];
+    currentUserId?: number | null;
+  }>(),
+  {
+    currentUserId: null,
+  },
+);
 
 const emit = defineEmits<{
   changeRole: [user: UserInterface];
@@ -37,10 +35,8 @@ const emit = defineEmits<{
       </thead>
 
       <tbody>
-        <TableSkeleton v-if="loading" :columns="6" />
-
-        <template v-else-if="users.length">
-          <tr v-for="user in users" :key="user.id">
+        <template v-if="props.users.length">
+          <tr v-for="user in props.users" :key="user.id">
             <td>
               <div class="u">
                 <span class="u-avatar" :class="{ admin: user.role === 'admin' }">
@@ -48,7 +44,7 @@ const emit = defineEmits<{
                 </span>
                 <div class="u-name">
                   {{ user.name }}
-                  <span v-if="user.id === currentUserId" class="badge badge-green"> Tú </span>
+                  <span v-if="user.id === props.currentUserId" class="badge badge-green"> Tú </span>
                 </div>
               </div>
             </td>
@@ -70,14 +66,14 @@ const emit = defineEmits<{
                 <div class="user-actions">
                   <button
                     class="btn btn-ghost btn-sm"
-                    :disabled="user.id === currentUserId"
+                    :disabled="user.id === props.currentUserId"
                     @click="emit('changeRole', user)"
                   >
                     {{ user.role === 'admin' ? 'A usuario' : 'A admin' }}
                   </button>
                   <button
                     class="btn btn-ghost btn-sm"
-                    :disabled="user.id === currentUserId"
+                    :disabled="user.id === props.currentUserId"
                     @click="emit('toggleActive', user)"
                   >
                     {{ user.active ? 'Desactivar' : 'Activar' }}
@@ -91,7 +87,7 @@ const emit = defineEmits<{
     </table>
 
     <EmptyState
-      v-if="!loading && !users.length"
+      v-if="!props.users.length"
       :icon="Inbox"
       title="Sin usuarios"
       text="No hay usuarios que coincidan con el filtro."

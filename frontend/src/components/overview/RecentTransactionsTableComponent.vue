@@ -1,22 +1,11 @@
 <script setup lang="ts">
-import { Inbox, Pencil, Trash2 } from 'lucide-vue-next';
-import TableSkeleton from '@/components/shared/TableSkeleton.vue';
-import EmptyState from '@/components/shared/EmptyState.vue';
-import { Formatters } from '@/utils/formatters.js';
-import type { TransactionRowInterface } from '@/utils/ReportAnalytics.js';
+import { Inbox } from 'lucide-vue-next';
+import EmptyState from '@/components/shared/EmptyStateComponent.vue';
+import { Formatters } from '@/utils/FormattersUtil.js';
+import type { TransactionRowInterface } from '@/services/TransactionService.js';
 
-interface Props {
+const props = defineProps<{
   rows: TransactionRowInterface[];
-  loading?: boolean;
-}
-
-withDefaults(defineProps<Props>(), {
-  loading: false,
-});
-
-const emit = defineEmits<{
-  edit: [transaction: TransactionRowInterface];
-  delete: [transaction: TransactionRowInterface];
 }>();
 </script>
 
@@ -27,61 +16,31 @@ const emit = defineEmits<{
         <tr>
           <th>Descripción</th>
           <th>Actividad</th>
-          <th>Cuenta</th>
           <th>Fecha</th>
-          <th>Tipo</th>
           <th style="text-align: right">Importe</th>
-          <th style="text-align: right; width: 120px">Acciones</th>
         </tr>
       </thead>
 
       <tbody>
-        <TableSkeleton v-if="loading" :columns="7" />
-
-        <template v-else-if="rows.length">
-          <tr v-for="transaction in rows" :key="transaction.id">
+        <template v-if="props.rows.length">
+          <tr v-for="transaction in props.rows" :key="transaction.id">
             <td>
               <div class="tx-desc">
                 <span class="dot" :style="{ background: transaction.activityColor }"></span>
-                <span class="tx-name">{{ transaction.description }}</span>
+                <div>
+                  <div class="tx-name">{{ transaction.description }}</div>
+                  <div class="soft tx-acc">{{ transaction.accountName }}</div>
+                </div>
               </div>
             </td>
             <td>
               <span class="chip badge-gray">{{ transaction.activityName }}</span>
             </td>
-            <td>{{ transaction.accountName }}</td>
             <td>{{ Formatters.formatDate(transaction.date) }}</td>
-            <td>
-              <span class="badge" :class="transaction.type === 'income' ? 'badge-green' : 'badge-red'">
-                {{ transaction.type === 'income' ? 'Ingreso' : 'Gasto' }}
-              </span>
-            </td>
             <td style="text-align: right">
               <span :class="transaction.type === 'income' ? 'amt-in' : 'amt-out'">
                 {{ transaction.type === 'income' ? '+' : '−' }}{{ Formatters.formatToCOP(transaction.amount) }}
               </span>
-            </td>
-            <td style="text-align: right">
-              <div class="row-actions">
-                <div>
-                  <button
-                    class="btn btn-ghost btn-icon"
-                    @click="emit('edit', transaction)"
-                    aria-label="Editar"
-                    title="Editar"
-                  >
-                    <Pencil :size="15" />
-                  </button>
-                  <button
-                    class="btn btn-danger btn-icon"
-                    @click="emit('delete', transaction)"
-                    aria-label="Eliminar"
-                    title="Eliminar"
-                  >
-                    <Trash2 :size="15" />
-                  </button>
-                </div>
-              </div>
             </td>
           </tr>
         </template>
@@ -89,10 +48,10 @@ const emit = defineEmits<{
     </table>
 
     <EmptyState
-      v-if="!loading && !rows.length"
+      v-if="!props.rows.length"
       :icon="Inbox"
       title="Sin transacciones"
-      text="Ajusta los filtros o crea una nueva transacción."
+      text="Crea tu primera transacción para verla aquí."
     />
   </div>
 </template>
@@ -132,11 +91,6 @@ tbody tr:hover {
 tbody tr:last-child td {
   border-bottom: none;
 }
-.row-actions {
-  display: inline-flex;
-  gap: 6px;
-  justify-content: flex-end;
-}
 .tx-desc {
   display: flex;
   align-items: center;
@@ -151,6 +105,9 @@ tbody tr:last-child td {
 .tx-name {
   font-weight: 600;
 }
+.tx-acc {
+  font-size: 0.76rem;
+}
 .amt-in {
   color: var(--primary-strong);
   font-weight: 700;
@@ -159,6 +116,7 @@ html.dark .amt-in {
   color: var(--primary);
 }
 .amt-out {
+  color: var(--text);
   font-weight: 700;
 }
 </style>

@@ -54,14 +54,14 @@ The main domain dependency direction is:
 
 ```text
 Views -> Domain Services -> Pinia Stores -> localStorage
-Views -> ReportAnalytics -> Domain Services
 Views -> AuthService -> Auth/User Stores
 ```
 
 - **Views** coordinate presentation state, navigation, dialogs, and chart configuration.
-- **Services** implement domain validation, ownership rules, CRUD operations, and cascading changes.
+- **Services** implement domain validation, ownership rules, CRUD operations, cascading changes,
+  and the queries and aggregations over their own entity (e.g. `TransactionService.summarize`,
+  `ActivityService.getProgress`).
 - **Stores** are small reactive state containers.
-- **ReportAnalytics** centralizes reporting and cross-entity calculations while returning plain data.
 - **Shared components** remain domain-agnostic and communicate through typed props and emits.
 - **PiniaConfig** hydrates, seeds, and persists the application state.
 
@@ -83,12 +83,13 @@ FinZen/
 │   │   ├── auth/           # AuthService, auth store, and route guards
 │   │   ├── components/     # Shared, layout, and feature components
 │   │   ├── dtos/           # Create and Update DTO contracts
+│   │   ├── enums/          # Fixed option lists and their types (e.g. MONTH_OPTIONS)
 │   │   ├── interfaces/     # Domain interfaces
 │   │   ├── router/         # Routes and route metadata
 │   │   ├── seeders/        # Initial demonstration data
 │   │   ├── services/       # Domain Services
 │   │   ├── stores/         # Domain and theme Pinia Stores
-│   │   ├── utils/          # Utilities, constants, and ReportAnalytics
+│   │   ├── utils/          # Pure utilities
 │   │   ├── views/          # Routed page components
 │   │   ├── App.vue
 │   │   ├── main.ts

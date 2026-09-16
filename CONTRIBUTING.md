@@ -142,7 +142,7 @@ Do not use `[CODE-NN] Issue Title` as the PR title — that duplicates the linke
 [ ] No direct store access from Views (Services are used)
 [ ] No duplicate business logic
 [ ] Proper TypeScript types and DTOs used (no unjustified `any`)
-[ ] Views handle loading, empty, and error states properly
+[ ] Views handle empty and error states properly (and loading, only for real async data)
 [ ] No debug `console.log` left in production code
 [ ] Documentation updated if applicable
 ```

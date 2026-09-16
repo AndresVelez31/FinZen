@@ -1,23 +1,21 @@
 <script setup lang="ts">
 // Imports
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Plus, Filter, RotateCcw } from 'lucide-vue-next';
-import TransactionsTable from '@/components/transactions/TransactionsTable.vue';
-import SelectorFilter from '@/components/shared/SelectorFilter.vue';
-import ChartGraphic from '@/components/shared/ChartGraphic.vue';
+import TransactionsTable from '@/components/transactions/TransactionsTableComponent.vue';
+import SelectorFilter from '@/components/shared/SelectorFilterComponent.vue';
+import ChartGraphic from '@/components/shared/ChartGraphicComponent.vue';
 import { TransactionService } from '@/services/TransactionService.js';
 import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
-import { ReportAnalytics } from '@/utils/ReportAnalytics.js';
-import { Formatters } from '@/utils/formatters.js';
-import { MONTH_OPTIONS } from '@/utils/constants.js';
-import type { FilterOption } from '@/utils/constants.js';
-import type { TransactionRowInterface } from '@/utils/ReportAnalytics.js';
+import { Formatters } from '@/utils/FormattersUtil.js';
+import { MONTH_OPTIONS } from '@/enums/constants.js';
+import type { FilterOption } from '@/enums/constants.js';
+import type { TransactionRowInterface } from '@/services/TransactionService.js';
 
 // State
 const router = useRouter();
-const loading = ref(true);
 
 const filterActivity = ref<string>('');
 const filterAccount = ref<string>('');
@@ -44,7 +42,7 @@ const accountOptions = computed<FilterOption[]>(() =>
 );
 
 const filtered = computed<TransactionRowInterface[]>(() =>
-  ReportAnalytics.getTransactionRows({
+  TransactionService.getRows({
     activityId: filterActivity.value ? Number(filterActivity.value) : undefined,
     accountId: filterAccount.value ? Number(filterAccount.value) : undefined,
     type: filterType.value || undefined,
@@ -63,7 +61,7 @@ const activeFilters = computed(
 
 // Bar chart: expense by activity for the filtered set
 const barChart = computed(() => {
-  const entries = ReportAnalytics.aggregateExpensesByActivity(filtered.value);
+  const entries = TransactionService.aggregateExpensesByActivity(filtered.value);
   return {
     labels: entries.map((entry) => entry.name),
     datasets: [
@@ -81,7 +79,7 @@ const barChart = computed(() => {
 const hasBarChart = computed(() => barChart.value.labels.length > 0);
 
 const totals = computed(() => {
-  const summary = ReportAnalytics.summarize(filtered.value);
+  const summary = TransactionService.summarize(filtered.value);
   return { income: summary.totalIncome, expense: summary.totalExpense };
 });
 
@@ -116,11 +114,6 @@ async function removeTransaction(row: TransactionRowInterface) {
     Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1200, showConfirmButton: false });
   }
 }
-
-// Lifecycle
-onMounted(() => {
-  setTimeout(() => (loading.value = false), 450);
-});
 </script>
 
 <template>
@@ -198,7 +191,7 @@ onMounted(() => {
     </section>
 
     <!-- Table -->
-    <TransactionsTable :rows="filtered" :loading="loading" @edit="onEdit" @delete="removeTransaction" />
+    <TransactionsTable :rows="filtered" @edit="onEdit" @delete="removeTransaction" />
   </div>
 </template>
 

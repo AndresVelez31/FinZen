@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Inbox } from 'lucide-vue-next';
-import EmptyState from '@/components/shared/EmptyState.vue';
-import { Formatters } from '@/utils/formatters.js';
+import EmptyState from '@/components/shared/EmptyStateComponent.vue';
+import { Formatters } from '@/utils/FormattersUtil.js';
 
 export interface SummaryRow {
   id: number;
@@ -12,11 +12,9 @@ export interface SummaryRow {
   diff: number;
 }
 
-interface Props {
+const props = defineProps<{
   rows: SummaryRow[];
-}
-
-defineProps<Props>();
+}>();
 </script>
 
 <template>
@@ -32,8 +30,8 @@ defineProps<Props>();
       </thead>
 
       <tbody>
-        <template v-if="rows.length">
-          <tr v-for="row in rows" :key="row.id">
+        <template v-if="props.rows.length">
+          <tr v-for="row in props.rows" :key="row.id">
             <td>
               <div class="rn">
                 <span class="dot" :style="{ background: row.color }"></span
@@ -53,7 +51,7 @@ defineProps<Props>();
     </table>
 
     <EmptyState
-      v-if="!rows.length"
+      v-if="!props.rows.length"
       :icon="Inbox"
       title="Sin datos"
       text="No hay actividades de gasto para este periodo."

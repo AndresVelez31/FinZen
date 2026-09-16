@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FilterOption } from '@/utils/constants.js';
+import type { FilterOption } from '@/enums/constants.js';
 
 const props = defineProps<{
   label?: string;
