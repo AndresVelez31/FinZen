@@ -222,8 +222,8 @@ configure a domain, certificates, TLS termination, or external GCP infrastructur
 
 ## Continuous integration
 
-[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs on every push and Pull Request
-to `main`:
+[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs once on every Pull Request to
+`main` (it tests the PR merged with `main`, so merging does not run it again):
 
 1. **build-test** — `npm ci`, `check:lint`, `test:unit`, and `build` (type-check + Vite build);
    the new `dist/` is packaged with `Dockerfile` and `nginx.conf` as a release artifact.
