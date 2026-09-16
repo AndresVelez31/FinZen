@@ -21,7 +21,8 @@ The initial `ci.yml` already installed dependencies, ran `npm run lint`, the Vit
   `dateRange.spec.ts`, `authService.spec.ts` and `accountService.spec.ts` (ownership, validation,
   balances, cascading delete, using a fresh Pinia instance per test) and a `formatDate` case in
   `formatters.spec.ts`.
-- **Workflow** `.github/workflows/ci.yml`, triggered on pushes and PRs to `main` and manually:
+- **Workflow** `.github/workflows/ci.yml`, triggered on PRs to `main` and manually
+  (no `push` trigger, so each change runs CI once instead of again after merging):
   1. `build-test`: `npm ci` → `check:lint` → `test:unit` → `build`, then packages `dist/`,
      `Dockerfile` and `nginx.conf` into a release artifact.
   2. `docker`: builds the Nginx image from that artifact, runs it and checks that `/` and a client
