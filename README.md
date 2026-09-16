@@ -45,7 +45,8 @@ the browser and must not be treated as production-grade security.
 | UI feedback      | SweetAlert2                                                 |
 | Icons            | Lucide Vue Next                                             |
 | Styling          | Project CSS plus Tailwind CSS 4 Vite integration            |
-| Quality tools    | vue-tsc, OXLint, ESLint, and Prettier                       |
+| Quality tools    | vue-tsc, OXLint, ESLint, Prettier, and Vitest               |
+| CI               | GitHub Actions: lint, tests, build, and Docker smoke test   |
 | Deployment       | Pre-built `dist` served by Nginx in Docker                  |
 
 ## Architecture
@@ -94,11 +95,13 @@ FinZen/
 │   │   ├── App.vue
 │   │   ├── main.ts
 │   │   └── PiniaConfig.ts
+│   ├── tests/              # Vitest unit tests
 │   ├── Dockerfile
 │   ├── nginx.conf
 │   ├── index.html
 │   ├── package.json
-│   └── vite.config.ts
+│   ├── vite.config.ts
+│   └── vitest.config.ts
 ├── CONTRIBUTING.md
 └── README.md
 ```
@@ -174,6 +177,8 @@ Run these commands from `frontend/`:
 npm run dev          # Start the Vite development server
 npm run type-check   # Run vue-tsc
 npm run lint         # Run OXLint and ESLint with automatic fixes
+npm run check:lint   # Run OXLint and ESLint without modifying files (used in CI)
+npm run test:unit    # Run the Vitest unit tests in tests/ once
 npm run format       # Format src/ with Prettier
 npm run build        # Type-check and create the Vite production build
 npm run build-only   # Create the Vite production build without type-checking
@@ -214,6 +219,18 @@ Open [http://localhost:8080](http://localhost:8080).
 Nginx listens on internal HTTP port `80`, falls back to `index.html` for Vue Router paths, and serves
 hashed files under `/assets/` with a one-year immutable cache policy. The repository does not
 configure a domain, certificates, TLS termination, or external GCP infrastructure.
+
+## Continuous integration
+
+[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs on every push and Pull Request
+to `main`:
+
+1. **build-test** — `npm ci`, `check:lint`, `test:unit`, and `build` (type-check + Vite build);
+   the new `dist/` is packaged with `Dockerfile` and `nginx.conf` as a release artifact.
+2. **docker** — builds the Nginx image from that artifact and checks that `/` and `/transactions`
+   respond.
+
+See [`docs/decisions/INFRA-ci-workflow.md`](./docs/decisions/INFRA-ci-workflow.md).
 
 ## Documentation
 

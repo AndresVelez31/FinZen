@@ -38,3 +38,9 @@ describe('Formatters.initials', () => {
     expect(Formatters.initials('')).toBe('');
   });
 });
+
+describe('Formatters.formatDate', () => {
+  it('formats an ISO date in Spanish using UTC', () => {
+    expect(Formatters.formatDate('2026-01-05')).toBe('5 de enero de 2026');
+  });
+});
