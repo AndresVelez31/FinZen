@@ -1,5 +1,5 @@
 import type { NavigationGuardWithThis } from 'vue-router';
-import { AuthService } from '@/auth/AuthService.js';
+import { AuthService } from '@/services/AuthService.js';
 
 // Redirects an already-authenticated user away from /login, sends an
 // unauthenticated one there for any non-public route, and otherwise lets

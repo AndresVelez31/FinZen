@@ -8,21 +8,22 @@ Chart.register(...registerables);
  * Reusable Chart.js wrapper without domain dependencies.
  */
 
-interface Props {
-  type: ChartType | string;
-  labels?: string[];
-  datasets?: ChartDataset[] | unknown[];
-  options?: ChartOptions | Record<string, unknown>;
-  title?: string;
-  height?: number;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  labels: () => [],
-  datasets: () => [],
-  options: () => ({}),
-  height: 280,
-});
+const props = withDefaults(
+  defineProps<{
+    type: ChartType | string;
+    labels?: string[];
+    datasets?: ChartDataset[] | unknown[];
+    options?: ChartOptions | Record<string, unknown>;
+    title?: string;
+    height?: number;
+  }>(),
+  {
+    labels: () => [],
+    datasets: () => [],
+    options: () => ({}),
+    height: 280,
+  },
+);
 
 const canvas = ref<HTMLCanvasElement | null>(null);
 let chartInstance: Chart | null = null;
@@ -141,7 +142,7 @@ watch(
 </script>
 
 <template>
-  <div class="chart-box" :style="{ height: height + 'px' }">
+  <div class="chart-box" :style="{ height: props.height + 'px' }">
     <canvas ref="canvas"></canvas>
   </div>
 </template>

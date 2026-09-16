@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
 
-interface Props {
+const props = defineProps<{
   icon: Component;
   title: string;
   text?: string;
-}
-
-defineProps<Props>();
+}>();
 </script>
 
 <template>
   <div class="empty">
-    <div class="empty-icon"><component :is="icon" :size="28" /></div>
-    <h4>{{ title }}</h4>
-    <p v-if="text" class="muted">{{ text }}</p>
+    <div class="empty-icon"><component :is="props.icon" :size="28" /></div>
+    <h4>{{ props.title }}</h4>
+    <p v-if="props.text" class="muted">{{ props.text }}</p>
   </div>
 </template>
 

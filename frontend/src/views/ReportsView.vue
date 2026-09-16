@@ -2,17 +2,18 @@
 // Imports
 import { ref, computed } from 'vue';
 import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-vue-next';
-import ChartGraphic from '@/components/shared/ChartGraphic.vue';
-import SelectorFilter from '@/components/shared/SelectorFilter.vue';
-import BudgetSummaryTable from '@/components/reports/BudgetSummaryTable.vue';
-import type { SummaryRow } from '@/components/reports/BudgetSummaryTable.vue';
-import StatCard from '@/components/shared/StatCard.vue';
-import RadialProgress from '@/components/shared/RadialProgress.vue';
-import { ReportAnalytics } from '@/utils/ReportAnalytics.js';
-import { Formatters } from '@/utils/formatters.js';
-import { DateRange } from '@/utils/DateRange.js';
-import { MONTH_OPTIONS } from '@/utils/constants.js';
-import type { FilterOption } from '@/utils/constants.js';
+import ChartGraphic from '@/components/shared/ChartGraphicComponent.vue';
+import SelectorFilter from '@/components/shared/SelectorFilterComponent.vue';
+import BudgetSummaryTable from '@/components/reports/BudgetSummaryTableComponent.vue';
+import type { SummaryRow } from '@/components/reports/BudgetSummaryTableComponent.vue';
+import StatCard from '@/components/shared/StatCardComponent.vue';
+import RadialProgress from '@/components/shared/RadialProgressComponent.vue';
+import { TransactionService } from '@/services/TransactionService.js';
+import { ActivityService } from '@/services/ActivityService.js';
+import { Formatters } from '@/utils/FormattersUtil.js';
+import { DateRange } from '@/utils/DateRangeUtil.js';
+import { MONTH_OPTIONS } from '@/enums/constants.js';
+import type { FilterOption } from '@/enums/constants.js';
 
 // State
 const now = new Date();
@@ -21,7 +22,7 @@ const selectedMonth = ref(String(now.getMonth() + 1).padStart(2, '0'));
 
 // Computed
 const years = computed<FilterOption[]>(() =>
-  ReportAnalytics.getAvailableYears().map((year) => ({ value: String(year), label: String(year) })),
+  TransactionService.getAvailableYears().map((year) => ({ value: String(year), label: String(year) })),
 );
 
 const monthName = computed(() => MONTH_OPTIONS.find((month) => month.value === selectedMonth.value)?.label ?? '');
@@ -30,7 +31,7 @@ const period = computed(() => DateRange.ofMonth(selectedYear.value, selectedMont
 const periodStart = computed(() => period.value.start);
 const periodEnd = computed(() => period.value.end);
 
-const summary = computed(() => ReportAnalytics.getPeriodSummary(periodStart.value, periodEnd.value));
+const summary = computed(() => TransactionService.getPeriodSummary(periodStart.value, periodEnd.value));
 
 // Line chart: cumulative balance evolution across the selected year
 const lineChart = computed(() => ({
@@ -38,7 +39,7 @@ const lineChart = computed(() => ({
   datasets: [
     {
       label: 'Balance acumulado',
-      data: ReportAnalytics.getCumulativeBalanceByMonth(selectedYear.value),
+      data: TransactionService.getCumulativeBalanceByMonth(selectedYear.value),
       borderColor: '#10b981',
       backgroundColor: 'rgba(16,185,129,0.12)',
       fill: true,
@@ -51,7 +52,7 @@ const lineChart = computed(() => ({
 }));
 
 // Bar chart: budget vs actual (expense activities) for the selected period
-const budgetVsActual = computed(() => ReportAnalytics.getBudgetVsActual(periodStart.value, periodEnd.value));
+const budgetVsActual = computed(() => ActivityService.getBudgetVsActual(periodStart.value, periodEnd.value));
 
 const budgetChart = computed(() => ({
   labels: budgetVsActual.value.map((row) => row.name),
@@ -75,7 +76,7 @@ const budgetChart = computed(() => ({
 const hasBudget = computed(() => budgetChart.value.labels.length > 0);
 
 // Savings progress (all-time, unlike the budget/expense figures above which are period-scoped)
-const savingsActivities = computed(() => ReportAnalytics.getSavingsProgress());
+const savingsActivities = computed(() => ActivityService.getSavingsProgress());
 
 const summaryRows = computed<SummaryRow[]>(() =>
   budgetVsActual.value.map((row) => ({

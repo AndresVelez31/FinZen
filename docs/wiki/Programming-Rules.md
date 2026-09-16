@@ -47,7 +47,7 @@ This document establishes the mandatory programming rules for developing in the 
    ```
 4. **Views only coordinate UI, fetch data through Services, and manage local presentation state.**
 5. **Views must handle 4 UI states when displaying data:**
-   - ⏳ `Loading state`
+   - ⏳ `Loading state` — only when data arrives asynchronously (e.g. from an API). Deliverable 1 reads everything synchronously from Pinia, so there is no loading state and it must not be simulated with `setTimeout` (see `docs/decisions/REFACTOR-remove-simulated-loading.md`).
    - ✅ `Success state`
    - 📭 `Empty state` (e.g., "No transactions found for the selected filter")
    - ❌ `Error state`

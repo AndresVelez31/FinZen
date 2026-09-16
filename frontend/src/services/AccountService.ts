@@ -3,29 +3,22 @@ import type { CreateAccountDTO } from '@/dtos/CreateAccountDTO.js';
 import type { UpdateAccountDTO } from '@/dtos/UpdateAccountDTO.js';
 import { useAccountStore } from '@/stores/accountstore.js';
 import { useTransactionStore } from '@/stores/transactionstore.js';
-import { useAuthStore } from '@/auth/authstore.js';
+import { AuthService } from '@/services/AuthService.js';
 
 export class AccountService {
   static getAll(): AccountInterface[] {
-    const currentUserId = useAuthStore().currentUserId;
-    if (!currentUserId) {
-      return [];
-    }
-    return useAccountStore().accounts.filter((account) => account.userId === currentUserId);
+    return useAccountStore().accounts.filter((account) => AuthService.isOwner(account.userId));
   }
 
-  // Scoped to the current user: without this check, any authenticated user
-  // could load or edit another user's account by guessing its id in the URL.
   static getById(id: number): AccountInterface | undefined {
-    const currentUserId = useAuthStore().currentUserId;
     return useAccountStore().accounts.find(
-      (account) => account.id === id && account.userId === currentUserId,
+      (account) => account.id === id && AuthService.isOwner(account.userId),
     );
   }
 
   static create(createAccountDTO: CreateAccountDTO): AccountInterface {
-    const currentUserId = useAuthStore().currentUserId;
-    if (!currentUserId) {
+    const currentUserId = AuthService.getCurrentUserId();
+    if (currentUserId === null) {
       throw new Error('Cannot create account: No active user session.');
     }
 
@@ -51,13 +44,10 @@ export class AccountService {
 
   static update(updateAccountDTO: UpdateAccountDTO): AccountInterface | undefined {
     const { id, ...accountUpdates } = updateAccountDTO;
-    const currentUserId = useAuthStore().currentUserId;
     const accountStore = useAccountStore();
 
-    // Ownership check, mirroring getById(): an index into another user's
-    // account is treated as not found, not as a valid update target.
     const index = accountStore.accounts.findIndex(
-      (account) => account.id === id && account.userId === currentUserId,
+      (account) => account.id === id && AuthService.isOwner(account.userId),
     );
     if (index === -1) {
       return undefined;
@@ -88,15 +78,11 @@ export class AccountService {
   }
 
   static delete(id: number): void {
-    const currentUserId = useAuthStore().currentUserId;
     const accountStore = useAccountStore();
     const transactionStore = useTransactionStore();
 
-    // Ownership check, mirroring getById()/update(): silently no-ops on an
-    // id that isn't the current user's, instead of deleting data that
-    // doesn't belong to the caller.
     const account = accountStore.accounts.find(
-      (item) => item.id === id && item.userId === currentUserId,
+      (item) => item.id === id && AuthService.isOwner(item.userId),
     );
     if (!account) {
       return;

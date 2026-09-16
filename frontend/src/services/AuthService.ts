@@ -1,6 +1,6 @@
 import type { UserInterface } from '@/interfaces/UserInterface.js';
 import { useUserStore } from '@/stores/userstore.js';
-import { useAuthStore } from '@/auth/authstore.js';
+import { useAuthStore } from '@/stores/authstore.js';
 
 export class AuthService {
   static login(
@@ -28,14 +28,23 @@ export class AuthService {
     useAuthStore().currentUserId = null;
   }
 
-  static getCurrentUser(): UserInterface | undefined {
-    const authStore = useAuthStore();
+  static getCurrentUserId(): number | null {
+    return useAuthStore().currentUserId;
+  }
 
-    if (authStore.currentUserId === null) {
+  static getCurrentUser(): UserInterface | undefined {
+    const currentUserId = AuthService.getCurrentUserId();
+
+    if (currentUserId === null) {
       return undefined;
     }
 
-    return useUserStore().users.find((user) => user.id === authStore.currentUserId);
+    return useUserStore().users.find((user) => user.id === currentUserId);
+  }
+
+  static isOwner(resourceUserId: number): boolean {
+    const currentUserId = AuthService.getCurrentUserId();
+    return currentUserId !== null && resourceUserId === currentUserId;
   }
 
   static isAuthenticated(): boolean {

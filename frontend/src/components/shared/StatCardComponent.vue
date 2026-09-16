@@ -1,47 +1,48 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
 
-interface Props {
-  title: string;
-  value: string;
-  icon?: string | Component;
-  variant?: 'default' | 'income' | 'expense';
-  trend?: string;
-  trendUp?: boolean;
-}
-
-withDefaults(defineProps<Props>(), {
-  variant: 'default',
-  trendUp: true,
-});
+const props = withDefaults(
+  defineProps<{
+    title: string;
+    value: string;
+    icon?: string | Component;
+    variant?: 'default' | 'income' | 'expense';
+    trend?: string;
+    trendUp?: boolean;
+  }>(),
+  {
+    variant: 'default',
+    trendUp: true,
+  },
+);
 </script>
 
 <template>
-  <div class="card stat" :class="variant">
+  <div class="card stat" :class="props.variant">
     <div class="stat-top">
       <span class="stat-title">
-        {{ title }}
+        {{ props.title }}
       </span>
 
-      <span v-if="icon" class="stat-icon">
-        <span v-if="typeof icon === 'string'">
-          {{ icon }}
+      <span v-if="props.icon" class="stat-icon">
+        <span v-if="typeof props.icon === 'string'">
+          {{ props.icon }}
         </span>
 
         <component
           v-else
-          :is="icon"
+          :is="props.icon"
           :size="18"
         />
       </span>
     </div>
 
     <div class="stat-value">
-      {{ value }}
+      {{ props.value }}
     </div>
 
-    <div v-if="trend" class="stat-trend" :class="trendUp ? 'up' : 'down'">
-      {{ trend }}
+    <div v-if="props.trend" class="stat-trend" :class="props.trendUp ? 'up' : 'down'">
+      {{ props.trend }}
     </div>
   </div>
 </template>

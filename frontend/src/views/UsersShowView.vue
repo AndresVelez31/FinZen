@@ -1,16 +1,15 @@
 <script setup lang="ts">
 // Imports
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { ShieldCheck, Users as UsersIcon } from 'lucide-vue-next';
-import UsersTable from '@/components/users/UsersTable.vue';
-import SelectorFilter from '@/components/shared/SelectorFilter.vue';
-import StatCard from '@/components/shared/StatCard.vue';
+import UsersTable from '@/components/users/UsersTableComponent.vue';
+import SelectorFilter from '@/components/shared/SelectorFilterComponent.vue';
+import StatCard from '@/components/shared/StatCardComponent.vue';
 import { UserService } from '@/services/UserService.js';
-import { AuthService } from '@/auth/AuthService.js';
+import { AuthService } from '@/services/AuthService.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
 
 // State
-const loading = ref(true);
 const filterRole = ref('');
 const roleOptions = [
   { value: 'admin', label: 'Administrador' },
@@ -76,9 +75,6 @@ async function toggleActive(user: UserInterface): Promise<void> {
 
   UserService.toggleActive(user.id);
 }
-
-// Lifecycle
-onMounted(() => setTimeout(() => (loading.value = false), 450));
 </script>
 
 <template>
@@ -107,7 +103,6 @@ onMounted(() => setTimeout(() => (loading.value = false), 450));
 
     <UsersTable
       :users="rows"
-      :loading="loading"
       :current-user-id="currentUser?.id ?? null"
       @change-role="changeRole"
       @toggle-active="toggleActive"

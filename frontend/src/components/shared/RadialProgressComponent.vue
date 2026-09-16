@@ -9,17 +9,18 @@ import type { ApexOptions } from 'apexcharts';
  * a Chart.js chart (e.g. savings goal completion).
  */
 
-interface Props {
-  value: number;
-  label: string;
-  color?: string;
-  height?: number;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  color: '#10b981',
-  height: 180,
-});
+const props = withDefaults(
+  defineProps<{
+    value: number;
+    label: string;
+    color?: string;
+    height?: number;
+  }>(),
+  {
+    color: '#10b981',
+    height: 180,
+  },
+);
 
 const isDark = ref(document.documentElement.classList.contains('dark'));
 let themeObserver: MutationObserver | null = null;
@@ -67,7 +68,7 @@ const options = computed<ApexOptions>(() => ({
 
 <template>
   <div class="radial-box">
-    <VueApexCharts type="radialBar" :height="height" :options="options" :series="series" />
+    <VueApexCharts type="radialBar" :height="props.height" :options="options" :series="series" />
   </div>
 </template>
 

@@ -1,35 +1,34 @@
 <script setup lang="ts">
 // Imports
-import { ref, computed, onMounted } from 'vue';
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { Wallet, TrendingDown, TrendingUp, Plus, ArrowRight } from 'lucide-vue-next';
-import StatCard from '@/components/shared/StatCard.vue';
-import ChartGraphic from '@/components/shared/ChartGraphic.vue';
-import RecentTransactionsTable from '@/components/overview/RecentTransactionsTable.vue';
+import StatCard from '@/components/shared/StatCardComponent.vue';
+import ChartGraphic from '@/components/shared/ChartGraphicComponent.vue';
+import RecentTransactionsTable from '@/components/overview/RecentTransactionsTableComponent.vue';
 import { AccountService } from '@/services/AccountService.js';
-import { AuthService } from '@/auth/AuthService.js';
-import { ReportAnalytics } from '@/utils/ReportAnalytics.js';
-import { DateRange } from '@/utils/DateRange.js';
-import { Formatters } from '@/utils/formatters.js';
+import { AuthService } from '@/services/AuthService.js';
+import { TransactionService } from '@/services/TransactionService.js';
+import { DateRange } from '@/utils/DateRangeUtil.js';
+import { Formatters } from '@/utils/FormattersUtil.js';
 
 // State
 const router = useRouter();
-const loading = ref(true);
 const monthRange = DateRange.currentMonthFull();
 
 // Computed
 const currentUser = computed(() => AuthService.getCurrentUser());
 
-const monthTransactions = computed(() => ReportAnalytics.getUserTransactions(monthRange.start, monthRange.end));
+const monthTransactions = computed(() => TransactionService.getByDateRange(monthRange.start, monthRange.end));
 const monthExpenses = computed(() => monthTransactions.value.filter((transaction) => transaction.type === 'expense'));
 const monthIncomes = computed(() => monthTransactions.value.filter((transaction) => transaction.type === 'income'));
-const monthSummary = computed(() => ReportAnalytics.summarize(monthTransactions.value));
+const monthSummary = computed(() => TransactionService.summarize(monthTransactions.value));
 
 const totalBalance = computed(() => AccountService.getTotalBalance());
 
 // Doughnut: expense by activity this month
 const donut = computed(() => {
-  const entries = ReportAnalytics.aggregateExpensesByActivity(monthTransactions.value);
+  const entries = TransactionService.aggregateExpensesByActivity(monthTransactions.value);
   return {
     labels: entries.map((entry) => entry.name),
     datasets: [
@@ -44,10 +43,7 @@ const donut = computed(() => {
 });
 const hasDonut = computed(() => donut.value.labels.length > 0);
 
-const recentTransactions = computed(() => ReportAnalytics.getTransactionRows().slice(0, 5));
-
-// Lifecycle
-onMounted(() => setTimeout(() => (loading.value = false), 500));
+const recentTransactions = computed(() => TransactionService.getRows().slice(0, 5));
 </script>
 
 <template>
@@ -114,7 +110,7 @@ onMounted(() => setTimeout(() => (loading.value = false), 500));
             Ver todas <ArrowRight :size="15" />
           </button>
         </div>
-        <RecentTransactionsTable :rows="recentTransactions" :loading="loading" />
+        <RecentTransactionsTable :rows="recentTransactions" />
       </section>
     </div>
   </div>
