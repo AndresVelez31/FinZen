@@ -1,78 +1,35 @@
 <script setup lang="ts">
 // Imports
-import { ref, computed, watch } from 'vue';
+import { ArrowLeft, PiggyBank, Save, Target } from 'lucide-vue-next';
+import Swal from 'sweetalert2';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ArrowLeft, Save, Target, PiggyBank } from 'lucide-vue-next';
-import { ActivityService } from '@/services/ActivityService.js';
 import type { CreateActivityDTO } from '@/dtos/CreateActivityDTO.js';
 import type { UpdateActivityDTO } from '@/dtos/UpdateActivityDTO.js';
-
-// Types
-interface FormErrors {
-  name?: string;
-  targetAmount?: string;
-}
+import { ACTIVITY_COLORS } from '@/enums/constants.js';
+import type { ActivityFormErrorsInterface } from '@/interfaces/ActivityFormErrorsInterface.js';
+import { ActivityService } from '@/services/ActivityService.js';
 
 // State
 const route = useRoute();
 const router = useRouter();
 
-const COLOR_PRESET = [
-  '#10b981',
-  '#0ea5e9',
-  '#f59e0b',
-  '#6366f1',
-  '#ec4899',
-  '#8b5cf6',
-  '#14b8a6',
-  '#ef4444',
-];
+const form = ref({
+  name: '',
+  color: ACTIVITY_COLORS[0]!,
+  type: 'expense',
+  targetAmount: '',
+});
+const errors = ref<ActivityFormErrorsInterface>({});
+const saving = ref(false);
 
 // Computed
 const editing = computed(() => route.name === 'activities.edit');
-const activityId = computed(() => (route.params.id ? Number(route.params.id) : null));
-
-// State
-function createInitialFormState() {
-  return {
-    name: '',
-    color: COLOR_PRESET[0] as string,
-    type: 'expense',
-    targetAmount: '',
-  };
-}
-
-const form = ref(createInitialFormState());
-const errors = ref<FormErrors>({});
-const saving = ref(false);
+const activityId = computed(() => Number(route.params.id));
 
 // Actions
-function loadForm(): void {
-  errors.value = {};
-
-  if (!editing.value) {
-    form.value = createInitialFormState();
-    return;
-  }
-
-  const activity = activityId.value ? ActivityService.getById(activityId.value) : undefined;
-  if (!activity) {
-    router.replace({ name: 'activities' });
-    return;
-  }
-
-  form.value = {
-    name: activity.name,
-    color: activity.color,
-    type: activity.type,
-    targetAmount: String(activity.targetAmount),
-  };
-}
-
-watch([editing, activityId], loadForm, { immediate: true });
-
 function validate(): boolean {
-  const validationErrors: FormErrors = {};
+  const validationErrors: ActivityFormErrorsInterface = {};
 
   if (!form.value.name.trim()) {
     validationErrors.name = 'El nombre es obligatorio.';
@@ -102,17 +59,16 @@ async function submit(): Promise<void> {
   }
 
   saving.value = true;
-  const Swal = (await import('sweetalert2')).default;
 
   try {
-    if (editing.value && activityId.value) {
-      const dto: UpdateActivityDTO = { id: activityId.value, ...buildActivityFields() };
-      const updated = ActivityService.update(dto);
-      if (!updated) {
-        throw new Error('La actividad no existe o no está disponible.');
-      }
+    if (editing.value) {
+      const updateActivityDTO: UpdateActivityDTO = {
+        id: activityId.value,
+        ...buildActivityFields(),
+      };
+      await ActivityService.update(updateActivityDTO);
     } else {
-      ActivityService.create(buildActivityFields());
+      await ActivityService.create(buildActivityFields());
     }
 
     await Swal.fire({
@@ -121,14 +77,41 @@ async function submit(): Promise<void> {
       timer: 1200,
       showConfirmButton: false,
     });
-    router.push({ name: 'activities' });
+    await router.push({ name: 'activities' });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Ocurrió un error inesperado.';
-    await Swal.fire({ title: 'No se pudo guardar la actividad', text: message, icon: 'error' });
+    await Swal.fire({
+      title: 'No se pudo guardar la actividad',
+      text: (error as Error).message,
+      icon: 'error',
+    });
   } finally {
     saving.value = false;
   }
 }
+
+// Lifecycle
+onMounted(async () => {
+  if (!editing.value) {
+    return;
+  }
+
+  try {
+    const activity = await ActivityService.getById(activityId.value);
+    form.value = {
+      name: activity.name,
+      color: activity.color,
+      type: activity.type,
+      targetAmount: String(activity.targetAmount),
+    };
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudo cargar la actividad',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+    await router.replace({ name: 'activities' });
+  }
+});
 </script>
 
 <template>
@@ -192,7 +175,7 @@ async function submit(): Promise<void> {
         <label>Color</label>
         <div class="colors">
           <button
-            v-for="color in COLOR_PRESET"
+            v-for="color in ACTIVITY_COLORS"
             :key="color"
             type="button"
             class="swatch"

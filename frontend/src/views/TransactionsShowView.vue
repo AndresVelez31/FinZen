@@ -1,48 +1,52 @@
 <script setup lang="ts">
 // Imports
-import { ref, computed } from 'vue';
+import { Filter, Plus, RotateCcw } from 'lucide-vue-next';
+import Swal from 'sweetalert2';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { Plus, Filter, RotateCcw } from 'lucide-vue-next';
-import TransactionsTable from '@/components/transactions/TransactionsTableComponent.vue';
-import SelectorFilter from '@/components/shared/SelectorFilterComponent.vue';
 import ChartGraphic from '@/components/shared/ChartGraphicComponent.vue';
-import { TransactionService } from '@/services/TransactionService.js';
+import SelectorFilter from '@/components/shared/SelectorFilterComponent.vue';
+import TransactionsTable from '@/components/transactions/TransactionsTableComponent.vue';
+import { MONTH_OPTIONS, TRANSACTION_TYPE_OPTIONS } from '@/enums/constants.js';
+import type { AccountInterface } from '@/interfaces/AccountInterface.js';
+import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
+import type { FilterOptionInterface } from '@/interfaces/FilterOptionInterface.js';
+import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
+import type { TransactionRowInterface } from '@/interfaces/TransactionRowInterface.js';
 import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
-import { Formatters } from '@/utils/FormattersUtil.js';
-import { MONTH_OPTIONS } from '@/enums/constants.js';
-import type { FilterOption } from '@/enums/constants.js';
-import type { TransactionRowInterface } from '@/services/TransactionService.js';
+import { TransactionService } from '@/services/TransactionService.js';
+import { FormattersUtil } from '@/utils/FormattersUtil.js';
+import { TransactionUtil } from '@/utils/TransactionUtil.js';
 
 // State
 const router = useRouter();
 
-const filterActivity = ref<string>('');
-const filterAccount = ref<string>('');
-const filterType = ref<string>('');
-const filterMonth = ref<string>('');
-const filterFrom = ref<string>('');
-const filterTo = ref<string>('');
+const transactions = ref<TransactionInterface[]>([]);
+const accounts = ref<AccountInterface[]>([]);
+const activities = ref<ActivityInterface[]>([]);
 
-const typeOptions: FilterOption[] = [
-  { value: 'income', label: 'Ingreso' },
-  { value: 'expense', label: 'Gasto' },
-];
+const filterActivity = ref('');
+const filterAccount = ref('');
+const filterType = ref('');
+const filterMonth = ref('');
+const filterFrom = ref('');
+const filterTo = ref('');
 
 // Computed
-const activityOptions = computed<FilterOption[]>(() =>
-  ActivityService.getAll().map((activity) => ({ value: String(activity.id), label: activity.name })),
+const activityOptions = computed<FilterOptionInterface[]>(() =>
+  activities.value.map((activity) => ({ value: String(activity.id), label: activity.name })),
 );
 
-const accountOptions = computed<FilterOption[]>(() =>
-  AccountService.getAll().map((account) => ({
+const accountOptions = computed<FilterOptionInterface[]>(() =>
+  accounts.value.map((account) => ({
     value: String(account.id),
     label: `${account.name} · ${account.type}`,
   })),
 );
 
-const filtered = computed<TransactionRowInterface[]>(() =>
-  TransactionService.getRows({
+const filteredTransactions = computed(() =>
+  TransactionUtil.filter(transactions.value, {
     activityId: filterActivity.value ? Number(filterActivity.value) : undefined,
     accountId: filterAccount.value ? Number(filterAccount.value) : undefined,
     type: filterType.value || undefined,
@@ -52,16 +56,28 @@ const filtered = computed<TransactionRowInterface[]>(() =>
   }),
 );
 
+const filteredRows = computed<TransactionRowInterface[]>(() =>
+  TransactionUtil.getRows(filteredTransactions.value, accounts.value, activities.value),
+);
+
 const activeFilters = computed(
   () =>
-    [filterActivity.value, filterAccount.value, filterType.value, filterMonth.value, filterFrom.value, filterTo.value].filter(
-      Boolean,
-    ).length,
+    [
+      filterActivity.value,
+      filterAccount.value,
+      filterType.value,
+      filterMonth.value,
+      filterFrom.value,
+      filterTo.value,
+    ].filter(Boolean).length,
 );
 
 // Bar chart: expense by activity for the filtered set
 const barChart = computed(() => {
-  const entries = TransactionService.aggregateExpensesByActivity(filtered.value);
+  const entries = TransactionUtil.aggregateExpensesByActivity(
+    filteredTransactions.value,
+    activities.value,
+  );
   return {
     labels: entries.map((entry) => entry.name),
     datasets: [
@@ -79,12 +95,12 @@ const barChart = computed(() => {
 const hasBarChart = computed(() => barChart.value.labels.length > 0);
 
 const totals = computed(() => {
-  const summary = TransactionService.summarize(filtered.value);
+  const summary = TransactionUtil.summarize(filteredTransactions.value);
   return { income: summary.totalIncome, expense: summary.totalExpense };
 });
 
 // Actions
-function resetFilters() {
+function resetFilters(): void {
   filterActivity.value = '';
   filterAccount.value = '';
   filterType.value = '';
@@ -93,15 +109,14 @@ function resetFilters() {
   filterTo.value = '';
 }
 
-function onEdit(transaction: TransactionRowInterface) {
+function editTransaction(transaction: TransactionRowInterface): void {
   router.push({ name: 'transactions.edit', params: { id: transaction.id } });
 }
 
-async function removeTransaction(row: TransactionRowInterface) {
-  const Swal = (await import('sweetalert2')).default;
+async function deleteTransaction(transaction: TransactionRowInterface): Promise<void> {
   const result = await Swal.fire({
     title: '¿Eliminar transacción?',
-    html: `<b>${row.description}</b><br>${Formatters.formatToCOP(row.amount)}`,
+    html: `<b>${transaction.description}</b><br>${FormattersUtil.formatToCOP(transaction.amount)}`,
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: 'Eliminar',
@@ -109,11 +124,38 @@ async function removeTransaction(row: TransactionRowInterface) {
     confirmButtonColor: '#ef4444',
     cancelButtonColor: '#94a3b8',
   });
-  if (result.isConfirmed) {
-    TransactionService.delete(row.id);
-    Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1200, showConfirmButton: false });
+
+  if (!result.isConfirmed) {
+    return;
+  }
+
+  try {
+    await TransactionService.delete(transaction.id);
+    transactions.value = await TransactionService.getAll();
+    await Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1200, showConfirmButton: false });
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudo eliminar la transacción',
+      text: (error as Error).message,
+      icon: 'error',
+    });
   }
 }
+
+// Lifecycle
+onMounted(async () => {
+  try {
+    transactions.value = await TransactionService.getAll();
+    accounts.value = await AccountService.getAll();
+    activities.value = await ActivityService.getAll();
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudieron cargar las transacciones',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+  }
+});
 </script>
 
 <template>
@@ -122,8 +164,8 @@ async function removeTransaction(row: TransactionRowInterface) {
       <div>
         <h2 class="page-title">Transacciones</h2>
         <p class="muted">
-          {{ filtered.length }} movimientos · Ingresos {{ Formatters.formatToCOP(totals.income) }} · Gastos
-          {{ Formatters.formatToCOP(totals.expense) }}
+          {{ filteredRows.length }} movimientos · Ingresos {{ FormattersUtil.formatToCOP(totals.income) }} · Gastos
+          {{ FormattersUtil.formatToCOP(totals.expense) }}
         </p>
       </div>
       <button class="btn btn-primary" @click="router.push({ name: 'transactions.create' })">
@@ -152,7 +194,7 @@ async function removeTransaction(row: TransactionRowInterface) {
           placeholder="Todas"
         />
 
-        <SelectorFilter label="Tipo" v-model="filterType" :options="typeOptions" placeholder="Todos" />
+        <SelectorFilter label="Tipo" v-model="filterType" :options="TRANSACTION_TYPE_OPTIONS" placeholder="Todos" />
         <SelectorFilter label="Mes" v-model="filterMonth" :options="MONTH_OPTIONS" placeholder="Todos" />
         <div class="field">
           <label>Desde</label>
@@ -191,7 +233,7 @@ async function removeTransaction(row: TransactionRowInterface) {
     </section>
 
     <!-- Table -->
-    <TransactionsTable :rows="filtered" @edit="onEdit" @delete="removeTransaction" />
+    <TransactionsTable :rows="filteredRows" @edit="editTransaction" @delete="deleteTransaction" />
   </div>
 </template>
 

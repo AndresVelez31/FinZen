@@ -1,9 +1,11 @@
 <script setup lang="ts">
+// Imports
 import { Inbox } from 'lucide-vue-next';
 import EmptyState from '@/components/shared/EmptyStateComponent.vue';
-import { Formatters } from '@/utils/FormattersUtil.js';
-import type { TransactionRowInterface } from '@/services/TransactionService.js';
+import type { TransactionRowInterface } from '@/interfaces/TransactionRowInterface.js';
+import { FormattersUtil } from '@/utils/FormattersUtil.js';
 
+// Props
 const props = defineProps<{
   rows: TransactionRowInterface[];
 }>();
@@ -36,10 +38,10 @@ const props = defineProps<{
             <td>
               <span class="chip badge-gray">{{ transaction.activityName }}</span>
             </td>
-            <td>{{ Formatters.formatDate(transaction.date) }}</td>
+            <td>{{ FormattersUtil.formatDate(transaction.date) }}</td>
             <td style="text-align: right">
               <span :class="transaction.type === 'income' ? 'amt-in' : 'amt-out'">
-                {{ transaction.type === 'income' ? '+' : '−' }}{{ Formatters.formatToCOP(transaction.amount) }}
+                {{ transaction.type === 'income' ? '+' : '−' }}{{ FormattersUtil.formatToCOP(transaction.amount) }}
               </span>
             </td>
           </tr>

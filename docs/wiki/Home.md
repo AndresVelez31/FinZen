@@ -1,6 +1,6 @@
 # Welcome to the FinZen Project Wiki
 
-> **FinZen** is a modern Single Page Application (SPA) for personal expense tracking and financial planning, built with Vue 3, TypeScript, Vite, Pinia, and Chart.js.
+> **FinZen** is a full stack application for personal expense tracking and financial planning: a Vue 3 SPA (TypeScript, Vite, Pinia, Chart.js) backed by a Nest.js REST API with TypeORM and SQLite.
 
 ---
 
@@ -26,6 +26,15 @@ Explore the complete architecture and standards documentation across the followi
 
 3. 🛡️ **[Programming Rules](Programming-Rules)**  
    Essential architectural and coding rules categorized by layer (Router, Views, Services, Stores, Components, DTOs, Interfaces, and Environment variables).
+
+4. 🧱 **[Deliverable 2 — Full Stack](Deliverable-2)**  
+   Class diagram and the general, front-end and back-end architecture diagrams.
+
+5. 🎨 **[Backend Coding Style Guide](Backend-Coding-Style-Guide)**  
+   Prettier and type-aware OXLint in the Nest.js project, and its naming conventions.
+
+6. 🛡️ **[Backend Programming Rules](Backend-Programming-Rules)**  
+   Rules for modules, controllers, services, entities, migrations and security.
 
 ---
 

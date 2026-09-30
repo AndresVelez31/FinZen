@@ -1,13 +1,16 @@
 <script setup lang="ts">
+// Imports
 import { Inbox, Pencil, Trash2 } from 'lucide-vue-next';
 import EmptyState from '@/components/shared/EmptyStateComponent.vue';
-import { Formatters } from '@/utils/FormattersUtil.js';
-import type { TransactionRowInterface } from '@/services/TransactionService.js';
+import type { TransactionRowInterface } from '@/interfaces/TransactionRowInterface.js';
+import { FormattersUtil } from '@/utils/FormattersUtil.js';
 
+// Props
 const props = defineProps<{
   rows: TransactionRowInterface[];
 }>();
 
+// Emits
 const emit = defineEmits<{
   edit: [transaction: TransactionRowInterface];
   delete: [transaction: TransactionRowInterface];
@@ -42,7 +45,7 @@ const emit = defineEmits<{
               <span class="chip badge-gray">{{ transaction.activityName }}</span>
             </td>
             <td>{{ transaction.accountName }}</td>
-            <td>{{ Formatters.formatDate(transaction.date) }}</td>
+            <td>{{ FormattersUtil.formatDate(transaction.date) }}</td>
             <td>
               <span class="badge" :class="transaction.type === 'income' ? 'badge-green' : 'badge-red'">
                 {{ transaction.type === 'income' ? 'Ingreso' : 'Gasto' }}
@@ -50,7 +53,7 @@ const emit = defineEmits<{
             </td>
             <td style="text-align: right">
               <span :class="transaction.type === 'income' ? 'amt-in' : 'amt-out'">
-                {{ transaction.type === 'income' ? '+' : '−' }}{{ Formatters.formatToCOP(transaction.amount) }}
+                {{ transaction.type === 'income' ? '+' : '−' }}{{ FormattersUtil.formatToCOP(transaction.amount) }}
               </span>
             </td>
             <td style="text-align: right">

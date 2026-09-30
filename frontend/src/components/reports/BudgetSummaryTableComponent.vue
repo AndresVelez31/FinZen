@@ -1,19 +1,13 @@
 <script setup lang="ts">
+// Imports
 import { Inbox } from 'lucide-vue-next';
 import EmptyState from '@/components/shared/EmptyStateComponent.vue';
-import { Formatters } from '@/utils/FormattersUtil.js';
+import type { BudgetVsActualInterface } from '@/interfaces/BudgetVsActualInterface.js';
+import { FormattersUtil } from '@/utils/FormattersUtil.js';
 
-export interface SummaryRow {
-  id: number;
-  name: string;
-  color: string;
-  budget: number;
-  spent: number;
-  diff: number;
-}
-
+// Props
 const props = defineProps<{
-  rows: SummaryRow[];
+  rows: BudgetVsActualInterface[];
 }>();
 </script>
 
@@ -31,18 +25,18 @@ const props = defineProps<{
 
       <tbody>
         <template v-if="props.rows.length">
-          <tr v-for="row in props.rows" :key="row.id">
+          <tr v-for="row in props.rows" :key="row.activityId">
             <td>
               <div class="rn">
                 <span class="dot" :style="{ background: row.color }"></span
                 >{{ row.name }}
               </div>
             </td>
-            <td style="text-align: right">{{ Formatters.formatToCOP(row.budget) }}</td>
-            <td style="text-align: right">{{ Formatters.formatToCOP(row.spent) }}</td>
+            <td style="text-align: right">{{ FormattersUtil.formatToCOP(row.budget) }}</td>
+            <td style="text-align: right">{{ FormattersUtil.formatToCOP(row.spent) }}</td>
             <td style="text-align: right">
               <span :class="row.diff >= 0 ? 'pos' : 'neg'">
-                {{ row.diff >= 0 ? '+' : '' }}{{ Formatters.formatToCOP(row.diff) }}
+                {{ row.diff >= 0 ? '+' : '' }}{{ FormattersUtil.formatToCOP(row.diff) }}
               </span>
             </td>
           </tr>

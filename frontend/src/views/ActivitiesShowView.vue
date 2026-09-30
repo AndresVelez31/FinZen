@@ -1,24 +1,39 @@
 <script setup lang="ts">
 // Imports
-import { computed } from 'vue';
+import { Pencil, PiggyBank, Plus, Target, Trash2 } from 'lucide-vue-next';
+import Swal from 'sweetalert2';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { Plus, Pencil, Trash2, Target, PiggyBank } from 'lucide-vue-next';
-import { ActivityService } from '@/services/ActivityService.js';
-import { Formatters } from '@/utils/FormattersUtil.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
+import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
+import { ActivityService } from '@/services/ActivityService.js';
+import { TransactionService } from '@/services/TransactionService.js';
+import { ActivityUtil } from '@/utils/ActivityUtil.js';
+import { FormattersUtil } from '@/utils/FormattersUtil.js';
 
 // State
 const router = useRouter();
+const activities = ref<ActivityInterface[]>([]);
+const transactions = ref<TransactionInterface[]>([]);
+const loading = ref(true);
 
 // Computed
-const cards = computed(() => ActivityService.getProgress());
+// Each activity plus how much of its target amount has been used.
+const activitiesProgress = computed(() =>
+  ActivityUtil.getProgress(activities.value, transactions.value),
+);
 
 // Actions
-async function remove(activity: ActivityInterface): Promise<void> {
-  const Swal = (await import('sweetalert2')).default;
+async function loadActivities(): Promise<void> {
+  activities.value = await ActivityService.getAll();
+  transactions.value = await TransactionService.getAll();
+  loading.value = false;
+}
+
+async function deleteActivity(activity: ActivityInterface): Promise<void> {
   const result = await Swal.fire({
     title: '¿Eliminar actividad?',
-    html: `<b>${activity.name}</b><br>Las transacciones asociadas no se eliminarán.`,
+    html: `<b>${activity.name}</b><br>También se eliminarán las transacciones asociadas.`,
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: 'Eliminar',
@@ -27,11 +42,35 @@ async function remove(activity: ActivityInterface): Promise<void> {
     cancelButtonColor: '#94a3b8',
   });
 
-  if (result.isConfirmed) {
-    ActivityService.delete(activity.id);
+  if (!result.isConfirmed) {
+    return;
+  }
+
+  try {
+    await ActivityService.delete(activity.id);
+    await loadActivities();
     await Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudo eliminar la actividad',
+      text: (error as Error).message,
+      icon: 'error',
+    });
   }
 }
+
+// Lifecycle
+onMounted(async () => {
+  try {
+    await loadActivities();
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudieron cargar las actividades',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+  }
+});
 </script>
 
 <template>
@@ -46,8 +85,8 @@ async function remove(activity: ActivityInterface): Promise<void> {
       </button>
     </div>
 
-    <div v-if="cards.length" class="grid">
-      <article v-for="activity in cards" :key="activity.id" class="card act" :style="{ '--c': activity.color }">
+    <div v-if="activitiesProgress.length" class="grid">
+      <article v-for="activity in activitiesProgress" :key="activity.id" class="card act" :style="{ '--c': activity.color }">
         <div class="act-top">
           <span class="act-dot"></span>
           <div class="act-titles">
@@ -65,7 +104,7 @@ async function remove(activity: ActivityInterface): Promise<void> {
             >
               <Pencil :size="15" />
             </button>
-            <button class="btn btn-danger btn-icon" @click="remove(activity)" aria-label="Eliminar">
+            <button class="btn btn-danger btn-icon" @click="deleteActivity(activity)" aria-label="Eliminar">
               <Trash2 :size="15" />
             </button>
           </div>
@@ -75,7 +114,7 @@ async function remove(activity: ActivityInterface): Promise<void> {
           <span class="soft">{{
             activity.type === 'expense' ? 'Presupuesto mensual' : 'Meta de ahorro'
           }}</span>
-          <strong>{{ Formatters.formatToCOP(activity.targetAmount) }}</strong>
+          <strong>{{ FormattersUtil.formatToCOP(activity.targetAmount) }}</strong>
         </div>
 
         <div class="progress">
@@ -89,7 +128,7 @@ async function remove(activity: ActivityInterface): Promise<void> {
           </div>
           <div class="progress-foot">
             <span :class="{ over: activity.over }"
-              >{{ Formatters.formatToCOP(activity.used) }}
+              >{{ FormattersUtil.formatToCOP(activity.used) }}
               {{ activity.type === 'expense' ? 'gastado' : 'ahorrado' }}</span
             >
             <span class="soft">{{ activity.percent }}%</span>
@@ -98,7 +137,7 @@ async function remove(activity: ActivityInterface): Promise<void> {
       </article>
     </div>
 
-    <div v-else class="card empty-state">
+    <div v-else-if="!loading" class="card empty-state">
       <div class="empty-icon"><Target :size="26" /></div>
       <h4>Aún no tienes actividades</h4>
       <p class="muted">Crea tu primera categoría de gasto o meta de ahorro.</p>

@@ -1,9 +1,11 @@
 <script setup lang="ts">
+// Imports
 import { Inbox, ShieldCheck, User } from 'lucide-vue-next';
 import EmptyState from '@/components/shared/EmptyStateComponent.vue';
-import { Formatters } from '@/utils/FormattersUtil.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
+import { FormattersUtil } from '@/utils/FormattersUtil.js';
 
+// Props
 const props = withDefaults(
   defineProps<{
     users: UserInterface[];
@@ -14,6 +16,7 @@ const props = withDefaults(
   },
 );
 
+// Emits
 const emit = defineEmits<{
   changeRole: [user: UserInterface];
   toggleActive: [user: UserInterface];
@@ -40,7 +43,7 @@ const emit = defineEmits<{
             <td>
               <div class="u">
                 <span class="u-avatar" :class="{ admin: user.role === 'admin' }">
-                  {{ Formatters.initials(user.name) }}
+                  {{ FormattersUtil.initials(user.name) }}
                 </span>
                 <div class="u-name">
                   {{ user.name }}
@@ -60,7 +63,7 @@ const emit = defineEmits<{
                 {{ user.active ? 'Activo' : 'Inactivo' }}
               </span>
             </td>
-            <td>{{ Formatters.formatDate(user.createdAt) }}</td>
+            <td>{{ FormattersUtil.formatDate(user.createdAt) }}</td>
             <td style="text-align: right">
               <div class="row-actions">
                 <div class="user-actions">

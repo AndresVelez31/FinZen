@@ -1,114 +1,60 @@
-# Programming Rules & Architecture Standards
+# Programming Rules (Front-end)
 
-This document establishes the mandatory programming rules for developing in the **FinZen** codebase. Every team member must adhere to these rules. Any pull request violating them will be rejected and redirected to this document.
+Rules the team applies in every PR. A PR that breaks one is sent back citing the rule number.
+The back-end rules are in [Backend Programming Rules](Backend-Programming-Rules).
 
----
+## Views (`src/views/`)
 
-## 1. Rules for Routes & Navigation (`src/router/`)
+1. `<script setup lang="ts">` only; no Options API.
+2. A view never imports a store or axios: it only talks to services.
+3. Data is loaded inside `onMounted(async () => { ... })` into `ref`s, wrapped in `try/catch`.
+   No `await` at the top level of `<script setup>`.
+4. Everything shown that depends on loaded data is a `computed`.
+5. Every API call in a view is inside `try/catch`: handlers (`submit`, `delete...`) are `async`,
+   `await` the service and show the error message with SweetAlert2 in the `catch`.
+6. Forms validate their fields before calling the service (the API validates again).
 
-1. **Every page route must be associated with a dedicated View component.**
-2. **Every View file representing a page must end with `View`** (e.g., `DashboardView.vue`, `TransactionsShowView.vue`). For an entity with full CRUD, the two views are `<Entity>ShowView.vue` (lists all — FinZen uses `Show` for "all", not the generic REST `Index`, see `GUIA_ARQUITECTURA...md` §19.1) and `<Entity>FormView.vue` (create/edit, shared).
-3. **Use `createWebHistory`** for clean, standard browser URLs.
-4. **Define `meta.title` on every route** for page title consistency.
-5. **Private routes must enforce authentication guards.**
-6. **Administrative routes (`/activities`, `/users`) must enforce role guards (`admin` only).**
-7. **Never perform arbitrary navigation using `window.location.href`.** Use `router.push()` or `<RouterLink>`.
+## Services (`src/services/`)
 
----
+7. A service only does CRUD with the API. It `extends BaseService`, has only static methods and
+   keeps its route in `private static readonly PATH`. `AuthService` also exposes the session
+   (`getCurrentUser`, `isAuthenticated`, `isAdmin`), because views cannot read stores.
+8. `BaseService` is the only place with the axios `try/catch`, the base URL, the
+   `Authorization` header and the renewal of an expired access token. Services never repeat them.
+9. Every function that returns a promise is `async` and uses `await`
+   (`return await this.httpGet(...)`): `getAll`, `getById`, `create`, `update`, `delete`.
+10. Calculations over data a view already loaded (filters, totals, progress) live in one util per
+    service (`AccountUtil`, `ActivityUtil`, `TransactionUtil`) and receive that data as parameters.
 
-## 2. Rules for Services (`src/services/`)
+## Stores (`src/stores/`)
 
-1. **Services are implemented as classes with static methods.**
-   ```typescript
-   export class TransactionService {
-     static getTransactions(): TransactionInterface[] { ... }
-     static createTransaction(dto: CreateTransactionDTO): void { ... }
-   }
-   ```
-2. **Services represent the domain business logic layer.**
-3. **All business validations, sanitization (`.trim()`), and calculations belong in Services.**
-4. **Services read from and mutate Stores.**
-5. **Services must NEVER import Vue components or render HTML.**
+11. Only the session (`authstore`: access token, refresh token and current user) and the theme
+    (`themestore`).
+12. No logic inside a store.
 
----
+## Interfaces, DTOs, enums, utils
 
-## 3. Rules for Views (`src/views/`)
+13. Every interface lives in `src/interfaces/`, one per file, named `<Name>Interface`: the four
+    entities of the class diagram, the derived shapes (rows, totals, progress, token pair, filter
+    options) and the ones a single view needs (form errors, nav items). None is declared inside a
+    `.vue` file or a service.
+14. DTOs are derived from interfaces with `Omit`, `Pick` and `Partial`, never redeclared.
+15. Fixed option lists and shared constants go in `src/enums/constants.ts`.
+16. Utils are pure classes named `<Name>Util`: no stores, no API, no side effects.
 
-1. **All Views must be Single File Components (SFC) using `<script setup lang="ts">`.**
-2. **Options API is strictly prohibited.**
-3. **Views must NEVER access or mutate Pinia Stores directly.**
-   ```typescript
-   // ❌ PROHIBITED
-   const store = useTransactionStore();
-   store.transactions.push(newTx);
+## Components (`src/components/`)
 
-   // ✅ REQUIRED
-   TransactionService.createTransaction(dto);
-   ```
-4. **Views only coordinate UI, fetch data through Services, and manage local presentation state.**
-5. **Views must handle 4 UI states when displaying data:**
-   - ⏳ `Loading state` — only when data arrives asynchronously (e.g. from an API). Deliverable 1 reads everything synchronously from Pinia, so there is no loading state and it must not be simulated with `setTimeout` (see `docs/decisions/REFACTOR-remove-simulated-loading.md`).
-   - ✅ `Success state`
-   - 📭 `Empty state` (e.g., "No transactions found for the selected filter")
-   - ❌ `Error state`
-6. **Use `computed` for derived values** instead of duplicating state or manually watching refs.
+17. Typed props with `defineProps<{ ... }>()` and typed `defineEmits`; no direct service calls in
+    shared components.
 
----
+## Routing and security
 
-## 4. Rules for Components (`src/components/`)
+18. Every route has `meta.title`; private routes pass the auth guard and `/activities` and
+    `/users` also need the `admin` role.
+19. Navigate with `router.push()` or `<RouterLink>`, never `window.location`.
+20. The browser only hides what the user cannot do; the API is the one that enforces it.
 
-1. **Components must be reusable and have a single clear presentation responsibility.**
-2. **Props must use TypeScript generic definitions:**
-   ```typescript
-   // ✅ Correct
-   const props = defineProps<{
-     columns: ColumnDefinition[];
-     rows: Record<string, unknown>[];
-   }>();
+## Environment
 
-   // ❌ Incorrect
-   const props = defineProps({ columns: Array });
-   ```
-3. **Generic components (`TablaGenerica`, `SelectorFiltro`, `GraficoChart`) must not know domain entity specifics.**
-4. **Components communicate with parents strictly via `props` and `emit`.**
-
----
-
-## 5. Rules for Stores (`src/stores/`)
-
-1. **Use Pinia Setup Stores syntax exclusively:**
-   ```typescript
-   export const useTransactionStore = defineStore('transaction', () => {
-     const transactions = ref<TransactionInterface[]>([]);
-     return { transactions };
-   });
-   ```
-2. **Stores must remain lean containers of reactive state.**
-3. **Stores must NOT contain complex business calculations, form validations, or router redirects.**
-4. **Seeders must be separated into their own files** (e.g., `transactionseeder.ts`).
-
----
-
-## 6. Rules for Interfaces & DTOs
-
-1. **Every domain entity must have a strict interface in `src/interfaces/`.**
-2. **Interfaces must only define type contracts — no executable code.**
-3. **DTOs in `src/dtos/` must be derived from interfaces** using `Omit`, `Pick`, and `Partial`.
-
----
-
-## 7. Rules for Environment Variables
-
-1. **All environment configurations must live in `.env` files.**
-2. **Never hardcode secrets, base URLs, or configurable credentials in source files.**
-3. **A `.env.example` file must always be committed** containing placeholder template keys.
-4. **`.env` files containing real secrets are strictly ignored in `.gitignore`.**
-
----
-
-## 8. Peer Review & Architecture Policy
-
-> **Golden Rule**: If a pull request or commit violates the architectural guidelines or programming rules defined above:
-> 1. Request changes immediately on the PR.
-> 2. Cite the specific rule in this document.
-> 3. Do not merge until code complies with the layered standard.
+21. The API URL comes from `VITE_API_BASE_URL` (`.env`, see `.env.example`). `.env` is never
+    committed.

@@ -1,6 +1,8 @@
+// Imports
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
+// Exports
 export type Theme = 'light' | 'dark';
 
 export const useThemeStore = defineStore('theme', () => {

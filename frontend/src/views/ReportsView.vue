@@ -1,37 +1,54 @@
 <script setup lang="ts">
 // Imports
-import { ref, computed } from 'vue';
-import { TrendingUp, TrendingDown, Wallet, PiggyBank } from 'lucide-vue-next';
-import ChartGraphic from '@/components/shared/ChartGraphicComponent.vue';
-import SelectorFilter from '@/components/shared/SelectorFilterComponent.vue';
+import { PiggyBank, TrendingDown, TrendingUp, Wallet } from 'lucide-vue-next';
+import Swal from 'sweetalert2';
+import { computed, onMounted, ref } from 'vue';
 import BudgetSummaryTable from '@/components/reports/BudgetSummaryTableComponent.vue';
-import type { SummaryRow } from '@/components/reports/BudgetSummaryTableComponent.vue';
-import StatCard from '@/components/shared/StatCardComponent.vue';
+import ChartGraphic from '@/components/shared/ChartGraphicComponent.vue';
 import RadialProgress from '@/components/shared/RadialProgressComponent.vue';
-import { TransactionService } from '@/services/TransactionService.js';
-import { ActivityService } from '@/services/ActivityService.js';
-import { Formatters } from '@/utils/FormattersUtil.js';
-import { DateRange } from '@/utils/DateRangeUtil.js';
+import SelectorFilter from '@/components/shared/SelectorFilterComponent.vue';
+import StatCard from '@/components/shared/StatCardComponent.vue';
 import { MONTH_OPTIONS } from '@/enums/constants.js';
-import type { FilterOption } from '@/enums/constants.js';
+import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
+import type { FilterOptionInterface } from '@/interfaces/FilterOptionInterface.js';
+import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
+import { ActivityService } from '@/services/ActivityService.js';
+import { TransactionService } from '@/services/TransactionService.js';
+import { ActivityUtil } from '@/utils/ActivityUtil.js';
+import { DateRangeUtil } from '@/utils/DateRangeUtil.js';
+import { FormattersUtil } from '@/utils/FormattersUtil.js';
+import { TransactionUtil } from '@/utils/TransactionUtil.js';
 
 // State
 const now = new Date();
 const selectedYear = ref(String(now.getFullYear()));
 const selectedMonth = ref(String(now.getMonth() + 1).padStart(2, '0'));
 
+const activities = ref<ActivityInterface[]>([]);
+const transactions = ref<TransactionInterface[]>([]);
+
 // Computed
-const years = computed<FilterOption[]>(() =>
-  TransactionService.getAvailableYears().map((year) => ({ value: String(year), label: String(year) })),
+const years = computed<FilterOptionInterface[]>(() =>
+  TransactionUtil.getAvailableYears(transactions.value).map((year) => ({
+    value: String(year),
+    label: String(year),
+  })),
 );
 
-const monthName = computed(() => MONTH_OPTIONS.find((month) => month.value === selectedMonth.value)?.label ?? '');
+const monthName = computed(
+  () => MONTH_OPTIONS.find((month) => month.value === selectedMonth.value)?.label ?? '',
+);
 
-const period = computed(() => DateRange.ofMonth(selectedYear.value, selectedMonth.value));
-const periodStart = computed(() => period.value.start);
-const periodEnd = computed(() => period.value.end);
+const period = computed(() => DateRangeUtil.ofMonth(selectedYear.value, selectedMonth.value));
 
-const summary = computed(() => TransactionService.getPeriodSummary(periodStart.value, periodEnd.value));
+const periodTransactions = computed(() =>
+  TransactionUtil.filter(transactions.value, {
+    from: period.value.start,
+    to: period.value.end,
+  }),
+);
+
+const summary = computed(() => TransactionUtil.summarize(periodTransactions.value));
 
 // Line chart: cumulative balance evolution across the selected year
 const lineChart = computed(() => ({
@@ -39,7 +56,7 @@ const lineChart = computed(() => ({
   datasets: [
     {
       label: 'Balance acumulado',
-      data: TransactionService.getCumulativeBalanceByMonth(selectedYear.value),
+      data: TransactionUtil.getCumulativeBalanceByMonth(transactions.value, selectedYear.value),
       borderColor: '#10b981',
       backgroundColor: 'rgba(16,185,129,0.12)',
       fill: true,
@@ -51,8 +68,15 @@ const lineChart = computed(() => ({
   ],
 }));
 
-// Bar chart: budget vs actual (expense activities) for the selected period
-const budgetVsActual = computed(() => ActivityService.getBudgetVsActual(periodStart.value, periodEnd.value));
+// Bar chart and summary table: budget vs actual (expense activities) for the selected period
+const budgetVsActual = computed(() =>
+  ActivityUtil.getBudgetVsActual(
+    activities.value,
+    transactions.value,
+    period.value.start,
+    period.value.end,
+  ),
+);
 
 const budgetChart = computed(() => ({
   labels: budgetVsActual.value.map((row) => row.name),
@@ -75,19 +99,24 @@ const budgetChart = computed(() => ({
 }));
 const hasBudget = computed(() => budgetChart.value.labels.length > 0);
 
-// Savings progress (all-time, unlike the budget/expense figures above which are period-scoped)
-const savingsActivities = computed(() => ActivityService.getSavingsProgress());
-
-const summaryRows = computed<SummaryRow[]>(() =>
-  budgetVsActual.value.map((row) => ({
-    id: row.activityId,
-    name: row.name,
-    color: row.color,
-    budget: row.budget,
-    spent: row.spent,
-    diff: row.diff,
-  })),
+// Savings progress (all-time, unlike the period-scoped figures above)
+const savingsActivities = computed(() =>
+  ActivityUtil.getSavingsProgress(activities.value, transactions.value),
 );
+
+// Lifecycle
+onMounted(async () => {
+  try {
+    activities.value = await ActivityService.getAll();
+    transactions.value = await TransactionService.getAll();
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudieron cargar los reportes',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+  }
+});
 </script>
 
 <template>
@@ -107,14 +136,14 @@ const summaryRows = computed<SummaryRow[]>(() =>
     <div class="grid-kpi mb">
       <StatCard
         title="Ingresos del periodo"
-        :value="Formatters.formatToCOP(summary.totalIncome)"
+        :value="FormattersUtil.formatToCOP(summary.totalIncome)"
         :icon="TrendingUp"
         variant="income"
         :trend="`${monthName} ${selectedYear}`"
       />
       <StatCard
         title="Gastos del periodo"
-        :value="Formatters.formatToCOP(summary.totalExpense)"
+        :value="FormattersUtil.formatToCOP(summary.totalExpense)"
         :icon="TrendingDown"
         variant="expense"
         :trend="`${monthName} ${selectedYear}`"
@@ -122,7 +151,7 @@ const summaryRows = computed<SummaryRow[]>(() =>
       />
       <StatCard
         title="Balance neto"
-        :value="Formatters.formatToCOP(summary.netBalance)"
+        :value="FormattersUtil.formatToCOP(summary.netBalance)"
         :icon="Wallet"
         :variant="summary.netBalance >= 0 ? 'income' : 'expense'"
         :trend="summary.netBalance >= 0 ? 'Ahorro positivo' : 'Gasto excesivo'"
@@ -172,7 +201,7 @@ const summaryRows = computed<SummaryRow[]>(() =>
           <RadialProgress :value="activity.percent" :label="activity.name" :color="activity.color" :height="150" />
           <div class="saving-top">
             <span class="saving-name">{{ activity.name }}</span>
-            <span class="soft">{{ Formatters.formatToCOP(activity.saved) }} / {{ Formatters.formatToCOP(activity.targetAmount) }}</span>
+            <span class="soft">{{ FormattersUtil.formatToCOP(activity.saved) }} / {{ FormattersUtil.formatToCOP(activity.targetAmount) }}</span>
           </div>
         </div>
       </div>
@@ -181,7 +210,7 @@ const summaryRows = computed<SummaryRow[]>(() =>
     <!-- Summary table -->
     <section>
       <h3 class="section-title">Resumen por actividad · {{ monthName }} {{ selectedYear }}</h3>
-      <BudgetSummaryTable :rows="summaryRows" />
+      <BudgetSummaryTable :rows="budgetVsActual" />
     </section>
   </div>
 </template>

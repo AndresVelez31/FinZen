@@ -1,34 +1,38 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+// Imports
+import {
+  ArrowLeftRight,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Moon,
+  PieChart,
+  Sun,
+  Tags,
+  Users,
+  Wallet,
+  X,
+} from 'lucide-vue-next';
+import Swal from 'sweetalert2';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import type { NavItemInterface } from '@/interfaces/NavItemInterface.js';
 import { AuthService } from '@/services/AuthService.js';
 import { useThemeStore } from '@/stores/themestore.js';
-import { Formatters } from '@/utils/FormattersUtil.js';
-import {LayoutDashboard, ArrowLeftRight, Tags, Users, PieChart, LogOut, Menu, X, Moon, Sun, Wallet} from 'lucide-vue-next';
+import { FormattersUtil } from '@/utils/FormattersUtil.js';
 
-// Interfaces
-interface NavItem {
-  name: string;
-  label: string;
-  icon: unknown;
-  tag?: string;
-}
-
-const currentUser = computed(() => AuthService.getCurrentUser());
-const isAdminUser = computed(() => AuthService.isAdmin());
-
-const themeStore = useThemeStore();
-
-function toggleAppTheme(): void {
-  themeStore.theme = themeStore.theme === 'light' ? 'dark' : 'light';
-}
-
-// Router & navigation state
+// State
 const route = useRoute();
 const router = useRouter();
+const themeStore = useThemeStore();
 const isMobileMenuOpen = ref(false);
 
-const navItems = computed<NavItem[]>(() => [
+// Computed
+const currentUser = computed(() => AuthService.getCurrentUser());
+const isAuthenticated = computed(() => AuthService.isAuthenticated());
+const isAdminUser = computed(() => AuthService.isAdmin());
+
+const navItems = computed<NavItemInterface[]>(() => [
   { name: 'overview', label: 'Resumen', icon: LayoutDashboard },
   { name: 'accounts', label: 'Cuentas', icon: Wallet },
   { name: 'transactions', label: 'Transacciones', icon: ArrowLeftRight },
@@ -41,7 +45,14 @@ const navItems = computed<NavItem[]>(() => [
     : []),
 ]);
 
-const userInitials = computed<string>(() => Formatters.initials(currentUser.value?.name ?? '?'));
+const userInitials = computed<string>(() =>
+  FormattersUtil.initials(currentUser.value?.name ?? '?'),
+);
+
+// Actions
+function toggleAppTheme(): void {
+  themeStore.theme = themeStore.theme === 'light' ? 'dark' : 'light';
+}
 
 function navigateTo(routeName: string): void {
   router.push({ name: routeName });
@@ -49,7 +60,6 @@ function navigateTo(routeName: string): void {
 }
 
 async function handleLogout(): Promise<void> {
-  const Swal = (await import('sweetalert2')).default;
   const result = await Swal.fire({
     title: '¿Cerrar sesión?',
     text: 'Volverás a la pantalla de acceso.',
@@ -60,11 +70,27 @@ async function handleLogout(): Promise<void> {
     confirmButtonColor: '#ef4444',
     cancelButtonColor: '#94a3b8',
   });
-  if (result.isConfirmed) {
-    AuthService.logout();
-    await router.push({ name: 'login' });
+
+  if (!result.isConfirmed) {
+    return;
+  }
+
+  try {
+    await AuthService.logout();
+  } catch {
+    // The local session is already closed; a failed revoke only leaves an
+    // unused refresh token in the API until it expires.
   }
 }
+
+// Watchers
+// The session ends either on logout or when the API rejects an expired
+// token (BaseService clears it); both cases go back to the login page.
+watch(isAuthenticated, (authenticated) => {
+  if (!authenticated) {
+    router.push({ name: 'login' });
+  }
+});
 </script>
 
 <template>

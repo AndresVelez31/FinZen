@@ -1,81 +1,43 @@
 <script setup lang="ts">
 // Imports
-import { ref, computed, watch } from 'vue';
+import { ArrowLeft, Save, TrendingDown, TrendingUp } from 'lucide-vue-next';
+import Swal from 'sweetalert2';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ArrowLeft, TrendingUp, TrendingDown, Save } from 'lucide-vue-next';
-import { TransactionService } from '@/services/TransactionService.js';
-import { AccountService } from '@/services/AccountService.js';
-import { ActivityService } from '@/services/ActivityService.js';
 import type { CreateTransactionDTO } from '@/dtos/CreateTransactionDTO.js';
 import type { UpdateTransactionDTO } from '@/dtos/UpdateTransactionDTO.js';
-
-// Types
-interface FormErrors {
-  amount?: string;
-  accountId?: string;
-  activityId?: string;
-  date?: string;
-  description?: string;
-}
+import type { AccountInterface } from '@/interfaces/AccountInterface.js';
+import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
+import type { TransactionFormErrorsInterface } from '@/interfaces/TransactionFormErrorsInterface.js';
+import { AccountService } from '@/services/AccountService.js';
+import { ActivityService } from '@/services/ActivityService.js';
+import { TransactionService } from '@/services/TransactionService.js';
 
 // State
 const route = useRoute();
 const router = useRouter();
 
-// Computed
-const editing = computed(() => route.name === 'transactions.edit');
-const transactionId = computed(() => (route.params.id ? Number(route.params.id) : null));
+const accounts = ref<AccountInterface[]>([]);
+const activities = ref<ActivityInterface[]>([]);
 
-const accounts = computed(() => AccountService.getAll());
-const activities = computed(() => ActivityService.getAll());
-
-// State
-const today = new Date().toISOString().slice(0, 10);
-
-function createInitialFormState() {
-  return {
-    type: 'expense',
-    amount: '',
-    accountId: (accounts.value[0]?.id ?? null) as number | null,
-    activityId: (activities.value[0]?.id ?? null) as number | null,
-    date: today,
-    description: '',
-  };
-}
-
-const form = ref(createInitialFormState());
-const errors = ref<FormErrors>({});
+const form = ref({
+  type: 'expense',
+  amount: '',
+  accountId: null as number | null,
+  activityId: null as number | null,
+  date: new Date().toISOString().slice(0, 10),
+  description: '',
+});
+const errors = ref<TransactionFormErrorsInterface>({});
 const saving = ref(false);
 
+// Computed
+const editing = computed(() => route.name === 'transactions.edit');
+const transactionId = computed(() => Number(route.params.id));
+
 // Actions
-function loadForm(): void {
-  errors.value = {};
-
-  if (!editing.value) {
-    form.value = createInitialFormState();
-    return;
-  }
-
-  const transaction = transactionId.value ? TransactionService.getById(transactionId.value) : undefined;
-  if (!transaction) {
-    router.replace({ name: 'transactions' });
-    return;
-  }
-
-  form.value = {
-    type: transaction.type,
-    amount: String(transaction.amount),
-    accountId: transaction.accountId,
-    activityId: transaction.activityId,
-    date: transaction.date,
-    description: transaction.description,
-  };
-}
-
-watch([editing, transactionId], loadForm, { immediate: true });
-
 function validate(): boolean {
-  const validationErrors: FormErrors = {};
+  const validationErrors: TransactionFormErrorsInterface = {};
 
   const amount = Number(form.value.amount);
   if (!form.value.amount || Number.isNaN(amount) || amount <= 0) {
@@ -98,35 +60,34 @@ function validate(): boolean {
   return Object.keys(validationErrors).length === 0;
 }
 
-function buildTransactionFields() {
+function buildTransactionFields(accountId: number, activityId: number): CreateTransactionDTO {
   return {
     type: form.value.type,
     amount: Number(form.value.amount),
-    accountId: form.value.accountId as number,
-    activityId: form.value.activityId as number,
+    accountId,
+    activityId,
     date: form.value.date,
     description: form.value.description.trim(),
   };
 }
 
 async function submit(): Promise<void> {
-  if (saving.value || !validate() || !form.value.accountId || !form.value.activityId) {
+  const { accountId, activityId } = form.value;
+  if (saving.value || !validate() || !accountId || !activityId) {
     return;
   }
 
   saving.value = true;
-  const Swal = (await import('sweetalert2')).default;
 
   try {
-    if (editing.value && transactionId.value) {
-      const dto: UpdateTransactionDTO = { id: transactionId.value, ...buildTransactionFields() };
-      const updated = TransactionService.update(dto);
-      if (!updated) {
-        throw new Error('La transacción no existe o no está disponible.');
-      }
+    if (editing.value) {
+      const updateTransactionDTO: UpdateTransactionDTO = {
+        id: transactionId.value,
+        ...buildTransactionFields(accountId, activityId),
+      };
+      await TransactionService.update(updateTransactionDTO);
     } else {
-      const dto: CreateTransactionDTO = buildTransactionFields();
-      TransactionService.create(dto);
+      await TransactionService.create(buildTransactionFields(accountId, activityId));
     }
 
     await Swal.fire({
@@ -135,18 +96,48 @@ async function submit(): Promise<void> {
       timer: 1300,
       showConfirmButton: false,
     });
-    router.push({ name: 'transactions' });
+    await router.push({ name: 'transactions' });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Ocurrió un error inesperado.';
     await Swal.fire({
       title: 'No se pudo guardar la transacción',
-      text: message,
+      text: (error as Error).message,
       icon: 'error',
     });
   } finally {
     saving.value = false;
   }
 }
+
+// Lifecycle
+onMounted(async () => {
+  try {
+    accounts.value = await AccountService.getAll();
+    activities.value = await ActivityService.getAll();
+
+    if (!editing.value) {
+      form.value.accountId = accounts.value[0]?.id ?? null;
+      form.value.activityId = activities.value[0]?.id ?? null;
+      return;
+    }
+
+    const transaction = await TransactionService.getById(transactionId.value);
+    form.value = {
+      type: transaction.type,
+      amount: String(transaction.amount),
+      accountId: transaction.accountId,
+      activityId: transaction.activityId,
+      date: transaction.date,
+      description: transaction.description,
+    };
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudo cargar la transacción',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+    await router.replace({ name: 'transactions' });
+  }
+});
 </script>
 
 <template>

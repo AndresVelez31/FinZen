@@ -1,57 +1,55 @@
+// Imports
+import type { LoginDTO } from '@/dtos/LoginDTO.js';
+import type { TokenPairInterface } from '@/interfaces/TokenPairInterface.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
-import { useUserStore } from '@/stores/userstore.js';
+import { BaseService } from '@/services/BaseService.js';
 import { useAuthStore } from '@/stores/authstore.js';
 
-export class AuthService {
-  static login(
-    email: string,
-    password: string,
-  ): { ok: true; user: UserInterface } | { ok: false; error: string } {
-    const cleanEmail = email.trim().toLowerCase();
-    const user = useUserStore().users.find(
-      (existingUser) => existingUser.email.toLowerCase() === cleanEmail,
-    );
+// Exports
+export class AuthService extends BaseService {
+  private static readonly PATH = '/auth/token';
+  private static readonly PROFILE_PATH = '/me';
 
-    if (!user || user.password !== password) {
-      return { ok: false, error: 'Credenciales inválidas.' };
+  // API calls
+
+  // Gets the tokens, then the signed-in user with the new access token.
+  static async login(loginDTO: LoginDTO): Promise<UserInterface> {
+    const tokens = await this.httpPost<TokenPairInterface>(this.PATH, {
+      email: loginDTO.email.trim().toLowerCase(),
+      password: loginDTO.password,
+    });
+
+    const authStore = useAuthStore();
+    authStore.accessToken = tokens.accessToken;
+    authStore.refreshToken = tokens.refreshToken;
+    authStore.currentUser = await this.httpGet<UserInterface>(this.PROFILE_PATH);
+
+    return authStore.currentUser;
+  }
+
+  // The local session ends first, so the user is signed out even if the API
+  // cannot be reached; then the refresh token is revoked in the API.
+  static async logout(): Promise<void> {
+    const refreshToken = useAuthStore().refreshToken;
+    this.clearSession();
+
+    if (refreshToken) {
+      await this.httpPost<void>(`${this.PATH}/revoke`, { refreshToken });
     }
-
-    if (!user.active) {
-      return { ok: false, error: 'Tu cuenta se encuentra inactiva.' };
-    }
-
-    useAuthStore().currentUserId = user.id;
-    return { ok: true, user };
   }
 
-  static logout(): void {
-    useAuthStore().currentUserId = null;
-  }
+  // Session
 
-  static getCurrentUserId(): number | null {
-    return useAuthStore().currentUserId;
-  }
-
-  static getCurrentUser(): UserInterface | undefined {
-    const currentUserId = AuthService.getCurrentUserId();
-
-    if (currentUserId === null) {
-      return undefined;
-    }
-
-    return useUserStore().users.find((user) => user.id === currentUserId);
-  }
-
-  static isOwner(resourceUserId: number): boolean {
-    const currentUserId = AuthService.getCurrentUserId();
-    return currentUserId !== null && resourceUserId === currentUserId;
+  static getCurrentUser(): UserInterface | null {
+    return useAuthStore().currentUser;
   }
 
   static isAuthenticated(): boolean {
-    return AuthService.getCurrentUser() !== undefined;
+    const authStore = useAuthStore();
+    return authStore.accessToken !== null && authStore.currentUser !== null;
   }
 
   static isAdmin(): boolean {
-    return AuthService.getCurrentUser()?.role === 'admin';
+    return this.getCurrentUser()?.role === 'admin';
   }
 }

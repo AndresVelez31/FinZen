@@ -1,15 +1,16 @@
+// Imports
 import { createRouter, createWebHistory } from 'vue-router';
-import LoginView from '@/views/LoginView.vue';
-import OverviewView from '@/views/OverviewView.vue';
-import TransactionsShowView from '@/views/TransactionsShowView.vue';
-import TransactionFormView from '@/views/TransactionFormView.vue';
-import AccountsShowView from '@/views/AccountsShowView.vue';
+import { authGuard, adminGuard } from '@/auth/guards.js';
 import AccountFormView from '@/views/AccountFormView.vue';
-import ReportsView from '@/views/ReportsView.vue';
+import AccountsShowView from '@/views/AccountsShowView.vue';
 import ActivitiesShowView from '@/views/ActivitiesShowView.vue';
 import ActivityFormView from '@/views/ActivityFormView.vue';
+import LoginView from '@/views/LoginView.vue';
+import OverviewView from '@/views/OverviewView.vue';
+import ReportsView from '@/views/ReportsView.vue';
+import TransactionFormView from '@/views/TransactionFormView.vue';
+import TransactionsShowView from '@/views/TransactionsShowView.vue';
 import UsersShowView from '@/views/UsersShowView.vue';
-import { authGuard, adminGuard } from '@/auth/guards.js';
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -136,4 +137,5 @@ router.beforeEach((to) => {
 router.beforeEach(authGuard);
 router.beforeEach(adminGuard);
 
+// Exports
 export default router;

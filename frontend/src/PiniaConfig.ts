@@ -1,15 +1,13 @@
+// Imports
 import { createPinia } from 'pinia';
 import { watch } from 'vue';
-import { userSeeder } from '@/seeders/userseeder.js';
-import { accountSeeder } from '@/seeders/accountseeder.js';
-import { activitySeeder } from '@/seeders/activityseeder.js';
-import { transactionSeeder } from '@/seeders/transactionseeder.js';
 
-// Bumped from 'finzenState' when currentUserId moved out of the user store
-// and into its own auth store — a browser with the old shape simply starts
-// unauthenticated (log in again) instead of hydrating a stale/missing session.
-const STORAGE_KEY = 'finzenState.v2';
+// Only the session (auth) and the theme are kept in the browser; every
+// domain record comes from the API. The key was bumped from 'finzenState.v3'
+// when the session started keeping an access token and a refresh token.
+const STORAGE_KEY = 'finzenState.v4';
 
+// Exports
 export default class PiniaConfig {
   public static init() {
     const pinia = createPinia();
@@ -17,28 +15,6 @@ export default class PiniaConfig {
     const savedState = localStorage.getItem(STORAGE_KEY);
     if (savedState) {
       pinia.state.value = JSON.parse(savedState);
-    } else {
-      pinia.state.value = {
-        auth: {
-          currentUserId: null,
-        },
-        user: {
-          users: userSeeder,
-        },
-        account: {
-          accounts: accountSeeder,
-        },
-        activity: {
-          activities: activitySeeder,
-        },
-        transaction: {
-          transactions: transactionSeeder,
-        },
-      };
-
-      // Save the initial seeded state immediately so that if the user closes
-      // the browser before the async watch fires, the data is not lost.
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(pinia.state.value));
     }
 
     watch(

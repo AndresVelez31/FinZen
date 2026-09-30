@@ -1,4 +1,5 @@
-export class Formatters {
+// Exports
+export class FormattersUtil {
   /**
    * Formats a number as Colombian Peso currency (e.g. 15000 -> "$ 15.000").
    */

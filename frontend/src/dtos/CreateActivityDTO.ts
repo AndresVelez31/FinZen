@@ -1,3 +1,8 @@
-import type { ActivityInterface } from '../interfaces/ActivityInterface.js';
+// Imports
+import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 
-export type CreateActivityDTO = Omit<ActivityInterface, 'id' | 'userId' | 'createdAt' | 'updatedAt'>;
+// Exports
+export type CreateActivityDTO = Omit<
+  ActivityInterface,
+  'id' | 'userId' | 'createdAt' | 'updatedAt'
+>;

@@ -1,5 +1,9 @@
-import type { ActivityInterface } from '../interfaces/ActivityInterface.js';
+// Imports
+import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 
-export type UpdateActivityDTO = Partial<Omit<ActivityInterface, 'id' | 'userId' | 'createdAt' | 'updatedAt'>> & {
+// Exports
+export type UpdateActivityDTO = Partial<
+  Omit<ActivityInterface, 'id' | 'userId' | 'createdAt' | 'updatedAt'>
+> & {
   id: number;
 };

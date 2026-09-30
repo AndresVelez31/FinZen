@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
-import {Chart, registerables, type ChartType, type ChartDataset, type ChartOptions} from 'chart.js';
+// Reusable Chart.js wrapper without domain dependencies.
+
+// Imports
+import { Chart, registerables } from 'chart.js';
+import type { ChartDataset, ChartOptions, ChartType } from 'chart.js';
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 
 Chart.register(...registerables);
 
-/**
- * Reusable Chart.js wrapper without domain dependencies.
- */
-
+// Props
 const props = withDefaults(
   defineProps<{
     type: ChartType | string;
@@ -25,10 +26,12 @@ const props = withDefaults(
   },
 );
 
+// State
 const canvas = ref<HTMLCanvasElement | null>(null);
 let chartInstance: Chart | null = null;
 let themeObserver: MutationObserver | null = null;
 
+// Actions
 function themeColors() {
   const styles = getComputedStyle(document.documentElement);
   const dark = document.documentElement.classList.contains('dark');
@@ -110,6 +113,14 @@ function renderChart() {
   });
 }
 
+// Watchers
+watch(
+  () => [props.labels, props.datasets, props.type, props.options],
+  () => nextTick(renderChart),
+  { deep: true },
+);
+
+// Lifecycle
 onMounted(() => {
   renderChart();
 
@@ -133,12 +144,6 @@ onUnmounted(() => {
     themeObserver = null;
   }
 });
-
-watch(
-  () => [props.labels, props.datasets, props.type, props.options],
-  () => nextTick(renderChart),
-  { deep: true },
-);
 </script>
 
 <template>

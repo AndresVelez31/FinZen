@@ -1,8 +1,13 @@
+// Imports
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import type { UserInterface } from '@/interfaces/UserInterface.js';
 
+// Exports
 export const useAuthStore = defineStore('auth', () => {
-  const currentUserId = ref<number | null>(null);
+  const accessToken = ref<string | null>(null);
+  const refreshToken = ref<string | null>(null);
+  const currentUser = ref<UserInterface | null>(null);
 
-  return { currentUserId };
+  return { accessToken, refreshToken, currentUser };
 });
