@@ -1,3 +1,4 @@
+// Imports
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -5,6 +6,7 @@ import { CreateAccountDto } from './dto/create-account.dto.js';
 import { UpdateAccountDto } from './dto/update-account.dto.js';
 import { Account } from './entities/account.entity.js';
 
+// Exports
 @Injectable()
 export class AccountsService {
   constructor(

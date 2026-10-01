@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { Inbox, ShieldCheck, User } from 'lucide-vue-next';
 import EmptyState from '@/components/shared/EmptyStateComponent.vue';
 import type { UserInterface } from '@/interfaces/UserInterface.js';

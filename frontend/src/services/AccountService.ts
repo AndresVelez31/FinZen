@@ -1,8 +1,10 @@
+// Imports
 import type { CreateAccountDTO } from '@/dtos/CreateAccountDTO.js';
 import type { UpdateAccountDTO } from '@/dtos/UpdateAccountDTO.js';
 import type { AccountInterface } from '@/interfaces/AccountInterface.js';
 import { BaseService } from '@/services/BaseService.js';
 
+// Exports
 // CRUD with the API. Calculations over the loaded accounts live in AccountUtil.
 export class AccountService extends BaseService {
   private static readonly PATH = '/accounts';

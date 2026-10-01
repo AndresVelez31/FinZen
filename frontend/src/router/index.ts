@@ -1,3 +1,4 @@
+// Imports
 import { createRouter, createWebHistory } from 'vue-router';
 import { authGuard, adminGuard } from '@/auth/guards.js';
 import AccountFormView from '@/views/AccountFormView.vue';
@@ -136,4 +137,5 @@ router.beforeEach((to) => {
 router.beforeEach(authGuard);
 router.beforeEach(adminGuard);
 
+// Exports
 export default router;

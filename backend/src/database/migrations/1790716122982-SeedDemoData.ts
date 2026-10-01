@@ -1,3 +1,4 @@
+// Imports
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 // Demo data that lived in the frontend seeders during Deliverable 1. The
@@ -832,6 +833,7 @@ const TRANSACTIONS = [
   },
 ];
 
+// Exports
 export class SeedDemoData1790716122982 implements MigrationInterface {
   name = 'SeedDemoData1790716122982';
 

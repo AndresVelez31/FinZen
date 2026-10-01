@@ -1,3 +1,4 @@
+// Imports
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,6 +8,7 @@ import { Activity } from './entities/activity.entity.js';
 
 const ACTIVITY_TYPES = ['expense', 'savings'];
 
+// Exports
 @Injectable()
 export class ActivitiesService {
   constructor(

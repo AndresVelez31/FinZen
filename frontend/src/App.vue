@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { computed, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import AppLayout from '@/components/layout/AppLayout.vue';

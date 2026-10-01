@@ -1,3 +1,4 @@
+// Imports
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CurrentUser } from '@nestjs/authentication';
 import { Roles } from '../auth/decorators/roles.decorator.js';
@@ -7,6 +8,7 @@ import { CreateActivityDto } from './dto/create-activity.dto.js';
 import { UpdateActivityDto } from './dto/update-activity.dto.js';
 import type { Activity } from './entities/activity.entity.js';
 
+// Exports
 // Every user reads their own activities (the transaction form needs them),
 // but only admins manage them, mirroring the admin-only /activities routes.
 @Controller('activities')

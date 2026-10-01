@@ -1,3 +1,4 @@
+// Imports
 import {
   Column,
   Entity,
@@ -11,6 +12,7 @@ import type { Relation } from 'typeorm';
 import { Account } from '../../accounts/entities/account.entity.js';
 import { Activity } from '../../activities/entities/activity.entity.js';
 
+// Exports
 @Entity()
 export class Transaction {
   @PrimaryGeneratedColumn()

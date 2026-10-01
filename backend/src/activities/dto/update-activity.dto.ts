@@ -1,3 +1,4 @@
+// Exports
 export class UpdateActivityDto {
   name?: string;
   color?: string;

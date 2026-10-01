@@ -1,6 +1,8 @@
+// Imports
 import { DataSource } from 'typeorm';
 import type { DataSourceOptions } from 'typeorm';
 
+// Exports
 // Shared by AppModule and the TypeORM CLI (migration:generate / migration:run).
 // The schema is never synchronized automatically: every change goes through a
 // migration so the database keeps a history of how it evolved.

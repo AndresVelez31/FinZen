@@ -1,3 +1,4 @@
+// Exports
 export interface TransactionInterface {
   id: number;
   type: string;

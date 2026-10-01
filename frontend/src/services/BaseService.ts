@@ -1,6 +1,8 @@
+// Imports
 import axios from 'axios';
 import { useAuthStore } from '@/stores/authstore.js';
 
+// Exports
 // Superclass of every service. The API URL, the Authorization header and the
 // only try/catch around axios live here, so the services that extend it never
 // repeat them.

@@ -1,8 +1,10 @@
+// Imports
 import type { CreateActivityDTO } from '@/dtos/CreateActivityDTO.js';
 import type { UpdateActivityDTO } from '@/dtos/UpdateActivityDTO.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import { BaseService } from '@/services/BaseService.js';
 
+// Exports
 // CRUD with the API. Aggregations over the loaded activities live in ActivityUtil.
 export class ActivityService extends BaseService {
   private static readonly PATH = '/activities';

@@ -1,3 +1,4 @@
+// Exports
 export interface TransactionFilterCriteriaInterface {
   activityId?: number | undefined;
   accountId?: number | undefined;
