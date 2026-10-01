@@ -1,18 +1,12 @@
 <script setup lang="ts">
-// Imports
-import { ref, computed, watch } from 'vue';
+import { ArrowLeft, Landmark, PiggyBank, Save, Smartphone, Wallet } from 'lucide-vue-next';
+import Swal from 'sweetalert2';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ArrowLeft, Save, Landmark, PiggyBank, Wallet, Smartphone } from 'lucide-vue-next';
-import { AccountService } from '@/services/AccountService.js';
 import type { CreateAccountDTO } from '@/dtos/CreateAccountDTO.js';
 import type { UpdateAccountDTO } from '@/dtos/UpdateAccountDTO.js';
-
-// Types
-interface FormErrors {
-  name?: string;
-  type?: string;
-  balance?: string;
-}
+import type { AccountFormErrorsInterface } from '@/interfaces/AccountFormErrorsInterface.js';
+import { AccountService } from '@/services/AccountService.js';
 
 // State
 const route = useRoute();
@@ -26,49 +20,21 @@ const TYPES = [
   { value: 'Inversión', label: 'Inversión', icon: Landmark },
 ];
 
-// Computed
-const editing = computed(() => route.name === 'accounts.edit');
-const accountId = computed(() => (route.params.id ? Number(route.params.id) : null));
-
-// State
-function createInitialFormState() {
-  return {
-    name: '',
-    type: TYPES[0]!.value,
-    balance: '',
-  };
-}
-
-const form = ref(createInitialFormState());
-const errors = ref<FormErrors>({});
+const form = ref({
+  name: '',
+  type: TYPES[0]!.value,
+  balance: '',
+});
+const errors = ref<AccountFormErrorsInterface>({});
 const saving = ref(false);
 
+// Computed
+const editing = computed(() => route.name === 'accounts.edit');
+const accountId = computed(() => Number(route.params.id));
+
 // Actions
-function loadForm(): void {
-  errors.value = {};
-
-  if (!editing.value) {
-    form.value = createInitialFormState();
-    return;
-  }
-
-  const account = accountId.value ? AccountService.getById(accountId.value) : undefined;
-  if (!account) {
-    router.replace({ name: 'accounts' });
-    return;
-  }
-
-  form.value = {
-    name: account.name,
-    type: account.type,
-    balance: String(account.balance),
-  };
-}
-
-watch([editing, accountId], loadForm, { immediate: true });
-
 function validate(): boolean {
-  const validationErrors: FormErrors = {};
+  const validationErrors: AccountFormErrorsInterface = {};
 
   if (!form.value.name.trim()) {
     validationErrors.name = 'El nombre de la cuenta es obligatorio.';
@@ -100,17 +66,13 @@ async function submit(): Promise<void> {
   }
 
   saving.value = true;
-  const Swal = (await import('sweetalert2')).default;
 
   try {
-    if (editing.value && accountId.value) {
-      const dto: UpdateAccountDTO = { id: accountId.value, ...buildAccountFields() };
-      const updated = AccountService.update(dto);
-      if (!updated) {
-        throw new Error('La cuenta no existe o no está disponible.');
-      }
+    if (editing.value) {
+      const updateAccountDTO: UpdateAccountDTO = { id: accountId.value, ...buildAccountFields() };
+      await AccountService.update(updateAccountDTO);
     } else {
-      AccountService.create(buildAccountFields());
+      await AccountService.create(buildAccountFields());
     }
 
     await Swal.fire({
@@ -119,18 +81,40 @@ async function submit(): Promise<void> {
       timer: 1300,
       showConfirmButton: false,
     });
-    router.push({ name: 'accounts' });
+    await router.push({ name: 'accounts' });
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Ocurrió un error inesperado.';
     await Swal.fire({
       title: 'No se pudo guardar la cuenta',
-      text: message,
+      text: (error as Error).message,
       icon: 'error',
     });
   } finally {
     saving.value = false;
   }
 }
+
+// Lifecycle
+onMounted(async () => {
+  if (!editing.value) {
+    return;
+  }
+
+  try {
+    const account = await AccountService.getById(accountId.value);
+    form.value = {
+      name: account.name,
+      type: account.type,
+      balance: String(account.balance),
+    };
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudo cargar la cuenta',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+    await router.replace({ name: 'accounts' });
+  }
+});
 </script>
 
 <template>

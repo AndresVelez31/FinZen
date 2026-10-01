@@ -31,16 +31,6 @@ export class AuthService extends BaseService {
     this.clearSession();
   }
 
-  // The services that still read the local stores check ownership with these
-  // two methods until they move to the API (#120).
-  static getCurrentUserId(): number | null {
-    return useAuthStore().currentUser?.id ?? null;
-  }
-
-  static isOwner(resourceUserId: number): boolean {
-    return this.getCurrentUserId() === resourceUserId;
-  }
-
   static getCurrentUser(): UserInterface | null {
     return useAuthStore().currentUser;
   }

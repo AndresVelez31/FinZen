@@ -4,10 +4,14 @@ import { useRoute } from 'vue-router';
 import AppLayout from '@/components/layout/AppLayout.vue';
 import { useThemeStore } from '@/stores/themestore.js';
 
+// State
 const route = useRoute();
+const themeStore = useThemeStore();
+
+// Computed
 const isBlank = computed(() => route.meta.layout === 'blank');
 
-const themeStore = useThemeStore();
+// Watchers
 watchEffect(() => {
   document.documentElement.classList.toggle('dark', themeStore.theme === 'dark');
 });
