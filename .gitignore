@@ -7,9 +7,8 @@ frontend/node_modules/
 # ───────────────────────────────────────────
 #  Build output
 # ───────────────────────────────────────────
-# frontend/dist/ is intentionally tracked: the GCP deployment Dockerfile
-# copies the pre-built dist/ straight into the nginx image, so the VM never
-# needs Node/npm installed to build it.
+# dist/ is built inside the Docker images (multi-stage), never committed.
+frontend/dist/
 frontend/.vite/
 frontend/.eslintcache
 
