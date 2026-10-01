@@ -2,9 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
+import { Account } from '../../accounts/entities/account.entity.js';
 import { Role } from '../enums/role.enum.js';
 
 @Entity()
@@ -33,4 +36,7 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Account, (account) => account.user)
+  accounts: Relation<Account[]>;
 }
