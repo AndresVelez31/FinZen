@@ -10,20 +10,20 @@ export class AccountService extends BaseService {
   private static readonly PATH = '/accounts';
 
   static async getAll(): Promise<AccountInterface[]> {
-    return await this.httpGet<AccountInterface[]>(this.PATH);
+    return await this.httpGet(this.PATH);
   }
 
   static async getById(id: number): Promise<AccountInterface> {
-    return await this.httpGet<AccountInterface>(`${this.PATH}/${id}`);
+    return await this.httpGet(`${this.PATH}/${id}`);
   }
 
   static async create(createAccountDTO: CreateAccountDTO): Promise<AccountInterface> {
-    return await this.httpPost<AccountInterface>(this.PATH, createAccountDTO);
+    return await this.httpPost(this.PATH, createAccountDTO);
   }
 
   static async update(updateAccountDTO: UpdateAccountDTO): Promise<AccountInterface> {
     const { id, ...accountUpdates } = updateAccountDTO;
-    return await this.httpPatch<AccountInterface>(`${this.PATH}/${id}`, accountUpdates);
+    return await this.httpPatch(`${this.PATH}/${id}`, accountUpdates);
   }
 
   // The API also deletes the account's transactions.

@@ -38,16 +38,16 @@ must keep a migration history.
 - Authentication with the official `@nestjs/authentication` package
   (https://docs.nestjs.com/security/authentication) instead of a hand-written guard:
   `AuthenticationModule.forRoot` registers its global guard, `JwtAuthProvider` (a
-  `JwtBearerProvider`) loads the active user of each token, `TokenService` issues a 15-minute
-  access token and a single-use refresh token (`POST /auth/token`, `/auth/token/refresh`,
-  `/auth/token/revoke`), `PasswordHasher` hashes with scrypt, and controllers read the user
-  with `@CurrentUser()`. `@Public()` opens a route; roles are not part of the package, so
+  `JwtBearerProvider`) loads the active user of each token, `TokenService` issues an 8-hour
+  access token (`POST /auth/token`), `PasswordHasher` hashes with scrypt, and controllers read
+  the user with `@CurrentUser()`. `@Public()` opens a route; roles are not part of the package, so
   `@Roles(Role.Admin)` + `RolesGuard` (an `APP_GUARD` that runs after it) stay.
   `GET /me` returns the signed-in user. The password column is `select: false` and
   `UsersService.findCredentials()` returns the hash apart from the user, so no endpoint can leak it.
-- Refresh tokens are kept in memory (`allowInMemoryStorage: true`): restarting the API signs
-  everyone out. Acceptable for a single-instance course project; a database store would be needed
-  for more instances.
+- Only what the course and the linked guide show is used: no refresh-token rotation, no
+  automatic renewal and no `declare module` typing. `TokenService.issue()` still starts a
+  refresh token, kept in memory (`allowInMemoryStorage: true`), which the SPA ignores; when the
+  access token expires the user signs in again.
 - Validation lives in each service and answers with Nest HTTP exceptions (`400`, `401`, `403`,
   `404`) whose messages are in Spanish because the SPA shows them as-is. Services only copy the
   editable fields of a body, so a request can never change a record's owner.
@@ -55,10 +55,10 @@ must keep a migration history.
 
 **Front-end (`frontend/`)**:
 
-- `BaseService` (abstract) wraps axios: base URL from `VITE_API_BASE_URL`, `Authorization`
-  header, the only `try/catch`, and conversion of any failure into an `Error` with the API
-  message. A rejected access token is renewed once with the refresh token and the request retried;
-  if that fails the session is cleared and `AppLayout` sends the user to `/login`.
+- `BaseService` wraps axios like the Tutorial 07 services: base URL from `VITE_API_BASE_URL`,
+  `Authorization` header, the only `try/catch`, and conversion of any failure into an `Error`
+  with the API message. A `401` with a token clears the session and `AppLayout` sends the user
+  to `/login`.
 - Every service `extends BaseService` and only does CRUD with the API through its
   `private static readonly PATH`; every method is `async` and uses `return await`, in the
   front-end and the back-end. The calculations over loaded data live in one util per service
@@ -70,11 +70,11 @@ must keep a migration history.
   handlers such as `submit` and `delete...`), and the `catch` shows the API message with
   SweetAlert2. Form views also go back to their list when the record cannot be loaded.
   SweetAlert2 is imported statically.
-- Seeders and the entity stores are deleted. `authstore` keeps `accessToken`,
-  `refreshToken` and `currentUser`; `PiniaConfig` persists it with the theme under `finzenState.v4`.
+- Seeders and the entity stores are deleted. `authstore` keeps `accessToken` and
+  `currentUser`; `PiniaConfig` persists it with the theme under `finzenState.v4`.
 - Every front-end interface lives in `src/interfaces/`, one per file with the `Interface` suffix:
   the four class-diagram entities and the derived shapes (`TransactionRowInterface`,
-  `ActivityProgressInterface`, `TokenPairInterface`, the form error shapes...). `Formatters`/
+  `ActivityProgressInterface`, `LoginResponseInterface`, the form error shapes...). `Formatters`/
   `DateRange` became `FormattersUtil`/`DateRangeUtil`, and option lists moved to
   `enums/constants.ts`.
 - Every file starts its imports with `// Imports` and marks what it exports with `// Exports`.
@@ -91,4 +91,5 @@ must keep a migration history.
   deleted them. The text now matches the behaviour.
 - `SeedDemoData` was edited (bcrypt → scrypt hashes) before this branch is merged, so no
   existing database depends on the old hashes; delete a local `database.sqlite` created earlier.
-- `backend/dist` and `frontend/dist` must be rebuilt before deploying with Docker Compose.
+- `dist/` is not committed: both Dockerfiles are multi-stage and build inside the image
+  (Presentation 12), and `deploy.sh` runs `docker compose up -d --build` on the VM.

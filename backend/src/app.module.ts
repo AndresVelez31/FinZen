@@ -27,14 +27,11 @@ import { UsersModule } from './users/users.module.js';
         key: process.env.JWT_SECRET ?? 'finzen-local-development-secret-change-me',
         issuer: 'finzen-api',
         audience: 'finzen-spa',
-        ttl: '15m',
+        // Long enough for a working session; after it the SPA asks to sign in again.
+        ttl: '8h',
       },
-      refreshToken: {
-        ttl: '7d',
-        absoluteTtl: '30d',
-      },
-      // The API runs as a single instance: refresh tokens stay in memory, and
-      // a restart only means signing in again (see docs/decisions/BACKEND-01).
+      // issue() also starts a refresh token, which the package keeps in memory
+      // (the SPA does not use it). A single instance is enough for this project.
       allowInMemoryStorage: true,
     }),
     HomeModule,

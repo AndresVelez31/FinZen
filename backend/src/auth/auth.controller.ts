@@ -4,10 +4,9 @@ import { Public } from '@nestjs/authentication';
 import type { TokenPair } from '@nestjs/authentication';
 import { AuthService } from './auth.service.js';
 import { LoginDto } from './dto/login.dto.js';
-import { RefreshTokenDto } from './dto/refresh-token.dto.js';
 
 // Exports
-// The routes that hand out tokens cannot require one.
+// The sign-in route cannot require a token, so it is public.
 @Public()
 @Controller('auth/token')
 export class AuthController {
@@ -17,17 +16,5 @@ export class AuthController {
   @Post()
   async signIn(@Body() loginDto: LoginDto): Promise<TokenPair> {
     return await this.authService.signIn(loginDto);
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @Post('refresh')
-  async refresh(@Body() refreshTokenDto: RefreshTokenDto): Promise<TokenPair> {
-    return await this.authService.refresh(refreshTokenDto.refreshToken);
-  }
-
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Post('revoke')
-  async revoke(@Body() refreshTokenDto: RefreshTokenDto): Promise<void> {
-    await this.authService.revoke(refreshTokenDto.refreshToken);
   }
 }

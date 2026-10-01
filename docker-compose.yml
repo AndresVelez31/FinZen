@@ -1,27 +1,32 @@
-# Tutorial 08: backend (NestJS + SQLite) and frontend (nginx) on one VM.
-# Replace the IP in CORS_ORIGIN with the VM's external IP, and build the
-# frontend with VITE_API_BASE_URL=http://<VM IP>:3000 before deploying.
+# Presentation 12: both images are built on the VM (multi-stage Dockerfiles),
+# so dist/ is not committed. deploy.sh sets the VM IP before building.
 services:
   backend:
     build:
       context: ./backend
+      args:
+        CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:8080}"
     ports:
       - "3000:3000"
     environment:
       PORT: 3000
       SQLITE_PATH: /data/database.sqlite
+      CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:8080}"
       JWT_SECRET: ${JWT_SECRET}
-      CORS_ORIGIN: "http://YOUR_VM_IP,http://127.0.0.1:8080,http://localhost,http://127.0.0.1,http://localhost:5173"
     volumes:
       - backend-data:/data
 
   frontend:
     build:
       context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000}
     ports:
       - "80:80"
     depends_on:
       - backend
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000}
 
 volumes:
   backend-data:

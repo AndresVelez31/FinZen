@@ -16,7 +16,7 @@
 FinZen helps users understand their financial activity from a single interface. The application
 supports:
 
-- login with `@nestjs/authentication` (access + refresh tokens) and `user` / `admin` roles;
+- login with `@nestjs/authentication` (JWT access token) and `user` / `admin` roles;
 - personal accounts with calculated balances;
 - income and expense transactions;
 - expense budgets and savings goals organized as activities;
@@ -27,8 +27,8 @@ supports:
 Since Deliverable 2 the project is **full stack**:
 
 - `frontend/` — Vue SPA. Its services call the API with axios; Pinia only keeps the session
-  (access token, refresh token and current user) and the theme, persisted in `localStorage`
-  under `finzenState.v4`.
+  (access token and current user) and the theme, persisted in `localStorage` under
+  `finzenState.v4`.
 - `backend/` — NestJS REST API under `/api`, with TypeORM over SQLite. The schema and the demo
   data are created by migrations.
 
@@ -38,23 +38,23 @@ records of the authenticated user, and restricts user and activity administratio
 
 ## Technology stack
 
-| Area             | Current implementation                                         |
-| ---------------- | -------------------------------------------------------------- |
-| UI framework     | Vue 3.5 with Composition API and `<script setup lang="ts">`    |
-| Language         | TypeScript 6 with strict compiler options                      |
-| Build tool       | Vite 8 with `@vitejs/plugin-vue`                               |
-| Routing          | Vue Router 5 with HTML5 history mode                           |
-| State management | Pinia 4 Setup Stores                                           |
-| HTTP client      | axios, wrapped by `BaseService`                                |
-| Backend          | NestJS 12, TypeORM 1, SQLite (`better-sqlite3`)                |
-| Authentication   | `@nestjs/authentication` (JWT bearer + refresh tokens, scrypt) |
-| Charts           | Chart.js 4 and ApexCharts 7 through `vue3-apexcharts`          |
-| UI feedback      | SweetAlert2                                                    |
-| Icons            | Lucide Vue Next                                                |
-| Styling          | Project CSS plus Tailwind CSS 4 Vite integration               |
-| Quality tools    | vue-tsc, OXLint, ESLint, Prettier, and Vitest                  |
-| CI               | GitHub Actions: lint, tests, build, and Docker smoke test      |
-| Deployment       | Pre-built `dist` served by Nginx in Docker                     |
+| Area             | Current implementation                                      |
+| ---------------- | ----------------------------------------------------------- |
+| UI framework     | Vue 3.5 with Composition API and `<script setup lang="ts">` |
+| Language         | TypeScript 6 with strict compiler options                   |
+| Build tool       | Vite 8 with `@vitejs/plugin-vue`                            |
+| Routing          | Vue Router 5 with HTML5 history mode                        |
+| State management | Pinia 4 Setup Stores                                        |
+| HTTP client      | axios, wrapped by `BaseService`                             |
+| Backend          | NestJS 12, TypeORM 1, SQLite (`better-sqlite3`)             |
+| Authentication   | `@nestjs/authentication` (JWT bearer token, scrypt)         |
+| Charts           | Chart.js 4 and ApexCharts 7 through `vue3-apexcharts`       |
+| UI feedback      | SweetAlert2                                                 |
+| Icons            | Lucide Vue Next                                             |
+| Styling          | Project CSS plus Tailwind CSS 4 Vite integration            |
+| Quality tools    | vue-tsc, OXLint, ESLint, Prettier, and Vitest               |
+| CI               | GitHub Actions: lint, tests, build, and Docker smoke test   |
+| Deployment       | Multi-stage Docker images (Nginx + Node) built on the VM    |
 
 ## Architecture
 
@@ -69,8 +69,7 @@ Backend:   Controller -> Service -> TypeORM Repository -> SQLite
 - **Views** load their data only inside `onMounted`, always within `try/catch`, and derive
   everything else with `computed`.
 - **Services** only do CRUD with the API. They extend `BaseService`, the only place with the axios
-  `try/catch`, the `Authorization` header, the renewal of an expired access token and the error
-  handling.
+  `try/catch`, the `Authorization` header and the error handling.
 - **Utils** hold the calculations over data a view already loaded, one per service
   (e.g. `TransactionUtil.summarize`, `ActivityUtil.getProgress`, `AccountUtil.getBalance`).
 - **Stores** only keep the session and the theme.
@@ -85,7 +84,6 @@ For the detailed rules, see the
 ```text
 FinZen/
 ├── backend/                # NestJS REST API
-│   ├── dist/               # Pre-built output, intentionally tracked (copied by the Dockerfile)
 │   ├── src/
 │   │   ├── accounts/       # Module: controller, service, entity, DTOs
 │   │   ├── activities/
@@ -102,7 +100,6 @@ FinZen/
 │   ├── decisions/          # Architecture and implementation decision records
 │   └── domain-model.md     # Domain-model reference
 ├── frontend/
-│   ├── dist/               # Pre-built production output, intentionally tracked
 │   ├── public/             # Static assets copied by Vite
 │   ├── src/
 │   │   ├── assets/         # Global styles
@@ -123,6 +120,7 @@ FinZen/
 │   ├── Dockerfile
 │   ├── nginx.conf
 │   └── package.json
+├── deploy.sh               # Sets the VM IP and runs docker compose up -d --build
 ├── docker-compose.yml
 ├── CONTRIBUTING.md
 └── README.md
@@ -211,21 +209,19 @@ The account form currently provides five account types: `Corriente`, `Ahorros`, 
 All routes live under `/api` and require `Authorization: Bearer <token>` unless marked public.
 Every list only contains the authenticated user's records; someone else's record answers `404`.
 
-| Method                      | Path                      | Access        | Description                                         |
-| --------------------------- | ------------------------- | ------------- | --------------------------------------------------- |
-| `GET`                       | `/api`                    | Public        | Health check                                        |
-| `POST`                      | `/api/auth/token`         | Public        | Sign in: `{ accessToken, refreshToken, expiresIn }` |
-| `POST`                      | `/api/auth/token/refresh` | Public        | Exchanges a refresh token for a new pair            |
-| `POST`                      | `/api/auth/token/revoke`  | Public        | Signs out (revokes the refresh token)               |
-| `GET`                       | `/api/me`                 | Authenticated | The signed-in user (never the password)             |
-| `GET` / `POST`              | `/api/accounts`           | Authenticated | List / create accounts                              |
-| `GET` / `PATCH` / `DELETE`  | `/api/accounts/:id`       | Authenticated | Read / update / delete (cascades transactions)      |
-| `GET` / `POST`              | `/api/transactions`       | Authenticated | List (newest first) / create                        |
-| `GET` / `PATCH` / `DELETE`  | `/api/transactions/:id`   | Authenticated | Read / update / delete                              |
-| `GET`                       | `/api/activities[/:id]`   | Authenticated | List / read activities                              |
-| `POST` / `PATCH` / `DELETE` | `/api/activities[/:id]`   | Administrator | Manage activities (delete cascades transactions)    |
-| `GET`                       | `/api/users`              | Administrator | List users                                          |
-| `PATCH`                     | `/api/users/:id`          | Administrator | Change `role` and/or `active` (not your own user)   |
+| Method                      | Path                    | Access        | Description                                       |
+| --------------------------- | ----------------------- | ------------- | ------------------------------------------------- |
+| `GET`                       | `/api`                  | Public        | Health check                                      |
+| `POST`                      | `/api/auth/token`       | Public        | Sign in: returns the `accessToken` (8 hours)      |
+| `GET`                       | `/api/me`               | Authenticated | The signed-in user (never the password)           |
+| `GET` / `POST`              | `/api/accounts`         | Authenticated | List / create accounts                            |
+| `GET` / `PATCH` / `DELETE`  | `/api/accounts/:id`     | Authenticated | Read / update / delete (cascades transactions)    |
+| `GET` / `POST`              | `/api/transactions`     | Authenticated | List (newest first) / create                      |
+| `GET` / `PATCH` / `DELETE`  | `/api/transactions/:id` | Authenticated | Read / update / delete                            |
+| `GET`                       | `/api/activities[/:id]` | Authenticated | List / read activities                            |
+| `POST` / `PATCH` / `DELETE` | `/api/activities[/:id]` | Administrator | Manage activities (delete cascades transactions)  |
+| `GET`                       | `/api/users`            | Administrator | List users                                        |
+| `PATCH`                     | `/api/users/:id`        | Administrator | Change `role` and/or `active` (not your own user) |
 
 ## Available scripts
 
@@ -265,18 +261,21 @@ schema and the demo data. To end the browser session, log out or run
 
 ## Production build and Docker
 
-Both Dockerfiles copy a pre-built `dist/` (Tutorial 08), so build both projects first. The
-frontend bundle embeds `VITE_API_BASE_URL`, so set it to the VM address before building:
+`dist/` is not committed. Both Dockerfiles are multi-stage (Presentation 12): a `builder` stage
+installs every dependency and runs `npm run build`, and the final image only keeps the output
+(`dist/` plus production dependencies for the API, the static files for Nginx). The VM therefore
+needs enough memory to build (the class uses a bigger machine than in Tutorial 08).
+
+On the VM, replace `YOUR_VM_IP` in [`deploy.sh`](./deploy.sh) with its external IP and run:
 
 ```bash
-cd backend && npm ci && npm run build && cd ..
-cd frontend && npm ci && npm run build && cd ..
 cp .env.example .env    # set JWT_SECRET
-docker compose up -d
+./deploy.sh             # exports VITE_API_BASE_URL and CORS_ORIGIN, then docker compose up -d --build
 ```
 
+`VITE_API_BASE_URL` is passed as a build argument because Vite embeds it in the bundle.
 `docker-compose.yml` starts the API on port `3000` (SQLite in the `backend-data` volume) and the
-Nginx frontend on port `80`. Replace `YOUR_VM_IP` in `CORS_ORIGIN` with the VM's external IP.
+Nginx frontend on port `80`.
 
 ## Continuous integration
 
@@ -284,10 +283,10 @@ Nginx frontend on port `80`. Replace `YOUR_VM_IP` in `CORS_ORIGIN` with the VM's
 `main` (it tests the PR merged with `main`, so merging does not run it again):
 
 1. **build-test** — frontend: `npm ci`, `check:lint`, `test:unit`, and `build` (type-check + Vite
-   build); the new `dist/` is packaged with `Dockerfile` and `nginx.conf` as a release artifact.
+   build).
 2. **backend** — `npm ci`, `lint`, and `build`.
-3. **docker** — builds the Nginx image from that artifact and checks that `/` and `/transactions`
-   respond.
+3. **docker** — builds both multi-stage images from the repository and checks that the Nginx
+   image answers `/` and `/transactions`.
 
 See [`docs/decisions/INFRA-ci-workflow.md`](./docs/decisions/INFRA-ci-workflow.md).
 

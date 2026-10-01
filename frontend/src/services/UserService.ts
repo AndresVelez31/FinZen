@@ -8,11 +8,11 @@ export class UserService extends BaseService {
   private static readonly PATH = '/users';
 
   static async getAll(): Promise<UserInterface[]> {
-    return await this.httpGet<UserInterface[]>(this.PATH);
+    return await this.httpGet(this.PATH);
   }
 
   static async update(updateUserDTO: UpdateUserDTO): Promise<UserInterface> {
     const { id, ...userUpdates } = updateUserDTO;
-    return await this.httpPatch<UserInterface>(`${this.PATH}/${id}`, userUpdates);
+    return await this.httpPatch(`${this.PATH}/${id}`, userUpdates);
   }
 }

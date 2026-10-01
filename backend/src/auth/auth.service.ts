@@ -15,7 +15,7 @@ export class AuthService {
     private readonly tokenService: TokenService,
   ) {}
 
-  // A short-lived access token plus a single-use refresh token.
+  // Returns the access token the SPA sends in the Authorization header.
   async signIn(loginDto: LoginDto): Promise<TokenPair> {
     const user = await this.verifyCredentials(loginDto);
     if (!user) {
@@ -29,16 +29,6 @@ export class AuthService {
       method: 'password',
       claims: { amr: ['pwd'] },
     });
-  }
-
-  // Spends the refresh token and returns a new pair; an unknown, expired or
-  // reused token is answered with 401 by the package.
-  async refresh(refreshToken: string): Promise<TokenPair> {
-    return await this.tokenService.refresh(refreshToken ?? '');
-  }
-
-  async revoke(refreshToken: string): Promise<void> {
-    await this.tokenService.revoke(refreshToken ?? '');
   }
 
   // The user without the password hash, or null when the email or the

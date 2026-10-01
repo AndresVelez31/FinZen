@@ -75,12 +75,7 @@ async function handleLogout(): Promise<void> {
     return;
   }
 
-  try {
-    await AuthService.logout();
-  } catch {
-    // The local session is already closed; a failed revoke only leaves an
-    // unused refresh token in the API until it expires.
-  }
+  AuthService.logout();
 }
 
 // Watchers

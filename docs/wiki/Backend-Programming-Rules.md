@@ -53,8 +53,8 @@ number.
 18. Passwords are stored only as scrypt hashes made by `PasswordHasher`; the password column is
     `select: false` and only `UsersService.findCredentials()` reads the hash, apart from the user.
     The same message answers a wrong email and a wrong password.
-19. Sign-in returns a 15-minute access token and a single-use refresh token (`TokenService`);
-    `POST /auth/token/refresh` rotates it and `POST /auth/token/revoke` signs out.
+19. `POST /auth/token` signs in and returns an access token of 8 hours (`TokenService`); the
+    SPA signs out by deleting it.
 
 ## Configuration
 

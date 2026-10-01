@@ -1,8 +1,8 @@
 # Dependencies
 /node_modules
 
-# dist/ is intentionally tracked: the Dockerfile copies the pre-built dist/
-# straight into the image (Tutorial 08), so the VM never needs to build it.
+# Compiled output (built inside the Docker image)
+/dist
 
 # SQLite database (created on first start)
 *.sqlite

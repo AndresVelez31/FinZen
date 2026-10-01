@@ -12,20 +12,20 @@ export class TransactionService extends BaseService {
 
   // The API returns them newest first (by date).
   static async getAll(): Promise<TransactionInterface[]> {
-    return await this.httpGet<TransactionInterface[]>(this.PATH);
+    return await this.httpGet(this.PATH);
   }
 
   static async getById(id: number): Promise<TransactionInterface> {
-    return await this.httpGet<TransactionInterface>(`${this.PATH}/${id}`);
+    return await this.httpGet(`${this.PATH}/${id}`);
   }
 
   static async create(createTransactionDTO: CreateTransactionDTO): Promise<TransactionInterface> {
-    return await this.httpPost<TransactionInterface>(this.PATH, createTransactionDTO);
+    return await this.httpPost(this.PATH, createTransactionDTO);
   }
 
   static async update(updateTransactionDTO: UpdateTransactionDTO): Promise<TransactionInterface> {
     const { id, ...transactionUpdates } = updateTransactionDTO;
-    return await this.httpPatch<TransactionInterface>(`${this.PATH}/${id}`, transactionUpdates);
+    return await this.httpPatch(`${this.PATH}/${id}`, transactionUpdates);
   }
 
   static async delete(id: number): Promise<void> {
