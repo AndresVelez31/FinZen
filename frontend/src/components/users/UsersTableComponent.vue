@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { Inbox, ShieldCheck, User } from 'lucide-vue-next';
 import EmptyState from '@/components/shared/EmptyStateComponent.vue';
-import { Formatters } from '@/utils/FormattersUtil.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
+import { Formatters } from '@/utils/FormattersUtil.js';
 
+// Props
 const props = withDefaults(
   defineProps<{
     users: UserInterface[];
@@ -14,6 +15,7 @@ const props = withDefaults(
   },
 );
 
+// Emits
 const emit = defineEmits<{
   changeRole: [user: UserInterface];
   toggleActive: [user: UserInterface];

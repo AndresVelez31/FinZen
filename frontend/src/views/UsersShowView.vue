@@ -1,80 +1,99 @@
 <script setup lang="ts">
-// Imports
-import { ref, computed } from 'vue';
 import { ShieldCheck, Users as UsersIcon } from 'lucide-vue-next';
-import UsersTable from '@/components/users/UsersTableComponent.vue';
+import Swal from 'sweetalert2';
+import { computed, onMounted, ref } from 'vue';
 import SelectorFilter from '@/components/shared/SelectorFilterComponent.vue';
 import StatCard from '@/components/shared/StatCardComponent.vue';
-import { UserService } from '@/services/UserService.js';
-import { AuthService } from '@/services/AuthService.js';
+import UsersTable from '@/components/users/UsersTableComponent.vue';
+import type { UpdateUserDTO } from '@/dtos/UpdateUserDTO.js';
+import { USER_ROLE_OPTIONS } from '@/enums/constants.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
+import { AuthService } from '@/services/AuthService.js';
+import { UserService } from '@/services/UserService.js';
 
 // State
+const users = ref<UserInterface[]>([]);
 const filterRole = ref('');
-const roleOptions = [
-  { value: 'admin', label: 'Administrador' },
-  { value: 'user', label: 'Usuario' },
-];
 
 // Computed
 const currentUser = computed(() => AuthService.getCurrentUser());
 
-const rows = computed(() =>
-  UserService.getAll().filter((user) => (filterRole.value ? user.role === filterRole.value : true)),
+const filteredUsers = computed(() =>
+  filterRole.value ? users.value.filter((user) => user.role === filterRole.value) : users.value,
 );
 
-const stats = computed(() => {
-  const users = UserService.getAll();
-  return {
-    total: users.length,
-    admins: users.filter((user) => user.role === 'admin').length,
-  };
-});
+const stats = computed(() => ({
+  total: users.value.length,
+  admins: users.value.filter((user) => user.role === 'admin').length,
+}));
 
 // Actions
-async function changeRole(user: UserInterface): Promise<void> {
-  const newRole = user.role === 'admin' ? 'user' : 'admin';
-  const Swal = (await import('sweetalert2')).default;
-
+async function confirmAction(
+  title: string,
+  text: string,
+  confirmButtonText: string,
+): Promise<boolean> {
   const result = await Swal.fire({
-    title: '¿Cambiar rol?',
-    text: `¿Desea cambiar el rol de ${user.name}?`,
+    title,
+    text,
     icon: 'question',
     showCancelButton: true,
-    confirmButtonText: 'Cambiar',
+    confirmButtonText,
     cancelButtonText: 'Cancelar',
     confirmButtonColor: '#10b981',
     cancelButtonColor: '#94a3b8',
   });
+  return result.isConfirmed;
+}
 
-  if (!result.isConfirmed) {
-    return;
+async function saveUser(updateUserDTO: UpdateUserDTO): Promise<void> {
+  try {
+    const updatedUser = await UserService.update(updateUserDTO);
+    users.value = users.value.map((user) => (user.id === updatedUser.id ? updatedUser : user));
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudo actualizar el usuario',
+      text: (error as Error).message,
+      icon: 'error',
+    });
   }
+}
 
-  UserService.updateRole(user.id, newRole);
+async function changeRole(user: UserInterface): Promise<void> {
+  const confirmed = await confirmAction(
+    '¿Cambiar rol?',
+    `¿Desea cambiar el rol de ${user.name}?`,
+    'Cambiar',
+  );
+  if (confirmed) {
+    await saveUser({ id: user.id, role: user.role === 'admin' ? 'user' : 'admin' });
+  }
 }
 
 async function toggleActive(user: UserInterface): Promise<void> {
-  const action = user.active ? 'desactivar' : 'activar';
-  const Swal = (await import('sweetalert2')).default;
-
-  const result = await Swal.fire({
-    title: `¿${action.charAt(0).toUpperCase() + action.slice(1)} usuario?`,
-    text: `¿Desea ${action} al usuario ${user.name}?`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: action.charAt(0).toUpperCase() + action.slice(1),
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#10b981',
-    cancelButtonColor: '#94a3b8',
-  });
-
-  if (!result.isConfirmed) {
-    return;
+  const action = user.active ? 'Desactivar' : 'Activar';
+  const confirmed = await confirmAction(
+    `¿${action} usuario?`,
+    `¿Desea ${action.toLowerCase()} al usuario ${user.name}?`,
+    action,
+  );
+  if (confirmed) {
+    await saveUser({ id: user.id, active: !user.active });
   }
-
-  UserService.toggleActive(user.id);
 }
+
+// Lifecycle
+onMounted(async () => {
+  try {
+    users.value = await UserService.getAll();
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudieron cargar los usuarios',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+  }
+});
 </script>
 
 <template>
@@ -96,13 +115,13 @@ async function toggleActive(user: UserInterface): Promise<void> {
       <SelectorFilter
         label="Filtrar por rol"
         v-model="filterRole"
-        :options="roleOptions"
+        :options="USER_ROLE_OPTIONS"
         placeholder="Todos los roles"
       />
     </div>
 
     <UsersTable
-      :users="rows"
+      :users="filteredUsers"
       :current-user-id="currentUser?.id ?? null"
       @change-role="changeRole"
       @toggle-active="toggleActive"

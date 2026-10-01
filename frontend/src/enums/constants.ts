@@ -17,3 +17,8 @@ export const MONTH_OPTIONS: FilterOption[] = [
   { value: '11', label: 'Noviembre' },
   { value: '12', label: 'Diciembre' },
 ];
+
+export const USER_ROLE_OPTIONS: FilterOption[] = [
+  { value: 'admin', label: 'Administrador' },
+  { value: 'user', label: 'Usuario' },
+];
