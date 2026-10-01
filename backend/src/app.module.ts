@@ -6,6 +6,7 @@ import { ActivitiesModule } from './activities/activities.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { dataSourceOptions } from './database/data-source.js';
 import { HomeModule } from './home/home.module.js';
+import { TransactionsModule } from './transactions/transactions.module.js';
 import { UsersModule } from './users/users.module.js';
 
 @Module({
@@ -36,6 +37,7 @@ import { UsersModule } from './users/users.module.js';
     UsersModule,
     AccountsModule,
     ActivitiesModule,
+    TransactionsModule,
   ],
 })
 export class AppModule {}
