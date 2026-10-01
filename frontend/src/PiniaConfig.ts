@@ -5,10 +5,9 @@ import { accountSeeder } from '@/seeders/accountseeder.js';
 import { activitySeeder } from '@/seeders/activityseeder.js';
 import { transactionSeeder } from '@/seeders/transactionseeder.js';
 
-// Bumped from 'finzenState' when currentUserId moved out of the user store
-// and into its own auth store — a browser with the old shape simply starts
-// unauthenticated (log in again) instead of hydrating a stale/missing session.
-const STORAGE_KEY = 'finzenState.v2';
+// Bumped from 'finzenState.v2' when the session started keeping the access
+// token and the signed-in user returned by the API instead of a user id.
+const STORAGE_KEY = 'finzenState.v3';
 
 export default class PiniaConfig {
   public static init() {
@@ -20,7 +19,8 @@ export default class PiniaConfig {
     } else {
       pinia.state.value = {
         auth: {
-          currentUserId: null,
+          accessToken: null,
+          currentUser: null,
         },
         user: {
           users: userSeeder,

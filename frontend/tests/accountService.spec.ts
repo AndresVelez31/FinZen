@@ -35,7 +35,16 @@ const buildTransaction = (overrides: Partial<TransactionInterface>): Transaction
 describe('AccountService', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
-    useAuthStore().currentUserId = 1;
+    useAuthStore().currentUser = {
+      id: 1,
+      name: 'Admin',
+      role: 'admin',
+      email: 'admin@finzen.app',
+      password: '',
+      active: true,
+      createdAt: TIMESTAMP,
+      updatedAt: TIMESTAMP,
+    };
     useAccountStore().accounts = [
       buildAccount({}),
       buildAccount({ id: 20, name: 'Nequi', balance: 500 }),
