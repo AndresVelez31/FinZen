@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { ArrowRight, Plus, TrendingDown, TrendingUp, Wallet } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';

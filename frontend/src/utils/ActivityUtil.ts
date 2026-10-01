@@ -1,3 +1,4 @@
+// Imports
 import type { ActivityExpenseEntryInterface } from '@/interfaces/ActivityExpenseEntryInterface.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import type { ActivityProgressInterface } from '@/interfaces/ActivityProgressInterface.js';
@@ -7,6 +8,7 @@ import type { TransactionInterface } from '@/interfaces/TransactionInterface.js'
 import { DateRangeUtil } from '@/utils/DateRangeUtil.js';
 import { TransactionUtil } from '@/utils/TransactionUtil.js';
 
+// Exports
 // Aggregations over activities a view already loaded with ActivityService.
 export class ActivityUtil {
   /**

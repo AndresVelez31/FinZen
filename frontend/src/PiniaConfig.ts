@@ -1,3 +1,4 @@
+// Imports
 import { createPinia } from 'pinia';
 import { watch } from 'vue';
 
@@ -6,6 +7,7 @@ import { watch } from 'vue';
 // when the seeders and the entity stores were removed.
 const STORAGE_KEY = 'finzenState.v4';
 
+// Exports
 export default class PiniaConfig {
   public static init() {
     const pinia = createPinia();

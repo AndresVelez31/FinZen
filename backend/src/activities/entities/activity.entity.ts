@@ -1,3 +1,4 @@
+// Imports
 import {
   Column,
   CreateDateColumn,
@@ -13,6 +14,7 @@ import type { Relation } from 'typeorm';
 import { Transaction } from '../../transactions/entities/transaction.entity.js';
 import { User } from '../../users/entities/user.entity.js';
 
+// Exports
 @Entity()
 export class Activity {
   @PrimaryGeneratedColumn()

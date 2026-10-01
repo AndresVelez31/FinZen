@@ -1,5 +1,7 @@
+// Imports
 import type { FilterOptionInterface } from '@/interfaces/FilterOptionInterface.js';
 
+// Exports
 export const MONTH_OPTIONS: FilterOptionInterface[] = [
   { value: '01', label: 'Enero' },
   { value: '02', label: 'Febrero' },

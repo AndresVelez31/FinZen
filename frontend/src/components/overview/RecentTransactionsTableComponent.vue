@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { Inbox } from 'lucide-vue-next';
 import EmptyState from '@/components/shared/EmptyStateComponent.vue';
 import type { TransactionRowInterface } from '@/interfaces/TransactionRowInterface.js';

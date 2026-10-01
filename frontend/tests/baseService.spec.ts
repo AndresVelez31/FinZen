@@ -1,3 +1,4 @@
+// Imports
 import axios, { AxiosError, AxiosHeaders } from 'axios';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

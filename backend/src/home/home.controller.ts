@@ -1,6 +1,8 @@
+// Imports
 import { Controller, Get } from '@nestjs/common';
 import { Public } from '@nestjs/authentication';
 
+// Exports
 @Controller()
 export class HomeController {
   @Public()

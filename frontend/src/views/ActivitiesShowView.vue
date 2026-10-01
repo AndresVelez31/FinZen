@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import { Pencil, PiggyBank, Plus, Target, Trash2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';

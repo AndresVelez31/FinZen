@@ -1,3 +1,4 @@
+// Imports
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountsModule } from '../accounts/accounts.module.js';
@@ -6,6 +7,7 @@ import { Transaction } from './entities/transaction.entity.js';
 import { TransactionsController } from './transactions.controller.js';
 import { TransactionsService } from './transactions.service.js';
 
+// Exports
 @Module({
   imports: [TypeOrmModule.forFeature([Transaction]), AccountsModule, ActivitiesModule],
   controllers: [TransactionsController],

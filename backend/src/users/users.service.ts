@@ -1,3 +1,4 @@
+// Imports
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -5,6 +6,7 @@ import { UpdateUserDto } from './dto/update-user.dto.js';
 import { User } from './entities/user.entity.js';
 import { Role } from './enums/role.enum.js';
 
+// Exports
 // The password column is `select: false`: every method returns users without
 // it. Only findByEmailWithPassword() reads the hash, and only the sign-in uses it.
 @Injectable()

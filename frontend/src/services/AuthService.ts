@@ -1,9 +1,11 @@
+// Imports
 import type { LoginDTO } from '@/dtos/LoginDTO.js';
 import type { LoginResponseInterface } from '@/interfaces/LoginResponseInterface.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
 import { BaseService } from '@/services/BaseService.js';
 import { useAuthStore } from '@/stores/authstore.js';
 
+// Exports
 export class AuthService extends BaseService {
   private static readonly PATH = '/auth/token';
   private static readonly PROFILE_PATH = '/me';

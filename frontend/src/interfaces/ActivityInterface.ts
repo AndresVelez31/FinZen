@@ -1,3 +1,4 @@
+// Exports
 export interface ActivityInterface {
   id: number;
   name: string;
