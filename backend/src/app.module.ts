@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthenticationModule } from '@nestjs/authentication';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountsModule } from './accounts/accounts.module.js';
+import { ActivitiesModule } from './activities/activities.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { dataSourceOptions } from './database/data-source.js';
 import { HomeModule } from './home/home.module.js';
@@ -34,6 +35,7 @@ import { UsersModule } from './users/users.module.js';
     AuthModule,
     UsersModule,
     AccountsModule,
+    ActivitiesModule,
   ],
 })
 export class AppModule {}

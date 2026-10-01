@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import type { Relation } from 'typeorm';
 import { Account } from '../../accounts/entities/account.entity.js';
+import { Activity } from '../../activities/entities/activity.entity.js';
 import { Role } from '../enums/role.enum.js';
 
 @Entity()
@@ -39,4 +40,7 @@ export class User {
 
   @OneToMany(() => Account, (account) => account.user)
   accounts: Relation<Account[]>;
+
+  @OneToMany(() => Activity, (activity) => activity.user)
+  activities: Relation<Activity[]>;
 }
