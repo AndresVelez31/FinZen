@@ -1,0 +1,22 @@
+# Dependencies
+/node_modules
+
+# Compiled output (built inside the Docker image)
+/dist
+
+# SQLite database (created on first start)
+*.sqlite
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Tests
+/coverage
+
+# TypeScript incremental build info
+*.tsbuildinfo
