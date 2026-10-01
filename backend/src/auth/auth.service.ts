@@ -2,7 +2,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PasswordHasher, TokenService } from '@nestjs/authentication';
 import type { TokenPair } from '@nestjs/authentication';
-import type { CredentialsInterface } from '../users/interfaces/credentials.interface.js';
+import type { User } from '../users/entities/user.entity.js';
 import { UsersService } from '../users/users.service.js';
 import { LoginDto } from './dto/login.dto.js';
 
@@ -31,18 +31,12 @@ export class AuthService {
     });
   }
 
-  // The user without the password hash, or null when the email or the
-  // password is wrong. With no account, verify() checks a dummy hash, so the
-  // response takes the same time and does not reveal which emails exist.
-  private async verifyCredentials({
-    email,
-    password,
-  }: LoginDto): Promise<CredentialsInterface['user'] | null> {
-    const credentials = await this.usersService.findCredentials(email?.trim().toLowerCase() ?? '');
-    const passwordMatches = await this.passwordHasher.verify(
-      password ?? '',
-      credentials?.passwordHash,
-    );
-    return passwordMatches && credentials ? credentials.user : null;
+  // The user, or null when the email or the password is wrong. With no account,
+  // verify() checks a dummy hash, so the response takes the same time and does
+  // not reveal which emails exist.
+  private async verifyCredentials({ email, password }: LoginDto): Promise<User | null> {
+    const user = await this.usersService.findByEmailWithPassword(email?.trim().toLowerCase() ?? '');
+    const passwordMatches = await this.passwordHasher.verify(password ?? '', user?.password);
+    return passwordMatches ? user : null;
   }
 }

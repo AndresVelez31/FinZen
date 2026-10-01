@@ -43,7 +43,8 @@ must keep a migration history.
   the user with `@CurrentUser()`. `@Public()` opens a route; roles are not part of the package, so
   `@Roles(Role.Admin)` + `RolesGuard` (an `APP_GUARD` that runs after it) stay.
   `GET /me` returns the signed-in user. The password column is `select: false` and
-  `UsersService.findCredentials()` returns the hash apart from the user, so no endpoint can leak it.
+  only `UsersService.findByEmailWithPassword()` reads it, for the sign-in, which returns a token
+  and never the user, so no endpoint can leak it. The back-end has no `interfaces/` folder.
 - Only what the course and the linked guide show is used: no refresh-token rotation, no
   automatic renewal and no `declare module` typing. `TokenService.issue()` still starts a
   refresh token, kept in memory (`allowInMemoryStorage: true`), which the SPA ignores; when the

@@ -5,11 +5,10 @@ import { Repository } from 'typeorm';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import { User } from './entities/user.entity.js';
 import { Role } from './enums/role.enum.js';
-import type { CredentialsInterface } from './interfaces/credentials.interface.js';
 
 // Exports
 // The password column is `select: false`: every method returns users without
-// it, and only findCredentials() reads the hash, for the sign-in.
+// it. Only findByEmailWithPassword() reads the hash, and only the sign-in uses it.
 @Injectable()
 export class UsersService {
   constructor(
@@ -34,8 +33,9 @@ export class UsersService {
     return await this.usersRepository.findOneBy({ id, active: true });
   }
 
-  async findCredentials(email: string): Promise<CredentialsInterface | null> {
-    const row = await this.usersRepository.findOne({
+  // For the sign-in only: AuthService compares the hash and never returns this user.
+  async findByEmailWithPassword(email: string): Promise<User | null> {
+    return await this.usersRepository.findOne({
       where: { email },
       select: {
         id: true,
@@ -48,12 +48,6 @@ export class UsersService {
         updatedAt: true,
       },
     });
-    if (!row) {
-      return null;
-    }
-
-    const { password: passwordHash, ...user } = row;
-    return { user, passwordHash };
   }
 
   async update(id: number, updateUserDto: UpdateUserDto, currentUserId: number): Promise<User> {

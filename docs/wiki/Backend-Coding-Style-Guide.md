@@ -25,7 +25,6 @@ returned.
 | Service | `accounts.service.ts` | `AccountsService` |
 | Entity | `entities/account.entity.ts` | `Account` (singular) |
 | DTO | `dto/create-account.dto.ts` | `CreateAccountDto` |
-| Interface | `interfaces/credentials.interface.ts` | `CredentialsInterface` |
 | Credential provider | `jwt-auth.provider.ts` | `JwtAuthProvider` |
 | Guard / decorator | `roles.guard.ts`, `decorators/roles.decorator.ts` | `RolesGuard`, `Roles` |
 | Enum | `enums/role.enum.ts` | `Role` |
