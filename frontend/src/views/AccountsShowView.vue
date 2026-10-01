@@ -1,21 +1,31 @@
 <script setup lang="ts">
-// Imports
-import { computed } from 'vue';
-import { Plus, Pencil, Trash2, Wallet } from 'lucide-vue-next';
+import { Pencil, Plus, Trash2, Wallet } from 'lucide-vue-next';
+import Swal from 'sweetalert2';
+import { onMounted, ref } from 'vue';
+import type { AccountInterface } from '@/interfaces/AccountInterface.js';
+import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 import { AccountService } from '@/services/AccountService.js';
-import { Formatters } from '@/utils/FormattersUtil.js';
+import { TransactionService } from '@/services/TransactionService.js';
+import { AccountUtil } from '@/utils/AccountUtil.js';
+import { FormattersUtil } from '@/utils/FormattersUtil.js';
 
-// Computed
-const accounts = computed(() => AccountService.getAll());
+// State
+const accounts = ref<AccountInterface[]>([]);
+const transactions = ref<TransactionInterface[]>([]);
+const loading = ref(true);
 
 // Actions
-function getBalance(id: number): number {
-  return AccountService.getBalance(id);
+function getBalance(account: AccountInterface): number {
+  return AccountUtil.getBalance(account, transactions.value);
+}
+
+async function loadAccounts(): Promise<void> {
+  accounts.value = await AccountService.getAll();
+  transactions.value = await TransactionService.getAll();
+  loading.value = false;
 }
 
 async function deleteAccount(id: number): Promise<void> {
-  const Swal = (await import('sweetalert2')).default;
-
   const result = await Swal.fire({
     title: '¿Eliminar cuenta?',
     text: 'También se eliminarán las transacciones asociadas.',
@@ -31,9 +41,31 @@ async function deleteAccount(id: number): Promise<void> {
     return;
   }
 
-  AccountService.delete(id);
-  await Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
+  try {
+    await AccountService.delete(id);
+    await loadAccounts();
+    await Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudo eliminar la cuenta',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+  }
 }
+
+// Lifecycle
+onMounted(async () => {
+  try {
+    await loadAccounts();
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudieron cargar las cuentas',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+  }
+});
 </script>
 
 <template>
@@ -100,7 +132,7 @@ async function deleteAccount(id: number): Promise<void> {
           </span>
 
           <strong>
-            {{ Formatters.formatToCOP(getBalance(account.id)) }}
+            {{ FormattersUtil.formatToCOP(getBalance(account)) }}
           </strong>
         </div>
 
@@ -112,7 +144,7 @@ async function deleteAccount(id: number): Promise<void> {
       </article>
     </div>
 
-    <div v-else class="card empty-state">
+    <div v-else-if="!loading" class="card empty-state">
       <div class="empty-icon">
         <Wallet :size="26" />
       </div>

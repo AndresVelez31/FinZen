@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Component } from 'vue';
 
+// Props
 const props = withDefaults(
   defineProps<{
     title: string;

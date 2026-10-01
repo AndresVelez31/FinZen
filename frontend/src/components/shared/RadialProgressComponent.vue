@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import VueApexCharts from 'vue3-apexcharts';
+// Reusable ApexCharts radial-bar wrapper without domain dependencies. Used
+// where a gauge-style progress indicator communicates better than a
+// Chart.js chart (e.g. savings goal completion).
+
 import type { ApexOptions } from 'apexcharts';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
+import VueApexCharts from 'vue3-apexcharts';
 
-/**
- * Reusable ApexCharts radial-bar wrapper without domain dependencies.
- * Used where a gauge-style progress indicator communicates better than
- * a Chart.js chart (e.g. savings goal completion).
- */
-
+// Props
 const props = withDefaults(
   defineProps<{
     value: number;
@@ -22,24 +21,11 @@ const props = withDefaults(
   },
 );
 
+// State
 const isDark = ref(document.documentElement.classList.contains('dark'));
 let themeObserver: MutationObserver | null = null;
 
-onMounted(() => {
-  themeObserver = new MutationObserver(() => {
-    isDark.value = document.documentElement.classList.contains('dark');
-  });
-  themeObserver.observe(document.documentElement, {
-    attributes: true,
-    attributeFilter: ['class'],
-  });
-});
-
-onUnmounted(() => {
-  themeObserver?.disconnect();
-  themeObserver = null;
-});
-
+// Computed
 const series = computed(() => [Math.min(100, Math.max(0, props.value))]);
 
 const options = computed<ApexOptions>(() => ({
@@ -64,6 +50,22 @@ const options = computed<ApexOptions>(() => ({
     },
   },
 }));
+
+// Lifecycle
+onMounted(() => {
+  themeObserver = new MutationObserver(() => {
+    isDark.value = document.documentElement.classList.contains('dark');
+  });
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class'],
+  });
+});
+
+onUnmounted(() => {
+  themeObserver?.disconnect();
+  themeObserver = null;
+});
 </script>
 
 <template>

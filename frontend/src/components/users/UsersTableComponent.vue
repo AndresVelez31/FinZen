@@ -2,7 +2,7 @@
 import { Inbox, ShieldCheck, User } from 'lucide-vue-next';
 import EmptyState from '@/components/shared/EmptyStateComponent.vue';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
-import { Formatters } from '@/utils/FormattersUtil.js';
+import { FormattersUtil } from '@/utils/FormattersUtil.js';
 
 // Props
 const props = withDefaults(
@@ -42,7 +42,7 @@ const emit = defineEmits<{
             <td>
               <div class="u">
                 <span class="u-avatar" :class="{ admin: user.role === 'admin' }">
-                  {{ Formatters.initials(user.name) }}
+                  {{ FormattersUtil.initials(user.name) }}
                 </span>
                 <div class="u-name">
                   {{ user.name }}
@@ -62,7 +62,7 @@ const emit = defineEmits<{
                 {{ user.active ? 'Activo' : 'Inactivo' }}
               </span>
             </td>
-            <td>{{ Formatters.formatDate(user.createdAt) }}</td>
+            <td>{{ FormattersUtil.formatDate(user.createdAt) }}</td>
             <td style="text-align: right">
               <div class="row-actions">
                 <div class="user-actions">
