@@ -1,57 +1,56 @@
+import type { LoginDTO } from '@/dtos/LoginDTO.js';
+import type { LoginResponseInterface } from '@/interfaces/LoginResponseInterface.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
-import { useUserStore } from '@/stores/userstore.js';
+import { BaseService } from '@/services/BaseService.js';
 import { useAuthStore } from '@/stores/authstore.js';
 
-export class AuthService {
-  static login(
-    email: string,
-    password: string,
-  ): { ok: true; user: UserInterface } | { ok: false; error: string } {
-    const cleanEmail = email.trim().toLowerCase();
-    const user = useUserStore().users.find(
-      (existingUser) => existingUser.email.toLowerCase() === cleanEmail,
-    );
+export class AuthService extends BaseService {
+  private static readonly PATH = '/auth/token';
+  private static readonly PROFILE_PATH = '/me';
 
-    if (!user || user.password !== password) {
-      return { ok: false, error: 'Credenciales inválidas.' };
-    }
+  // API calls
 
-    if (!user.active) {
-      return { ok: false, error: 'Tu cuenta se encuentra inactiva.' };
-    }
+  // Gets the access token, then the signed-in user with that token.
+  static async login(loginDTO: LoginDTO): Promise<UserInterface> {
+    const loginResponse: LoginResponseInterface = await this.httpPost(this.PATH, {
+      email: loginDTO.email.trim().toLowerCase(),
+      password: loginDTO.password,
+    });
 
-    useAuthStore().currentUserId = user.id;
-    return { ok: true, user };
+    const authStore = useAuthStore();
+    authStore.accessToken = loginResponse.accessToken;
+    const currentUser: UserInterface = await this.httpGet(this.PROFILE_PATH);
+    authStore.currentUser = currentUser;
+
+    return currentUser;
   }
+
+  // Session
 
   static logout(): void {
-    useAuthStore().currentUserId = null;
+    this.clearSession();
   }
 
+  // The services that still read the local stores check ownership with these
+  // two methods until they move to the API (#120).
   static getCurrentUserId(): number | null {
-    return useAuthStore().currentUserId;
-  }
-
-  static getCurrentUser(): UserInterface | undefined {
-    const currentUserId = AuthService.getCurrentUserId();
-
-    if (currentUserId === null) {
-      return undefined;
-    }
-
-    return useUserStore().users.find((user) => user.id === currentUserId);
+    return useAuthStore().currentUser?.id ?? null;
   }
 
   static isOwner(resourceUserId: number): boolean {
-    const currentUserId = AuthService.getCurrentUserId();
-    return currentUserId !== null && resourceUserId === currentUserId;
+    return this.getCurrentUserId() === resourceUserId;
+  }
+
+  static getCurrentUser(): UserInterface | null {
+    return useAuthStore().currentUser;
   }
 
   static isAuthenticated(): boolean {
-    return AuthService.getCurrentUser() !== undefined;
+    const authStore = useAuthStore();
+    return authStore.accessToken !== null && authStore.currentUser !== null;
   }
 
   static isAdmin(): boolean {
-    return AuthService.getCurrentUser()?.role === 'admin';
+    return this.getCurrentUser()?.role === 'admin';
   }
 }

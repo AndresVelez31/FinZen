@@ -1,62 +1,82 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import axios, { AxiosError, AxiosHeaders } from 'axios';
 import { createPinia, setActivePinia } from 'pinia';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
 import { AuthService } from '@/services/AuthService.js';
-import { useUserStore } from '@/stores/userstore.js';
+import { useAuthStore } from '@/stores/authstore.js';
 
-const buildUser = (overrides: Partial<UserInterface>): UserInterface => ({
+const ADMIN: UserInterface = {
   id: 1,
   name: 'Admin FinZen',
   role: 'admin',
   email: 'admin@finzen.app',
-  password: 'admin123',
+  password: '',
   active: true,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
-  ...overrides,
-});
+};
+
+const TOKENS = { accessToken: 'access-1', refreshToken: 'refresh-1', expiresIn: 28800 };
+
+function buildHttpError(status: number, message: string): AxiosError {
+  const config = { headers: new AxiosHeaders() };
+  return new AxiosError(message, String(status), config, null, {
+    status,
+    statusText: '',
+    headers: {},
+    config,
+    data: { message },
+  });
+}
 
 describe('AuthService', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
-    useUserStore().users = [
-      buildUser({}),
-      buildUser({ id: 2, role: 'user', email: 'user@finzen.app', password: 'user123' }),
-      buildUser({ id: 3, role: 'user', email: 'inactive@finzen.app', active: false }),
-    ];
   });
 
-  it('logs in with a case-insensitive, trimmed email', () => {
-    const result = AuthService.login('  ADMIN@finzen.app ', 'admin123');
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
-    expect(result.ok).toBe(true);
-    expect(AuthService.getCurrentUserId()).toBe(1);
+  it('gets the token with a trimmed, lower-case email and then the signed-in user', async () => {
+    const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: TOKENS });
+    const get = vi.spyOn(axios, 'get').mockResolvedValue({ data: ADMIN });
+
+    const user = await AuthService.login({ email: '  ADMIN@finzen.app ', password: 'admin123' });
+
+    expect(post).toHaveBeenCalledWith(
+      expect.stringContaining('/api/auth/token'),
+      { email: 'admin@finzen.app', password: 'admin123' },
+      {},
+    );
+    expect(get).toHaveBeenCalledWith(expect.stringContaining('/api/me'), {
+      headers: { Authorization: 'Bearer access-1' },
+    });
+    expect(user).toEqual(ADMIN);
     expect(AuthService.isAuthenticated()).toBe(true);
     expect(AuthService.isAdmin()).toBe(true);
   });
 
-  it('rejects a wrong password without opening a session', () => {
-    const result = AuthService.login('admin@finzen.app', 'wrong');
+  it('rejects with the API message and does not open a session', async () => {
+    vi.spyOn(axios, 'post').mockRejectedValue(buildHttpError(401, 'Credenciales inválidas.'));
 
-    expect(result).toEqual({ ok: false, error: 'Credenciales inválidas.' });
+    await expect(
+      AuthService.login({ email: 'admin@finzen.app', password: 'wrong' }),
+    ).rejects.toThrow('Credenciales inválidas.');
     expect(AuthService.isAuthenticated()).toBe(false);
   });
 
-  it('rejects inactive users', () => {
-    const result = AuthService.login('inactive@finzen.app', 'admin123');
+  it('clears the session on logout', () => {
+    const authStore = useAuthStore();
+    authStore.accessToken = 'access-1';
+    authStore.currentUser = { ...ADMIN, role: 'user' };
 
-    expect(result).toEqual({ ok: false, error: 'Tu cuenta se encuentra inactiva.' });
-  });
-
-  it('checks ownership against the current session and clears it on logout', () => {
-    AuthService.login('user@finzen.app', 'user123');
-
-    expect(AuthService.isOwner(2)).toBe(true);
-    expect(AuthService.isOwner(1)).toBe(false);
+    expect(AuthService.isAuthenticated()).toBe(true);
     expect(AuthService.isAdmin()).toBe(false);
 
     AuthService.logout();
 
-    expect(AuthService.isOwner(2)).toBe(false);
+    expect(AuthService.isAuthenticated()).toBe(false);
+    expect(AuthService.getCurrentUser()).toBeNull();
   });
 });
