@@ -158,6 +158,15 @@ Do not use `[CODE-NN] Issue Title` as the PR title — that duplicates the linke
 
 ---
 
+## Issue and Pull Request Templates
+
+Every issue and Pull Request uses the templates in `.github/`, so they all have the same structure:
+
+- **Issues:** choose *Feature / task* or *Bug* when creating one (blank issues are disabled). Fill the description, the acceptance criteria, the area and the size, and after creating it put its number in the title: `[CODE-NN] ...`.
+- **Pull Requests:** the description starts with `Closes #` and the sections *Summary*, *What changed*, *How this was validated* and *Notes* (optional). Write the issue number after `Closes #` so it closes on merge; the acceptance criteria stay in the issue.
+
+---
+
 ## Fundamental Architectural Rule
 
 > **A new feature must adapt to the existing architecture.
