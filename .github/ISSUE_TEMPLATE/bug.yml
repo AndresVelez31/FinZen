@@ -1,0 +1,62 @@
+name: Bug
+description: Something does not work as expected.
+title: "[FIX-NN] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Title:** `[FIX-NN] Short description of the problem`. `NN` is this issue's number: edit the title after creating it.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Where and how it was found, and what is wrong. Use a numbered list if there are several problems, and link related issues or PRs.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      value: |
+        1. 
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include the error message, the console output or a screenshot.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: How we will know it is fixed.
+      value: |
+        - [ ] 
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Back-end
+        - Front-end
+        - Back-end and front-end
+        - Infrastructure / CI
+    validations:
+      required: true
+  - type: input
+    id: branch
+    attributes:
+      label: Branch
+      description: "fix/<NN>-<short-description>"

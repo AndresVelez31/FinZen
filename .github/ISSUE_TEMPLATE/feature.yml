@@ -1,0 +1,64 @@
+name: Feature / task
+description: New functionality, refactor, documentation or maintenance work.
+title: "[CODE-NN] "
+labels: ["feature"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Title:** `[CODE-NN] Imperative description`. `CODE` is the area in capitals (`BACKEND`, `AUTH`, `USERS`, `SERVICE`, `DOCS`...) and `NN` is this issue's number: edit the title after creating it.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What is needed and why (deliverable item, teacher feedback, something found while working). Use a numbered list if there are several points.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Concrete and verifiable, naming files, methods or routes.
+      value: |
+        - [ ] 
+    validations:
+      required: true
+  - type: textarea
+    id: out-of-scope
+    attributes:
+      label: Out of scope
+      description: Optional. What this issue deliberately does not include.
+  - type: input
+    id: decision
+    attributes:
+      label: Decision record
+      description: Optional. Path of the related record, e.g. docs/decisions/AUTH-118-....md
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Back-end
+        - Front-end
+        - Back-end and front-end
+        - Infrastructure / CI
+        - Documentation
+    validations:
+      required: true
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size
+      options:
+        - XS
+        - S
+        - M
+        - L
+        - XL
+    validations:
+      required: true
+  - type: input
+    id: branch
+    attributes:
+      label: Branch
+      description: "<type>/<code>-<NN>-<short-description>, e.g. feature/accounts-126-accounts-module"

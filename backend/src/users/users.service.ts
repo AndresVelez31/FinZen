@@ -1,9 +1,12 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { UpdateUserDto } from './dto/update-user.dto.js';
+import type { UpdateUserDto } from './dto/update-user.dto.js';
 import { User } from './entities/user.entity.js';
-import { Role } from './enums/role.enum.js';
 
 // The password column is `select: false`: every method returns users without
 // it. Only findByEmailWithPassword() reads the hash, and only the sign-in uses it.
@@ -20,9 +23,11 @@ export class UsersService {
 
   async findOne(id: number): Promise<User> {
     const user = await this.usersRepository.findOneBy({ id });
+
     if (!user) {
       throw new NotFoundException('El usuario no existe.');
     }
+
     return user;
   }
 
@@ -48,25 +53,24 @@ export class UsersService {
     });
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto, currentUserId: number): Promise<User> {
+  async update(
+    id: number,
+    updateUserDto: UpdateUserDto,
+    currentUserId: number,
+  ): Promise<User> {
     if (id === currentUserId) {
-      throw new BadRequestException('No puedes modificar tu propio usuario.');
+      throw new BadRequestException(
+        'No puedes modificar tu propia cuenta.',
+      );
     }
 
-    const user = await this.findOne(id);
+    const user = await this.usersRepository.preload({
+      id,
+      ...updateUserDto,
+    });
 
-    if (updateUserDto.role !== undefined) {
-      if (!Object.values(Role).includes(updateUserDto.role)) {
-        throw new BadRequestException('El rol no es válido.');
-      }
-      user.role = updateUserDto.role;
-    }
-
-    if (updateUserDto.active !== undefined) {
-      if (typeof updateUserDto.active !== 'boolean') {
-        throw new BadRequestException('El estado del usuario no es válido.');
-      }
-      user.active = updateUserDto.active;
+    if (!user) {
+      throw new NotFoundException('El usuario no existe.');
     }
 
     return await this.usersRepository.save(user);
