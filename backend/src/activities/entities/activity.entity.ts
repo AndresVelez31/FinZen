@@ -4,11 +4,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   RelationId,
   UpdateDateColumn,
 } from 'typeorm';
 import type { Relation } from 'typeorm';
+import { Transaction } from '../../transactions/entities/transaction.entity.js';
 import { User } from '../../users/entities/user.entity.js';
 
 @Entity()
@@ -40,4 +42,7 @@ export class Activity {
 
   @RelationId((activity: Activity) => activity.user)
   userId: number;
+
+  @OneToMany(() => Transaction, (transaction) => transaction.activity)
+  transactions: Relation<Transaction[]>;
 }
