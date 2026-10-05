@@ -1,6 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import type { UpdateUserDto } from './dto/update-user.dto.js';
 import { User } from './entities/user.entity.js';
 
 // The password column is `select: false`: every method returns users without
@@ -18,9 +23,11 @@ export class UsersService {
 
   async findOne(id: number): Promise<User> {
     const user = await this.usersRepository.findOneBy({ id });
+
     if (!user) {
       throw new NotFoundException('El usuario no existe.');
     }
+
     return user;
   }
 
@@ -44,5 +51,28 @@ export class UsersService {
         updatedAt: true,
       },
     });
+  }
+
+  async update(
+    id: number,
+    updateUserDto: UpdateUserDto,
+    currentUserId: number,
+  ): Promise<User> {
+    if (id === currentUserId) {
+      throw new BadRequestException(
+        'No puedes modificar tu propia cuenta.',
+      );
+    }
+
+    const user = await this.usersRepository.preload({
+      id,
+      ...updateUserDto,
+    });
+
+    if (!user) {
+      throw new NotFoundException('El usuario no existe.');
+    }
+
+    return await this.usersRepository.save(user);
   }
 }
