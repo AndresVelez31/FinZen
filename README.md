@@ -270,7 +270,7 @@ On the VM, replace `YOUR_VM_IP` in [`deploy.sh`](./deploy.sh) with its external 
 
 ```bash
 cp .env.example .env    # set JWT_SECRET
-./deploy.sh             # exports VITE_API_BASE_URL and CORS_ORIGIN, then docker compose up -d --build
+bash deploy.sh          # exports VITE_API_BASE_URL and CORS_ORIGIN, then docker compose up -d --build
 ```
 
 `VITE_API_BASE_URL` is passed as a build argument because Vite embeds it in the bundle.
