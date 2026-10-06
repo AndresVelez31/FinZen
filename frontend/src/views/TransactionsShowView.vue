@@ -50,7 +50,7 @@ const filterTo = ref('');
 
 // Computed
 const filteredTransactions = computed(() =>
-  TransactionUtil.filter(transactions.value, {
+  TransactionUtil.filterByCriteria(transactions.value, {
     activityId: filterActivity.value ? Number(filterActivity.value) : undefined,
     accountId: filterAccount.value ? Number(filterAccount.value) : undefined,
     type: filterType.value || undefined,
@@ -61,7 +61,11 @@ const filteredTransactions = computed(() =>
 );
 
 const filteredRows = computed<TransactionRowInterface[]>(() =>
-  TransactionUtil.getRows(filteredTransactions.value, accounts.value, activities.value),
+  TransactionUtil.attachAccountAndActivity(
+    filteredTransactions.value,
+    accounts.value,
+    activities.value,
+  ),
 );
 
 const activeFilters = computed(
@@ -78,7 +82,7 @@ const activeFilters = computed(
 
 // Bar chart: expense by activity for the filtered set
 const barChart = computed(() => {
-  const entries = TransactionUtil.aggregateExpensesByActivity(
+  const entries = TransactionUtil.groupExpensesByActivity(
     filteredTransactions.value,
     activities.value,
   );
@@ -99,7 +103,7 @@ const barChart = computed(() => {
 const hasBarChart = computed(() => barChart.value.labels.length > 0);
 
 const totals = computed(() => {
-  const summary = TransactionUtil.summarize(filteredTransactions.value);
+  const summary = TransactionUtil.summarizeIncomeAndExpense(filteredTransactions.value);
   return { income: summary.totalIncome, expense: summary.totalExpense };
 });
 

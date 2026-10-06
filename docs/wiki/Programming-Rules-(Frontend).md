@@ -42,7 +42,9 @@ The back-end rules are in [Programming Rules (Backend)](Programming-Rules-(Backe
 14. DTOs are derived from interfaces with `Omit`, `Pick` and `Partial`, never redeclared.
 15. Fixed option lists and shared constants go in `src/enums/constants.ts`.
 16. Utils are pure classes named `<Name>Util`: no stores, no API, no side effects. Their methods
-    are `public static` (or `private static` for internal helpers).
+    are `public static` (or `private static` for internal helpers) and start with a verb that says
+    what they do (`calculate`, `sum`, `filter`, `build`, `extract`...), never `get`
+    (`AccountUtil.calculateBalance`, not `getBalance`).
 
 ## Components (`src/components/`)
 

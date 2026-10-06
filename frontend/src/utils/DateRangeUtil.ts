@@ -4,7 +4,7 @@ export class DateRangeUtil {
    * Returns the first and last day of the given month as ISO date strings
    * (YYYY-MM-DD).
    */
-  public static ofMonth(
+  public static buildMonthRange(
     year: string | number,
     month: string | number,
   ): { start: string; end: string } {
@@ -22,16 +22,16 @@ export class DateRangeUtil {
    * regardless of today's date. Includes dates later in the month that
    * haven't happened yet.
    */
-  public static currentMonthFull(): { start: string; end: string } {
+  public static buildCurrentMonthRange(): { start: string; end: string } {
     const now = new Date();
-    return this.ofMonth(now.getFullYear(), now.getMonth() + 1);
+    return this.buildMonthRange(now.getFullYear(), now.getMonth() + 1);
   }
 
   /**
    * The current calendar month up to today: day 1 through today's date,
    * not the end of the month.
    */
-  public static currentMonthToDate(): { start: string; end: string } {
+  public static buildMonthToDateRange(): { start: string; end: string } {
     const now = new Date();
     const paddedMonth = String(now.getMonth() + 1).padStart(2, '0');
 

@@ -37,7 +37,7 @@ export class AuthService {
   // verify() checks a dummy hash, so the response takes the same time and does
   // not reveal which emails exist.
   private async verifyCredentials({ email, password }: LoginDto): Promise<User | null> {
-    const user = await this.usersService.findByEmailWithPassword(email?.trim().toLowerCase() ?? '');
+    const user = await this.usersService.findCredentialsByEmail(email?.trim().toLowerCase() ?? '');
     const passwordMatches = await this.passwordHasher.verify(password ?? '', user?.password);
     return passwordMatches ? user : null;
   }

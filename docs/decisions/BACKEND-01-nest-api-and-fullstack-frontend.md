@@ -43,7 +43,7 @@ must keep a migration history.
   the user with `@CurrentUser()`. `@Public()` opens a route; roles are not part of the package, so
   `@Roles(Role.Admin)` + `RolesGuard` (an `APP_GUARD` that runs after it) stay.
   `GET /me` returns the signed-in user. The password column is `select: false` and
-  only `UsersService.findByEmailWithPassword()` reads it, for the sign-in, which returns a token
+  only `UsersService.findCredentialsByEmail()` reads it, for the sign-in, which returns a token
   and never the user, so no endpoint can leak it. The back-end has no `interfaces/` folder.
 - Only what the course and the linked guide show is used: no refresh-token rotation, no
   automatic renewal and no `declare module` typing. `TokenService.issue()` still starts a
@@ -64,7 +64,7 @@ must keep a migration history.
   `private static readonly PATH`; every method is `async` and uses `return await`, in the
   front-end and the back-end. The calculations over loaded data live in one util per service
   (`AccountUtil`, `ActivityUtil`, `TransactionUtil`) and receive the arrays as parameters
-  (`TransactionUtil.summarize(transactions)`), so views derive them with `computed`.
+  (`TransactionUtil.summarizeIncomeAndExpense(transactions)`), so views derive them with `computed`.
   `AuthService` keeps the session helpers (`logout`, `getCurrentUser`, `isAdmin`).
 - Views keep their data in `ref`s filled in `onMounted(async () => ...)`; no top-level `await`.
   Every API call in a view is wrapped in `try/catch` (the `onMounted` load and the `async`

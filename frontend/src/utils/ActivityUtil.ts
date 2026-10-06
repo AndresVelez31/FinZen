@@ -15,13 +15,13 @@ export class ActivityUtil {
    * Expense totals per activity, optionally bounded by an ISO (YYYY-MM-DD)
    * date range. Only returns activities with at least one expense.
    */
-  public static getExpenseTotals(
+  public static sumExpensesPerActivity(
     activities: ActivityInterface[],
     transactions: TransactionInterface[],
     startDate?: string,
     endDate?: string,
   ): ActivityExpenseEntryInterface[] {
-    const periodExpenses = TransactionUtil.filter(transactions, {
+    const periodExpenses = TransactionUtil.filterByCriteria(transactions, {
       type: 'expense',
       from: startDate,
       to: endDate,
@@ -50,14 +50,14 @@ export class ActivityUtil {
    * Budget vs. actual spend per expense activity, optionally bounded by an
    * ISO (YYYY-MM-DD) date range.
    */
-  public static getBudgetVsActual(
+  public static compareBudgetWithSpending(
     activities: ActivityInterface[],
     transactions: TransactionInterface[],
     startDate?: string,
     endDate?: string,
   ): BudgetVsActualInterface[] {
     const expenseActivities = activities.filter((activity) => activity.type === 'expense');
-    const periodExpenses = ActivityUtil.getExpenseTotals(
+    const periodExpenses = ActivityUtil.sumExpensesPerActivity(
       activities,
       transactions,
       startDate,
@@ -81,12 +81,12 @@ export class ActivityUtil {
    * All-time savings goal progress: how much has been put toward each
    * savings activity, as a percentage of its target amount (capped at 100).
    */
-  public static getSavingsProgress(
+  public static calculateSavingsProgress(
     activities: ActivityInterface[],
     transactions: TransactionInterface[],
   ): SavingsProgressInterface[] {
     const savingsActivities = activities.filter((activity) => activity.type === 'savings');
-    const allTimeExpenses = ActivityUtil.getExpenseTotals(activities, transactions);
+    const allTimeExpenses = ActivityUtil.sumExpensesPerActivity(activities, transactions);
 
     return savingsActivities.map((activity) => {
       const saved = allTimeExpenses.find((entry) => entry.activityId === activity.id)?.total ?? 0;
@@ -96,7 +96,7 @@ export class ActivityUtil {
         color: activity.color,
         targetAmount: activity.targetAmount,
         saved,
-        percent: ActivityUtil.getPercent(saved, activity.targetAmount),
+        percent: ActivityUtil.calculatePercentOfTarget(saved, activity.targetAmount),
       };
     });
   }
@@ -107,13 +107,18 @@ export class ActivityUtil {
    * savings activities against their all-time total, since a savings goal
    * isn't reset every month the way a budget is.
    */
-  public static getProgress(
+  public static calculateTargetProgress(
     activities: ActivityInterface[],
     transactions: TransactionInterface[],
   ): ActivityProgressInterface[] {
-    const { start, end } = DateRangeUtil.currentMonthToDate();
-    const monthlyExpenses = ActivityUtil.getExpenseTotals(activities, transactions, start, end);
-    const allTimeExpenses = ActivityUtil.getExpenseTotals(activities, transactions);
+    const { start, end } = DateRangeUtil.buildMonthToDateRange();
+    const monthlyExpenses = ActivityUtil.sumExpensesPerActivity(
+      activities,
+      transactions,
+      start,
+      end,
+    );
+    const allTimeExpenses = ActivityUtil.sumExpensesPerActivity(activities, transactions);
 
     return activities.map((activity) => {
       const source = activity.type === 'expense' ? monthlyExpenses : allTimeExpenses;
@@ -122,13 +127,13 @@ export class ActivityUtil {
       return {
         ...activity,
         used,
-        percent: ActivityUtil.getPercent(used, activity.targetAmount),
+        percent: ActivityUtil.calculatePercentOfTarget(used, activity.targetAmount),
         over: activity.type === 'expense' && used > activity.targetAmount,
       };
     });
   }
 
-  private static getPercent(amount: number, targetAmount: number): number {
+  private static calculatePercentOfTarget(amount: number, targetAmount: number): number {
     return targetAmount > 0 ? Math.min(100, Math.round((amount / targetAmount) * 100)) : 0;
   }
 }

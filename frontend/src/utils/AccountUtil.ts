@@ -9,7 +9,7 @@ export class AccountUtil {
    * Current balance of an account: its initial balance plus incomes minus
    * every other movement (expenses and savings) registered on it.
    */
-  public static getBalance(
+  public static calculateBalance(
     account: AccountInterface,
     transactions: TransactionInterface[],
   ): number {
@@ -22,12 +22,12 @@ export class AccountUtil {
       );
   }
 
-  public static getTotalBalance(
+  public static calculateTotalBalance(
     accounts: AccountInterface[],
     transactions: TransactionInterface[],
   ): number {
     return accounts.reduce(
-      (sum, account) => sum + AccountUtil.getBalance(account, transactions),
+      (sum, account) => sum + AccountUtil.calculateBalance(account, transactions),
       0,
     );
   }

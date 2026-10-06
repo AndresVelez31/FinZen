@@ -19,7 +19,7 @@ const loading = ref(true);
 
 // Actions
 function getBalance(account: AccountInterface): number {
-  return AccountUtil.getBalance(account, transactions.value);
+  return AccountUtil.calculateBalance(account, transactions.value);
 }
 
 async function loadAccounts(): Promise<void> {

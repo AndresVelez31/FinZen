@@ -30,7 +30,7 @@ const transactions = ref<TransactionInterface[]>([]);
 
 // Selectors
 const years = computed<FilterOptionInterface[]>(() =>
-  TransactionUtil.getAvailableYears(transactions.value).map((year) => ({
+  TransactionUtil.collectAvailableYears(transactions.value).map((year) => ({
     value: String(year),
     label: String(year),
   })),
@@ -44,16 +44,18 @@ const monthName = computed(
   () => MONTH_OPTIONS.find((month) => month.value === selectedMonth.value)?.label ?? '',
 );
 
-const period = computed(() => DateRangeUtil.ofMonth(selectedYear.value, selectedMonth.value));
+const period = computed(() =>
+  DateRangeUtil.buildMonthRange(selectedYear.value, selectedMonth.value),
+);
 
 const periodTransactions = computed(() =>
-  TransactionUtil.filter(transactions.value, {
+  TransactionUtil.filterByCriteria(transactions.value, {
     from: period.value.start,
     to: period.value.end,
   }),
 );
 
-const summary = computed(() => TransactionUtil.summarize(periodTransactions.value));
+const summary = computed(() => TransactionUtil.summarizeIncomeAndExpense(periodTransactions.value));
 
 // Line chart: cumulative balance evolution across the selected year
 const lineChart = computed(() => ({
@@ -61,7 +63,7 @@ const lineChart = computed(() => ({
   datasets: [
     {
       label: 'Balance acumulado',
-      data: TransactionUtil.getCumulativeBalanceByMonth(transactions.value, selectedYear.value),
+      data: TransactionUtil.accumulateBalanceByMonth(transactions.value, selectedYear.value),
       borderColor: '#10b981',
       backgroundColor: 'rgba(16,185,129,0.12)',
       fill: true,
@@ -75,7 +77,7 @@ const lineChart = computed(() => ({
 
 // Bar chart and summary table: budget vs actual (expense activities) for the selected period
 const budgetVsActual = computed(() =>
-  ActivityUtil.getBudgetVsActual(
+  ActivityUtil.compareBudgetWithSpending(
     activities.value,
     transactions.value,
     period.value.start,
@@ -106,7 +108,7 @@ const hasBudget = computed(() => budgetChart.value.labels.length > 0);
 
 // Savings progress (all-time, unlike the period-scoped figures above)
 const savingsActivities = computed(() =>
-  ActivityUtil.getSavingsProgress(activities.value, transactions.value),
+  ActivityUtil.calculateSavingsProgress(activities.value, transactions.value),
 );
 
 // Lifecycle

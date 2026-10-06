@@ -51,7 +51,7 @@ number.
     `request.user.sub`.
 17. Admin-only routes use `@Roles(Role.Admin)` (`RolesGuard`, which runs after the package guard).
 18. Passwords are stored only as scrypt hashes made by `PasswordHasher`; the password column is
-    `select: false` and only `UsersService.findByEmailWithPassword()` reads it, for the sign-in.
+    `select: false` and only `UsersService.findCredentialsByEmail()` reads it, for the sign-in.
     The same message answers a wrong email and a wrong password.
 19. `POST /auth/token` signs in and returns an access token of 8 hours (`TokenService`); the
     SPA signs out by deleting it.

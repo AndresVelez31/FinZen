@@ -24,7 +24,7 @@ const loading = ref(true);
 // Computed
 // Each activity plus how much of its target amount has been used.
 const activitiesProgress = computed(() =>
-  ActivityUtil.getProgress(activities.value, transactions.value),
+  ActivityUtil.calculateTargetProgress(activities.value, transactions.value),
 );
 
 // Actions
