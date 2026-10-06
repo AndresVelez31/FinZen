@@ -11,6 +11,7 @@ import {
 import type { Relation } from 'typeorm';
 import { Account } from '../../accounts/entities/account.entity.js';
 import { Activity } from '../../activities/entities/activity.entity.js';
+import { TransactionType } from '../enums/transaction-type.enum.js';
 
 // Exports
 @Entity()
@@ -19,7 +20,7 @@ export class Transaction {
   id: number;
 
   @Column({ type: 'varchar' })
-  type: string;
+  type: TransactionType;
 
   @Column({ type: 'decimal', precision: 14, scale: 2 })
   amount: number;
