@@ -1,7 +1,7 @@
 // External imports
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { Public } from '@nestjs/authentication';
 import type { TokenPair } from '@nestjs/authentication';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 
 // Internal imports
 import { AuthService } from './auth.service.js';

@@ -1,6 +1,6 @@
 // External imports
-import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 import { CurrentUser } from '@nestjs/authentication';
+import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 
 // Internal imports
 import { Roles } from '../auth/decorators/roles.decorator.js';

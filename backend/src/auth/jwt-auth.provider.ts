@@ -1,7 +1,7 @@
 // External imports
-import { Injectable } from '@nestjs/common';
 import { AuthenticationRegistry, JwtBearerProvider } from '@nestjs/authentication';
 import type { JwtClaims } from '@nestjs/authentication';
+import { Injectable } from '@nestjs/common';
 
 // Internal imports
 import type { User } from '../users/entities/user.entity.js';

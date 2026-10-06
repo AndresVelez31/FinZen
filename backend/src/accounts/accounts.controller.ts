@@ -1,6 +1,6 @@
 // External imports
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CurrentUser } from '@nestjs/authentication';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 
 // Internal imports
 import { AccountsService } from './accounts.service.js';
