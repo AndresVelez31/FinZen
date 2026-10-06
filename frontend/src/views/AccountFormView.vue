@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // External imports
-import { ArrowLeft, Landmark, PiggyBank, Save, Smartphone, Wallet } from 'lucide-vue-next';
+import { ArrowLeft, Save } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -8,6 +8,7 @@ import { useRoute, useRouter } from 'vue-router';
 // Internal imports
 import type { CreateAccountDTO } from '@/dtos/CreateAccountDTO.js';
 import type { UpdateAccountDTO } from '@/dtos/UpdateAccountDTO.js';
+import { ACCOUNT_TYPE_OPTIONS } from '@/enums/constants.js';
 import type { AccountFormErrorsInterface } from '@/interfaces/AccountFormErrorsInterface.js';
 import { AccountService } from '@/services/AccountService.js';
 
@@ -15,18 +16,10 @@ import { AccountService } from '@/services/AccountService.js';
 const route = useRoute();
 const router = useRouter();
 
-const TYPES = [
-  { value: 'Corriente', label: 'Corriente', icon: Landmark },
-  { value: 'Ahorros', label: 'Ahorros', icon: PiggyBank },
-  { value: 'Efectivo', label: 'Efectivo', icon: Wallet },
-  { value: 'Digital', label: 'Digital', icon: Smartphone },
-  { value: 'Inversión', label: 'Inversión', icon: Landmark },
-];
-
 // Reactive variables
 const form = ref({
   name: '',
-  type: TYPES[0]!.value,
+  type: ACCOUNT_TYPE_OPTIONS[0]!.value,
   balance: '',
 });
 const errors = ref<AccountFormErrorsInterface>({});
@@ -146,7 +139,7 @@ onMounted(async () => {
 
         <div class="type-grid">
           <button
-            v-for="type in TYPES"
+            v-for="type in ACCOUNT_TYPE_OPTIONS"
             :key="type.value"
             type="button"
             class="type-opt"
