@@ -1,4 +1,4 @@
-// Imports
+// Internal imports
 import type { CreateAccountDTO } from '@/dtos/CreateAccountDTO.js';
 import type { UpdateAccountDTO } from '@/dtos/UpdateAccountDTO.js';
 import type { AccountInterface } from '@/interfaces/AccountInterface.js';

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import { ShieldCheck, Users as UsersIcon } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
+
+// Internal imports
 import SelectorFilter from '@/components/shared/SelectorFilterComponent.vue';
 import StatCard from '@/components/shared/StatCardComponent.vue';
 import UsersTable from '@/components/users/UsersTableComponent.vue';
@@ -12,8 +14,10 @@ import type { UserInterface } from '@/interfaces/UserInterface.js';
 import { AuthService } from '@/services/AuthService.js';
 import { UserService } from '@/services/UserService.js';
 
-// State
+// Reactive variables
 const users = ref<UserInterface[]>([]);
+
+// Selectors
 const filterRole = ref('');
 
 // Computed

@@ -1,4 +1,4 @@
-// Imports
+// External imports
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 // Exports

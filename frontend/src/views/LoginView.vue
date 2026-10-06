@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import {
   Eye,
   EyeOff,
@@ -12,17 +12,22 @@ import {
 } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+
+// Internal imports
 import type { DemoAccountInterface } from '@/interfaces/DemoAccountInterface.js';
 import { AuthService } from '@/services/AuthService.js';
 
-// State
+// Variables
 const router = useRouter();
+
+// Reactive variables
 const email = ref('');
 const password = ref('');
 const showPassword = ref(false);
 const errorMessage = ref('');
 const loading = ref(false);
 
+// Selectors
 const demoAccounts: DemoAccountInterface[] = [
   { role: 'Administrador', email: 'admin@finzen.app', password: 'admin123' },
   { role: 'Usuario', email: 'user@finzen.app', password: 'user123' },

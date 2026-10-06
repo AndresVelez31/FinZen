@@ -1,4 +1,4 @@
-// Imports
+// Internal imports
 import type { Role } from '../enums/role.enum.js';
 
 // Exports

@@ -1,4 +1,4 @@
-// Imports
+// Internal imports
 import type { ActivityExpenseEntryInterface } from '@/interfaces/ActivityExpenseEntryInterface.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import type { ActivityProgressInterface } from '@/interfaces/ActivityProgressInterface.js';

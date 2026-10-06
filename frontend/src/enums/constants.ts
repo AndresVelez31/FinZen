@@ -1,4 +1,4 @@
-// Imports
+// Internal imports
 import type { FilterOptionInterface } from '@/interfaces/FilterOptionInterface.js';
 
 // Exports

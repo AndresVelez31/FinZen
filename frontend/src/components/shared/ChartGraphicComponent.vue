@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Reusable Chart.js wrapper without domain dependencies.
 
-// Imports
+// External imports
 import { Chart, registerables } from 'chart.js';
 import type { ChartDataset, ChartOptions, ChartType } from 'chart.js';
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
@@ -26,10 +26,12 @@ const props = withDefaults(
   },
 );
 
-// State
-const canvas = ref<HTMLCanvasElement | null>(null);
+// Variables
 let chartInstance: Chart | null = null;
 let themeObserver: MutationObserver | null = null;
+
+// Reactive variables
+const canvas = ref<HTMLCanvasElement | null>(null);
 
 // Actions
 function themeColors() {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import {
   ArrowLeftRight,
   LayoutDashboard,
@@ -16,15 +16,19 @@ import {
 import Swal from 'sweetalert2';
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
+// Internal imports
 import type { NavItemInterface } from '@/interfaces/NavItemInterface.js';
 import { AuthService } from '@/services/AuthService.js';
 import { useThemeStore } from '@/stores/themestore.js';
 import { FormattersUtil } from '@/utils/FormattersUtil.js';
 
-// State
+// Variables
 const route = useRoute();
 const router = useRouter();
 const themeStore = useThemeStore();
+
+// Reactive variables
 const isMobileMenuOpen = ref(false);
 
 // Computed

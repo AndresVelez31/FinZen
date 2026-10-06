@@ -1,6 +1,8 @@
-// Imports
+// External imports
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CurrentUser } from '@nestjs/authentication';
+
+// Internal imports
 import { CreateTransactionDto } from './dto/create-transaction.dto.js';
 import { UpdateTransactionDto } from './dto/update-transaction.dto.js';
 import type { Transaction } from './entities/transaction.entity.js';

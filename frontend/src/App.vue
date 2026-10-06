@@ -1,11 +1,13 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import { computed, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
+
+// Internal imports
 import AppLayout from '@/components/layout/AppLayout.vue';
 import { useThemeStore } from '@/stores/themestore.js';
 
-// State
+// Variables
 const route = useRoute();
 const themeStore = useThemeStore();
 

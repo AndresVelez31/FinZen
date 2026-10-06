@@ -1,5 +1,7 @@
-// Imports
+// External imports
 import { describe, it, expect } from 'vitest';
+
+// Internal imports
 import { FormattersUtil } from '@/utils/FormattersUtil.js';
 
 describe('FormattersUtil.formatToCOP', () => {

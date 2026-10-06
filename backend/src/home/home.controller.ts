@@ -1,4 +1,4 @@
-// Imports
+// External imports
 import { Controller, Get } from '@nestjs/common';
 import { Public } from '@nestjs/authentication';
 

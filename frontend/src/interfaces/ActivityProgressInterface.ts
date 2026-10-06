@@ -1,4 +1,4 @@
-// Imports
+// Internal imports
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 
 // Exports

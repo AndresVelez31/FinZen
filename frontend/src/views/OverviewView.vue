@@ -1,9 +1,11 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import { ArrowRight, Plus, TrendingDown, TrendingUp, Wallet } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+
+// Internal imports
 import RecentTransactionsTable from '@/components/overview/RecentTransactionsTableComponent.vue';
 import ChartGraphic from '@/components/shared/ChartGraphicComponent.vue';
 import StatCard from '@/components/shared/StatCardComponent.vue';
@@ -19,10 +21,11 @@ import { DateRangeUtil } from '@/utils/DateRangeUtil.js';
 import { FormattersUtil } from '@/utils/FormattersUtil.js';
 import { TransactionUtil } from '@/utils/TransactionUtil.js';
 
-// State
+// Variables
 const router = useRouter();
 const monthRange = DateRangeUtil.currentMonthFull();
 
+// Reactive variables
 const accounts = ref<AccountInterface[]>([]);
 const activities = ref<ActivityInterface[]>([]);
 const transactions = ref<TransactionInterface[]>([]);

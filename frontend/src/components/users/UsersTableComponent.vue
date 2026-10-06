@@ -1,6 +1,8 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import { Inbox, ShieldCheck, User } from 'lucide-vue-next';
+
+// Internal imports
 import EmptyState from '@/components/shared/EmptyStateComponent.vue';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
 import { FormattersUtil } from '@/utils/FormattersUtil.js';

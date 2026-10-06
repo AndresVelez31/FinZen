@@ -1,4 +1,4 @@
-// Imports
+// External imports
 import {
   Column,
   CreateDateColumn,
@@ -8,6 +8,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import type { Relation } from 'typeorm';
+
+// Internal imports
 import { Account } from '../../accounts/entities/account.entity.js';
 import { Activity } from '../../activities/entities/activity.entity.js';
 import { Role } from '../enums/role.enum.js';

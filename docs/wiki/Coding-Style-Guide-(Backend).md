@@ -41,9 +41,11 @@ Controller methods use the Nest names `findAll`, `findOne`, `create`, `update`, 
 
 ## 4. Order inside a file
 
-- `// Imports` above the import block and `// Exports` above what the file exports (above its
-  decorators and comments), in every file.
-- Imports sorted alphabetically: packages first (`@nestjs/...`, `typeorm`), then relative paths.
+- `// External imports` above the packages (`@nestjs/...`, `typeorm`), `// Internal imports`
+  above the project files (relative paths), separated by a blank line, and `// Exports` above
+  what the file exports (above its decorators and comments), in every file. A block without
+  imports has no comment.
+- Imports sorted alphabetically by path inside each block.
 - Every method that returns a promise is `async` and uses `await`, in services and controllers.
 - Services: constructor, public methods in CRUD order (`findAll`, `findOne`, `create`,
   `update`, `remove`), then private helpers.

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import type { Component } from 'vue';
 
 // Props

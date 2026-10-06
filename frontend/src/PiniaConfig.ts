@@ -1,4 +1,4 @@
-// Imports
+// External imports
 import { createPinia } from 'pinia';
 import { watch } from 'vue';
 

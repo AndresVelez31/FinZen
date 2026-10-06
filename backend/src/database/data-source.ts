@@ -1,4 +1,4 @@
-// Imports
+// External imports
 import { DataSource } from 'typeorm';
 import type { DataSourceOptions } from 'typeorm';
 

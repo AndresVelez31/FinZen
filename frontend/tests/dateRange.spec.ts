@@ -1,5 +1,7 @@
-// Imports
+// External imports
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
+// Internal imports
 import { DateRangeUtil } from '@/utils/DateRangeUtil.js';
 
 describe('DateRangeUtil', () => {

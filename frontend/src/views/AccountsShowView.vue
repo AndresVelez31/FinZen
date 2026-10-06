@@ -1,8 +1,10 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import { Pencil, Plus, Trash2, Wallet } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
+
+// Internal imports
 import type { AccountInterface } from '@/interfaces/AccountInterface.js';
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 import { AccountService } from '@/services/AccountService.js';
@@ -10,7 +12,7 @@ import { TransactionService } from '@/services/TransactionService.js';
 import { AccountUtil } from '@/utils/AccountUtil.js';
 import { FormattersUtil } from '@/utils/FormattersUtil.js';
 
-// State
+// Reactive variables
 const accounts = ref<AccountInterface[]>([]);
 const transactions = ref<TransactionInterface[]>([]);
 const loading = ref(true);

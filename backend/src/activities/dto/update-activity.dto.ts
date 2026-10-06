@@ -1,4 +1,4 @@
-// Imports
+// Internal imports
 import type { ActivityType } from '../enums/activity-type.enum.js';
 
 // Exports

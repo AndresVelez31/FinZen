@@ -1,6 +1,8 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import { Inbox, Pencil, Trash2 } from 'lucide-vue-next';
+
+// Internal imports
 import EmptyState from '@/components/shared/EmptyStateComponent.vue';
 import type { TransactionRowInterface } from '@/interfaces/TransactionRowInterface.js';
 import { FormattersUtil } from '@/utils/FormattersUtil.js';
