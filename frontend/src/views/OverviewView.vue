@@ -1,34 +1,55 @@
 <script setup lang="ts">
-// Imports
-import { computed } from 'vue';
+import { ArrowRight, Plus, TrendingDown, TrendingUp, Wallet } from 'lucide-vue-next';
+import Swal from 'sweetalert2';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { Wallet, TrendingDown, TrendingUp, Plus, ArrowRight } from 'lucide-vue-next';
-import StatCard from '@/components/shared/StatCardComponent.vue';
-import ChartGraphic from '@/components/shared/ChartGraphicComponent.vue';
 import RecentTransactionsTable from '@/components/overview/RecentTransactionsTableComponent.vue';
+import ChartGraphic from '@/components/shared/ChartGraphicComponent.vue';
+import StatCard from '@/components/shared/StatCardComponent.vue';
+import type { AccountInterface } from '@/interfaces/AccountInterface.js';
+import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
+import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 import { AccountService } from '@/services/AccountService.js';
+import { ActivityService } from '@/services/ActivityService.js';
 import { AuthService } from '@/services/AuthService.js';
 import { TransactionService } from '@/services/TransactionService.js';
-import { DateRange } from '@/utils/DateRangeUtil.js';
-import { Formatters } from '@/utils/FormattersUtil.js';
+import { AccountUtil } from '@/utils/AccountUtil.js';
+import { DateRangeUtil } from '@/utils/DateRangeUtil.js';
+import { FormattersUtil } from '@/utils/FormattersUtil.js';
+import { TransactionUtil } from '@/utils/TransactionUtil.js';
 
 // State
 const router = useRouter();
-const monthRange = DateRange.currentMonthFull();
+const monthRange = DateRangeUtil.currentMonthFull();
+
+const accounts = ref<AccountInterface[]>([]);
+const activities = ref<ActivityInterface[]>([]);
+const transactions = ref<TransactionInterface[]>([]);
 
 // Computed
 const currentUser = computed(() => AuthService.getCurrentUser());
 
-const monthTransactions = computed(() => TransactionService.getByDateRange(monthRange.start, monthRange.end));
-const monthExpenses = computed(() => monthTransactions.value.filter((transaction) => transaction.type === 'expense'));
-const monthIncomes = computed(() => monthTransactions.value.filter((transaction) => transaction.type === 'income'));
-const monthSummary = computed(() => TransactionService.summarize(monthTransactions.value));
+const monthTransactions = computed(() =>
+  TransactionUtil.filter(transactions.value, { from: monthRange.start, to: monthRange.end }),
+);
+const monthExpenses = computed(() =>
+  monthTransactions.value.filter((transaction) => transaction.type === 'expense'),
+);
+const monthIncomes = computed(() =>
+  monthTransactions.value.filter((transaction) => transaction.type === 'income'),
+);
+const monthSummary = computed(() => TransactionUtil.summarize(monthTransactions.value));
 
-const totalBalance = computed(() => AccountService.getTotalBalance());
+const totalBalance = computed(() =>
+  AccountUtil.getTotalBalance(accounts.value, transactions.value),
+);
 
 // Doughnut: expense by activity this month
 const donut = computed(() => {
-  const entries = TransactionService.aggregateExpensesByActivity(monthTransactions.value);
+  const entries = TransactionUtil.aggregateExpensesByActivity(
+    monthTransactions.value,
+    activities.value,
+  );
   return {
     labels: entries.map((entry) => entry.name),
     datasets: [
@@ -43,7 +64,24 @@ const donut = computed(() => {
 });
 const hasDonut = computed(() => donut.value.labels.length > 0);
 
-const recentTransactions = computed(() => TransactionService.getRows().slice(0, 5));
+const recentTransactions = computed(() =>
+  TransactionUtil.getRows(transactions.value.slice(0, 5), accounts.value, activities.value),
+);
+
+// Lifecycle
+onMounted(async () => {
+  try {
+    accounts.value = await AccountService.getAll();
+    activities.value = await ActivityService.getAll();
+    transactions.value = await TransactionService.getAll();
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudo cargar el resumen',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+  }
+});
 </script>
 
 <template>
@@ -62,13 +100,13 @@ const recentTransactions = computed(() => TransactionService.getRows().slice(0, 
     <div class="grid-kpi">
       <StatCard
         title="Balance total"
-        :value="Formatters.formatToCOP(totalBalance)"
+        :value="FormattersUtil.formatToCOP(totalBalance)"
         :icon="Wallet"
         trend="Suma de todas tus cuentas"
       />
       <StatCard
         title="Gasto del mes"
-        :value="Formatters.formatToCOP(monthSummary.totalExpense)"
+        :value="FormattersUtil.formatToCOP(monthSummary.totalExpense)"
         :icon="TrendingDown"
         variant="expense"
         :trend="`${monthExpenses.length} movimientos`"
@@ -76,7 +114,7 @@ const recentTransactions = computed(() => TransactionService.getRows().slice(0, 
       />
       <StatCard
         title="Ingresos del mes"
-        :value="Formatters.formatToCOP(monthSummary.totalIncome)"
+        :value="FormattersUtil.formatToCOP(monthSummary.totalIncome)"
         :icon="TrendingUp"
         variant="income"
         :trend="`${monthIncomes.length} movimientos`"

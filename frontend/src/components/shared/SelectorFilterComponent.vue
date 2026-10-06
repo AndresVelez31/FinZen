@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import type { FilterOption } from '@/enums/constants.js';
+import type { FilterOptionInterface } from '@/interfaces/FilterOptionInterface.js';
 
+// Props
 const props = defineProps<{
   label?: string;
   modelValue: string;
-  options: FilterOption[];
+  options: FilterOptionInterface[];
   placeholder?: string;
 }>();
 
+// Emits
 const emit = defineEmits<{
   'update:modelValue': [value: string];
 }>();
 
+// Actions
 function onChange(event: Event): void {
   const select = event.target as HTMLSelectElement;
 

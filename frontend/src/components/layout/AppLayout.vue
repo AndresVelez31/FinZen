@@ -18,7 +18,7 @@ import { useRoute, useRouter } from 'vue-router';
 import type { NavItemInterface } from '@/interfaces/NavItemInterface.js';
 import { AuthService } from '@/services/AuthService.js';
 import { useThemeStore } from '@/stores/themestore.js';
-import { Formatters } from '@/utils/FormattersUtil.js';
+import { FormattersUtil } from '@/utils/FormattersUtil.js';
 
 // State
 const route = useRoute();
@@ -45,7 +45,7 @@ const navItems = computed<NavItemInterface[]>(() => [
 ]);
 
 const userInitials = computed<string>(() =>
-  Formatters.initials(currentUser.value?.name ?? '?'),
+  FormattersUtil.initials(currentUser.value?.name ?? '?'),
 );
 
 // Actions
