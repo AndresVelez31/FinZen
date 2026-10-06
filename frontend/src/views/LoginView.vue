@@ -1,16 +1,18 @@
 <script setup lang="ts">
-// Imports
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  PieChart,
+  ShieldCheck,
+  TrendingUp,
+  Wallet,
+} from 'lucide-vue-next';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import {Wallet, Mail, Lock, Eye, EyeOff, ShieldCheck, TrendingUp, PieChart} from 'lucide-vue-next';
+import type { DemoAccountInterface } from '@/interfaces/DemoAccountInterface.js';
 import { AuthService } from '@/services/AuthService.js';
-
-// Types
-interface DemoAccount {
-  role: string;
-  email: string;
-  password: string;
-}
 
 // State
 const router = useRouter();
@@ -20,13 +22,13 @@ const showPassword = ref(false);
 const errorMessage = ref('');
 const loading = ref(false);
 
-const demoAccounts: DemoAccount[] = [
+const demoAccounts: DemoAccountInterface[] = [
   { role: 'Administrador', email: 'admin@finzen.app', password: 'admin123' },
   { role: 'Usuario', email: 'user@finzen.app', password: 'user123' },
 ];
 
 // Actions
-function useDemoAccount(account: DemoAccount): void {
+function useDemoAccount(account: DemoAccountInterface): void {
   email.value = account.email;
   password.value = account.password;
   errorMessage.value = '';
@@ -43,16 +45,10 @@ async function submit(): Promise<void> {
   loading.value = true;
 
   try {
-    const result = AuthService.login(email.value, password.value);
-
-    if (!result.ok) {
-      errorMessage.value = result.error;
-      return;
-    }
-
+    await AuthService.login({ email: email.value, password: password.value });
     await router.push({ name: 'overview' });
-  } catch {
-    errorMessage.value = 'No fue posible iniciar sesión. Inténtalo nuevamente.';
+  } catch (error) {
+    errorMessage.value = (error as Error).message;
   } finally {
     loading.value = false;
   }
