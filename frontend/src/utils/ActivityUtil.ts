@@ -15,7 +15,7 @@ export class ActivityUtil {
    * Expense totals per activity, optionally bounded by an ISO (YYYY-MM-DD)
    * date range. Only returns activities with at least one expense.
    */
-  static getExpenseTotals(
+  public static getExpenseTotals(
     activities: ActivityInterface[],
     transactions: TransactionInterface[],
     startDate?: string,
@@ -50,7 +50,7 @@ export class ActivityUtil {
    * Budget vs. actual spend per expense activity, optionally bounded by an
    * ISO (YYYY-MM-DD) date range.
    */
-  static getBudgetVsActual(
+  public static getBudgetVsActual(
     activities: ActivityInterface[],
     transactions: TransactionInterface[],
     startDate?: string,
@@ -81,7 +81,7 @@ export class ActivityUtil {
    * All-time savings goal progress: how much has been put toward each
    * savings activity, as a percentage of its target amount (capped at 100).
    */
-  static getSavingsProgress(
+  public static getSavingsProgress(
     activities: ActivityInterface[],
     transactions: TransactionInterface[],
   ): SavingsProgressInterface[] {
@@ -107,7 +107,7 @@ export class ActivityUtil {
    * savings activities against their all-time total, since a savings goal
    * isn't reset every month the way a budget is.
    */
-  static getProgress(
+  public static getProgress(
     activities: ActivityInterface[],
     transactions: TransactionInterface[],
   ): ActivityProgressInterface[] {

@@ -16,7 +16,8 @@ The back-end rules are in [Programming Rules (Backend)](Programming-Rules-(Backe
 
 ## Services (`src/services/`)
 
-7. A service only does CRUD with the API. It `extends BaseService`, has only static methods and
+7. A service only does CRUD with the API. It `extends BaseService`, has only static methods, each
+   with an explicit access modifier (`public static`, `protected static` or `private static`), and
    keeps its route in `private static readonly PATH`. `AuthService` also exposes the session
    (`getCurrentUser`, `isAuthenticated`, `isAdmin`), because views cannot read stores.
 8. `BaseService` is the only place with the axios `try/catch`, the base URL, the
@@ -40,7 +41,8 @@ The back-end rules are in [Programming Rules (Backend)](Programming-Rules-(Backe
     `.vue` file or a service.
 14. DTOs are derived from interfaces with `Omit`, `Pick` and `Partial`, never redeclared.
 15. Fixed option lists and shared constants go in `src/enums/constants.ts`.
-16. Utils are pure classes named `<Name>Util`: no stores, no API, no side effects.
+16. Utils are pure classes named `<Name>Util`: no stores, no API, no side effects. Their methods
+    are `public static` (or `private static` for internal helpers).
 
 ## Components (`src/components/`)
 
