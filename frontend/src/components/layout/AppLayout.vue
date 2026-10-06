@@ -63,8 +63,8 @@ function navigateTo(routeName: string): void {
   isMobileMenuOpen.value = false;
 }
 
-async function handleLogout(): Promise<void> {
-  const result = await Swal.fire({
+function handleLogout(): void {
+  Swal.fire({
     title: '¿Cerrar sesión?',
     text: 'Volverás a la pantalla de acceso.',
     icon: 'question',
@@ -73,13 +73,11 @@ async function handleLogout(): Promise<void> {
     cancelButtonText: 'Cancelar',
     confirmButtonColor: '#ef4444',
     cancelButtonColor: '#94a3b8',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      AuthService.logout();
+    }
   });
-
-  if (!result.isConfirmed) {
-    return;
-  }
-
-  AuthService.logout();
 }
 
 // Watchers

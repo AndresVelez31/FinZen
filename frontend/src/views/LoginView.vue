@@ -40,7 +40,7 @@ function useDemoAccount(account: DemoAccountInterface): void {
   errorMessage.value = '';
 }
 
-async function submit(): Promise<void> {
+function submit(): void {
   errorMessage.value = '';
 
   if (!email.value.trim() || !password.value) {
@@ -50,14 +50,14 @@ async function submit(): Promise<void> {
 
   loading.value = true;
 
-  try {
-    await AuthService.login({ email: email.value, password: password.value });
-    await router.push({ name: 'overview' });
-  } catch (error) {
-    errorMessage.value = (error as Error).message;
-  } finally {
-    loading.value = false;
-  }
+  AuthService.login({ email: email.value, password: password.value })
+    .then(() => router.push({ name: 'overview' }))
+    .catch((error: Error) => {
+      errorMessage.value = error.message;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
 </script>
 

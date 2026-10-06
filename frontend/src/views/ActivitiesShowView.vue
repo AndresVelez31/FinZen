@@ -28,14 +28,8 @@ const activitiesProgress = computed(() =>
 );
 
 // Actions
-async function loadActivities(): Promise<void> {
-  activities.value = await ActivityService.getAll();
-  transactions.value = await TransactionService.getAll();
-  loading.value = false;
-}
-
-async function deleteActivity(activity: ActivityInterface): Promise<void> {
-  const result = await Swal.fire({
+function deleteActivity(activity: ActivityInterface): void {
+  Swal.fire({
     title: '¿Eliminar actividad?',
     html: `<b>${activity.name}</b><br>También se eliminarán las transacciones asociadas.`,
     icon: 'warning',
@@ -44,35 +38,45 @@ async function deleteActivity(activity: ActivityInterface): Promise<void> {
     cancelButtonText: 'Cancelar',
     confirmButtonColor: '#ef4444',
     cancelButtonColor: '#94a3b8',
+  }).then((result) => {
+    if (!result.isConfirmed) {
+      return;
+    }
+
+    ActivityService.delete(activity.id)
+      .then(() => {
+        activities.value = activities.value.filter(
+          (existingActivity) => existingActivity.id !== activity.id,
+        );
+        // The API cascades the activity's transactions, so they leave the list too.
+        transactions.value = transactions.value.filter(
+          (transaction) => transaction.activityId !== activity.id,
+        );
+        Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
+      })
+      .catch((error: Error) => {
+        Swal.fire({
+          title: 'No se pudo eliminar la actividad',
+          text: error.message,
+          icon: 'error',
+        });
+      });
   });
-
-  if (!result.isConfirmed) {
-    return;
-  }
-
-  try {
-    await ActivityService.delete(activity.id);
-    await loadActivities();
-    await Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
-  } catch (error) {
-    await Swal.fire({
-      title: 'No se pudo eliminar la actividad',
-      text: (error as Error).message,
-      icon: 'error',
-    });
-  }
 }
 
 // Lifecycle
 onMounted(async () => {
   try {
-    await loadActivities();
+    activities.value = await ActivityService.getAll();
+    transactions.value = await TransactionService.getAll();
   } catch (error) {
     await Swal.fire({
       title: 'No se pudieron cargar las actividades',
       text: (error as Error).message,
       icon: 'error',
     });
+  } finally {
+    loading.value = false;
   }
 });
 </script>
