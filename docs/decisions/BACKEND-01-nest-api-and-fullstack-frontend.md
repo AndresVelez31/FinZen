@@ -49,9 +49,10 @@ says the project must keep a migration history.
   automatic renewal and no `declare module` typing. `TokenService.issue()` still starts a
   refresh token, kept in memory (`allowInMemoryStorage: true`), which the SPA ignores; when the
   access token expires the user signs in again (superseded by AUTH-160).
-- Validation lives in each service and answers with Nest HTTP exceptions (`400`, `401`, `403`,
-  `404`) whose messages are in Spanish because the SPA shows them as-is. Services only copy the
-  editable fields of a body, so a request can never change a record's owner.
+- Validation lives in an injectable `<feature>.validate.ts` validator that each service calls, and
+  answers with Nest HTTP exceptions (`400`, `401`, `403`, `404`) whose messages are in Spanish
+  because the SPA shows them as-is. Validators only copy the editable fields of a body, so a
+  request can never change a record's owner.
 - Ownership: every query filters by the user in the token; another user's record is a `404`.
 
 **Front-end (`frontend/`)**:

@@ -1,9 +1,10 @@
 // External imports
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 // Internal imports
+import { AccountsValidator } from './accounts.validate.js';
 import { CreateAccountDto } from './dto/create-account.dto.js';
 import { UpdateAccountDto } from './dto/update-account.dto.js';
 import { Account } from './entities/account.entity.js';
@@ -14,6 +15,7 @@ export class AccountsService {
   constructor(
     @InjectRepository(Account)
     private readonly accountsRepository: Repository<Account>,
+    private readonly accountsValidator: AccountsValidator,
   ) {}
 
   async findAllByUserId(userId: number): Promise<Account[]> {
@@ -33,7 +35,7 @@ export class AccountsService {
   }
 
   async create(createAccountDto: CreateAccountDto, userId: number): Promise<Account> {
-    const fields = this.validate(createAccountDto);
+    const fields = this.accountsValidator.validate(createAccountDto);
     const account = this.accountsRepository.create({
       name: fields.name,
       type: fields.type,
@@ -46,7 +48,7 @@ export class AccountsService {
 
   async update(id: number, updateAccountDto: UpdateAccountDto, userId: number): Promise<Account> {
     const account = await this.findOneByIdAndUserId(id, userId);
-    const fields = this.validate({
+    const fields = this.accountsValidator.validate({
       name: updateAccountDto.name ?? account.name,
       type: updateAccountDto.type ?? account.type,
       balance: updateAccountDto.balance ?? account.balance,
@@ -60,21 +62,5 @@ export class AccountsService {
   async remove(id: number, userId: number): Promise<void> {
     const account = await this.findOneByIdAndUserId(id, userId);
     await this.accountsRepository.remove(account);
-  }
-
-  // Picks only the editable fields, so a request body can never change the owner.
-  private validate(accountDto: CreateAccountDto): CreateAccountDto {
-    const name = accountDto.name?.trim();
-    if (!name) {
-      throw new BadRequestException('El nombre de la cuenta es obligatorio.');
-    }
-    if (!accountDto.type) {
-      throw new BadRequestException('El tipo de cuenta es obligatorio.');
-    }
-    if (!Number.isFinite(accountDto.balance) || accountDto.balance < 0) {
-      throw new BadRequestException('El saldo inicial debe ser mayor o igual a 0.');
-    }
-
-    return { name, type: accountDto.type, balance: accountDto.balance };
   }
 }

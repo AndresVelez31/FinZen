@@ -76,7 +76,8 @@ Backend:   Controller -> Service -> TypeORM Repository -> SQLite
   `AccountUtil.calculateBalance`).
 - **Stores** only keep the session and the theme.
 - **Backend modules** (`auth`, `users`, `accounts`, `activities`, `transactions`) own their
-  controller, service, entity and DTOs. Validation, ownership and cascading deletes live there;
+  controller, service, validator, entity and DTOs. The `<feature>.validate.ts` validator checks the
+  fields of a body; the service keeps persistence, ownership and cascading deletes;
   a global `ValidationPipe` (`class-validator`) checks the DTOs of the token routes and answers
   `400` with a single Spanish `message`.
 

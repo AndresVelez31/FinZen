@@ -23,6 +23,7 @@ returned.
 | Module | `accounts.module.ts` | `AccountsModule` |
 | Controller | `accounts.controller.ts` | `AccountsController` |
 | Service | `accounts.service.ts` | `AccountsService` |
+| Validator | `accounts.validate.ts` | `AccountsValidator` |
 | Entity | `entities/account.entity.ts` | `Account` (singular) |
 | DTO | `dto/create-account.dto.ts` | `CreateAccountDto` |
 | Credential provider | `jwt-auth.provider.ts` | `JwtAuthProvider` |

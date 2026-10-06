@@ -23,10 +23,12 @@ number.
 
 ## Services
 
-7. Business logic, validation and ownership checks live in the service.
+7. Business logic and ownership checks live in the service; the field validation lives in the
+   feature validator (`<feature>.validate.ts`, an injectable `<Feature>Validator`), which the
+   service calls and which keeps persistence and ownership out of it.
 8. Invalid data throws `BadRequestException`; a missing record, or a record of another user,
    throws `NotFoundException`.
-9. A service copies only the editable fields of a DTO: a request body can never set `id`, `user`
+9. A validator copies only the editable fields of a DTO: a request body can never set `id`, `user`
    or any other field that is not part of the DTO.
 10. Every query filters by the authenticated user (`where: { user: { id: userId } }`).
 
