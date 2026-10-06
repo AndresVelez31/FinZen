@@ -22,14 +22,8 @@ function getBalance(account: AccountInterface): number {
   return AccountUtil.calculateBalance(account, transactions.value);
 }
 
-async function loadAccounts(): Promise<void> {
-  accounts.value = await AccountService.getAll();
-  transactions.value = await TransactionService.getAll();
-  loading.value = false;
-}
-
-async function deleteAccount(id: number): Promise<void> {
-  const result = await Swal.fire({
+function deleteAccount(id: number): void {
+  Swal.fire({
     title: '¿Eliminar cuenta?',
     text: 'También se eliminarán las transacciones asociadas.',
     icon: 'warning',
@@ -38,35 +32,43 @@ async function deleteAccount(id: number): Promise<void> {
     cancelButtonText: 'Cancelar',
     confirmButtonColor: '#ef4444',
     cancelButtonColor: '#94a3b8',
+  }).then((result) => {
+    if (!result.isConfirmed) {
+      return;
+    }
+
+    AccountService.delete(id)
+      .then(() => {
+        accounts.value = accounts.value.filter((account) => account.id !== id);
+        // The API cascades the account's transactions, so they leave the list too.
+        transactions.value = transactions.value.filter(
+          (transaction) => transaction.accountId !== id,
+        );
+        Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
+      })
+      .catch((error: Error) => {
+        Swal.fire({
+          title: 'No se pudo eliminar la cuenta',
+          text: error.message,
+          icon: 'error',
+        });
+      });
   });
-
-  if (!result.isConfirmed) {
-    return;
-  }
-
-  try {
-    await AccountService.delete(id);
-    await loadAccounts();
-    await Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
-  } catch (error) {
-    await Swal.fire({
-      title: 'No se pudo eliminar la cuenta',
-      text: (error as Error).message,
-      icon: 'error',
-    });
-  }
 }
 
 // Lifecycle
 onMounted(async () => {
   try {
-    await loadAccounts();
+    accounts.value = await AccountService.getAll();
+    transactions.value = await TransactionService.getAll();
   } catch (error) {
     await Swal.fire({
       title: 'No se pudieron cargar las cuentas',
       text: (error as Error).message,
       icon: 'error',
     });
+  } finally {
+    loading.value = false;
   }
 });
 </script>

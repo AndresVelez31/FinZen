@@ -10,6 +10,7 @@ import type { CreateActivityDTO } from '@/dtos/CreateActivityDTO.js';
 import type { UpdateActivityDTO } from '@/dtos/UpdateActivityDTO.js';
 import { ACTIVITY_COLORS } from '@/enums/constants.js';
 import type { ActivityFormErrorsInterface } from '@/interfaces/ActivityFormErrorsInterface.js';
+import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import { ActivityService } from '@/services/ActivityService.js';
 
 // Variables
@@ -56,40 +57,44 @@ function buildActivityFields(): CreateActivityDTO {
   };
 }
 
-async function submit(): Promise<void> {
+function submit(): void {
   if (saving.value || !validate()) {
     return;
   }
 
   saving.value = true;
 
-  try {
-    if (editing.value) {
-      const updateActivityDTO: UpdateActivityDTO = {
-        id: activityId.value,
-        ...buildActivityFields(),
-      };
-      await ActivityService.update(updateActivityDTO);
-    } else {
-      await ActivityService.create(buildActivityFields());
-    }
-
-    await Swal.fire({
-      title: editing.value ? 'Actividad actualizada' : 'Actividad creada',
-      icon: 'success',
-      timer: 1200,
-      showConfirmButton: false,
-    });
-    await router.push({ name: 'activities' });
-  } catch (error) {
-    await Swal.fire({
-      title: 'No se pudo guardar la actividad',
-      text: (error as Error).message,
-      icon: 'error',
-    });
-  } finally {
-    saving.value = false;
+  let request: Promise<ActivityInterface>;
+  if (editing.value) {
+    const updateActivityDTO: UpdateActivityDTO = {
+      id: activityId.value,
+      ...buildActivityFields(),
+    };
+    request = ActivityService.update(updateActivityDTO);
+  } else {
+    request = ActivityService.create(buildActivityFields());
   }
+
+  request
+    .then(() =>
+      Swal.fire({
+        title: editing.value ? 'Actividad actualizada' : 'Actividad creada',
+        icon: 'success',
+        timer: 1200,
+        showConfirmButton: false,
+      }),
+    )
+    .then(() => router.push({ name: 'activities' }))
+    .catch((error: Error) => {
+      Swal.fire({
+        title: 'No se pudo guardar la actividad',
+        text: error.message,
+        icon: 'error',
+      });
+    })
+    .finally(() => {
+      saving.value = false;
+    });
 }
 
 // Lifecycle

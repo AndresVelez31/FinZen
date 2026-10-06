@@ -2,6 +2,7 @@
 // External imports
 import { ShieldCheck, Users as UsersIcon } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
+import type { SweetAlertOptions } from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
 
 // Internal imports
@@ -33,12 +34,12 @@ const stats = computed(() => ({
 }));
 
 // Actions
-async function confirmAction(
+function buildConfirmOptions(
   title: string,
   text: string,
   confirmButtonText: string,
-): Promise<boolean> {
-  const result = await Swal.fire({
+): SweetAlertOptions {
+  return {
     title,
     text,
     icon: 'question',
@@ -47,44 +48,46 @@ async function confirmAction(
     cancelButtonText: 'Cancelar',
     confirmButtonColor: '#10b981',
     cancelButtonColor: '#94a3b8',
-  });
-  return result.isConfirmed;
+  };
 }
 
-async function saveUser(updateUserDTO: UpdateUserDTO): Promise<void> {
-  try {
-    const updatedUser = await UserService.update(updateUserDTO);
-    users.value = users.value.map((user) => (user.id === updatedUser.id ? updatedUser : user));
-  } catch (error) {
-    await Swal.fire({
-      title: 'No se pudo actualizar el usuario',
-      text: (error as Error).message,
-      icon: 'error',
+function saveUser(updateUserDTO: UpdateUserDTO): void {
+  UserService.update(updateUserDTO)
+    .then((updatedUser) => {
+      users.value = users.value.map((user) => (user.id === updatedUser.id ? updatedUser : user));
+    })
+    .catch((error: Error) => {
+      Swal.fire({
+        title: 'No se pudo actualizar el usuario',
+        text: error.message,
+        icon: 'error',
+      });
     });
-  }
 }
 
-async function changeRole(user: UserInterface): Promise<void> {
-  const confirmed = await confirmAction(
-    '¿Cambiar rol?',
-    `¿Desea cambiar el rol de ${user.name}?`,
-    'Cambiar',
-  );
-  if (confirmed) {
-    await saveUser({ id: user.id, role: user.role === 'admin' ? 'user' : 'admin' });
-  }
+function changeRole(user: UserInterface): void {
+  Swal.fire(
+    buildConfirmOptions('¿Cambiar rol?', `¿Desea cambiar el rol de ${user.name}?`, 'Cambiar'),
+  ).then((result) => {
+    if (result.isConfirmed) {
+      saveUser({ id: user.id, role: user.role === 'admin' ? 'user' : 'admin' });
+    }
+  });
 }
 
-async function toggleActive(user: UserInterface): Promise<void> {
+function toggleActive(user: UserInterface): void {
   const action = user.active ? 'Desactivar' : 'Activar';
-  const confirmed = await confirmAction(
-    `¿${action} usuario?`,
-    `¿Desea ${action.toLowerCase()} al usuario ${user.name}?`,
-    action,
-  );
-  if (confirmed) {
-    await saveUser({ id: user.id, active: !user.active });
-  }
+  Swal.fire(
+    buildConfirmOptions(
+      `¿${action} usuario?`,
+      `¿Desea ${action.toLowerCase()} al usuario ${user.name}?`,
+      action,
+    ),
+  ).then((result) => {
+    if (result.isConfirmed) {
+      saveUser({ id: user.id, active: !user.active });
+    }
+  });
 }
 
 // Lifecycle
