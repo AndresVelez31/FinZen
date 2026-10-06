@@ -22,7 +22,7 @@ export class TransactionUtil {
    * Filters transactions by activity, account, type, month (format 'MM'),
    * and/or an inclusive ISO date range. Unset criteria are ignored.
    */
-  static filter(
+  public static filter(
     transactions: TransactionInterface[],
     criteria: TransactionFilterCriteriaInterface = {},
   ): TransactionInterface[] {
@@ -47,7 +47,7 @@ export class TransactionUtil {
    * Joins each transaction with its account and activity (name and color)
    * through two Maps, instead of a lookup per cell in the template.
    */
-  static getRows(
+  public static getRows(
     transactions: TransactionInterface[],
     accounts: AccountInterface[],
     activities: ActivityInterface[],
@@ -72,7 +72,7 @@ export class TransactionUtil {
    * Distinct years with at least one transaction, plus the current year,
    * sorted descending.
    */
-  static getAvailableYears(transactions: TransactionInterface[]): number[] {
+  public static getAvailableYears(transactions: TransactionInterface[]): number[] {
     const years = new Set(
       transactions.map((transaction) => new Date(transaction.date).getFullYear()),
     );
@@ -82,7 +82,7 @@ export class TransactionUtil {
 
   // Aggregations
 
-  static summarize(transactions: TransactionInterface[]): PeriodSummaryInterface {
+  public static summarize(transactions: TransactionInterface[]): PeriodSummaryInterface {
     const totalIncome = transactions
       .filter((transaction) => transaction.type === 'income')
       .reduce((sum, transaction) => sum + transaction.amount, 0);
@@ -98,7 +98,7 @@ export class TransactionUtil {
    * Groups the expenses by activity name, bucketing transactions whose
    * activity is unknown under 'Otros'. Sorted by total, highest first.
    */
-  static aggregateExpensesByActivity(
+  public static aggregateExpensesByActivity(
     transactions: TransactionInterface[],
     activities: ActivityInterface[],
   ): ExpenseBucketInterface[] {
@@ -127,7 +127,7 @@ export class TransactionUtil {
   /**
    * Income and expense totals grouped by month (YYYY-MM), in calendar order.
    */
-  static getMonthlyTotals(transactions: TransactionInterface[]): MonthlyTotalInterface[] {
+  public static getMonthlyTotals(transactions: TransactionInterface[]): MonthlyTotalInterface[] {
     const monthlyTotals: MonthlyTotalInterface[] = [];
 
     transactions.forEach((transaction) => {
@@ -154,7 +154,7 @@ export class TransactionUtil {
    * Cumulative net balance (income - expense) at the end of each month of
    * the given year, in calendar order.
    */
-  static getCumulativeBalanceByMonth(
+  public static getCumulativeBalanceByMonth(
     transactions: TransactionInterface[],
     year: string | number,
   ): number[] {

@@ -3,7 +3,7 @@ export class FormattersUtil {
   /**
    * Formats a number as Colombian Peso currency (e.g. 15000 -> "$ 15.000").
    */
-  static formatToCOP(amount: number): string {
+  public static formatToCOP(amount: number): string {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
       currency: 'COP',
@@ -14,7 +14,7 @@ export class FormattersUtil {
   /**
    * Formats an ISO date string as a human-readable Spanish date (e.g. "5 de enero de 2026").
    */
-  static formatDate(dateStr: string): string {
+  public static formatDate(dateStr: string): string {
     return new Intl.DateTimeFormat('es-CO', {
       day: 'numeric',
       month: 'long',
@@ -26,14 +26,14 @@ export class FormattersUtil {
   /**
    * Extracts the "YYYY-MM" month key from an ISO date string, used to group by month.
    */
-  static monthKey(dateStr: string): string {
+  public static monthKey(dateStr: string): string {
     return dateStr.slice(0, 7);
   }
 
   /**
    * Extracts up to two initials from a full name (e.g. "Ana García" -> "AG").
    */
-  static initials(name: string): string {
+  public static initials(name: string): string {
     if (!name) return '';
     return name
       .split(' ')

@@ -9,7 +9,10 @@ export class AccountUtil {
    * Current balance of an account: its initial balance plus incomes minus
    * every other movement (expenses and savings) registered on it.
    */
-  static getBalance(account: AccountInterface, transactions: TransactionInterface[]): number {
+  public static getBalance(
+    account: AccountInterface,
+    transactions: TransactionInterface[],
+  ): number {
     return transactions
       .filter((transaction) => transaction.accountId === account.id)
       .reduce(
@@ -19,7 +22,7 @@ export class AccountUtil {
       );
   }
 
-  static getTotalBalance(
+  public static getTotalBalance(
     accounts: AccountInterface[],
     transactions: TransactionInterface[],
   ): number {

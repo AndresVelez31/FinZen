@@ -13,7 +13,7 @@ export class AuthService extends BaseService {
   // API calls
 
   // Gets the access token, then the signed-in user with that token.
-  static async login(loginDTO: LoginDTO): Promise<UserInterface> {
+  public static async login(loginDTO: LoginDTO): Promise<UserInterface> {
     const loginResponse: LoginResponseInterface = await this.httpPost(this.PATH, {
       email: loginDTO.email.trim().toLowerCase(),
       password: loginDTO.password,
@@ -29,20 +29,20 @@ export class AuthService extends BaseService {
 
   // Session
 
-  static logout(): void {
+  public static logout(): void {
     this.clearSession();
   }
 
-  static getCurrentUser(): UserInterface | null {
+  public static getCurrentUser(): UserInterface | null {
     return useAuthStore().currentUser;
   }
 
-  static isAuthenticated(): boolean {
+  public static isAuthenticated(): boolean {
     const authStore = useAuthStore();
     return authStore.accessToken !== null && authStore.currentUser !== null;
   }
 
-  static isAdmin(): boolean {
+  public static isAdmin(): boolean {
     return this.getCurrentUser()?.role === 'admin';
   }
 }
