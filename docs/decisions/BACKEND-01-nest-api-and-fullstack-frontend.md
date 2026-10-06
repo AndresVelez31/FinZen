@@ -48,7 +48,7 @@ says the project must keep a migration history.
 - Only what the course and the linked guide show is used: no refresh-token rotation, no
   automatic renewal and no `declare module` typing. `TokenService.issue()` still starts a
   refresh token, kept in memory (`allowInMemoryStorage: true`), which the SPA ignores; when the
-  access token expires the user signs in again.
+  access token expires the user signs in again (superseded by AUTH-160).
 - Validation lives in each service and answers with Nest HTTP exceptions (`400`, `401`, `403`,
   `404`) whose messages are in Spanish because the SPA shows them as-is. Services only copy the
   editable fields of a body, so a request can never change a record's owner.

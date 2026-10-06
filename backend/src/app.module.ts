@@ -32,8 +32,12 @@ import { UsersModule } from './users/users.module.js';
         // Long enough for a working session; after it the SPA asks to sign in again.
         ttl: '8h',
       },
-      // issue() also starts a refresh token, which the package keeps in memory
-      // (the SPA does not use it). A single instance is enough for this project.
+      // One refresh token lasts 7 days. A session renews for at most 30 days after the
+      // sign-in, then it asks for the password again.
+      refreshToken: { ttl: '7d', absoluteTtl: '30d' },
+      // The SPA renews its session with the refresh token, which the package keeps in
+      // memory. Restarting the API ends the renewals, so users sign in again when their
+      // access token expires. A single instance is enough for this project.
       allowInMemoryStorage: true,
     }),
     HomeModule,

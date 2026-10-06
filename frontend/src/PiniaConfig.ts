@@ -4,8 +4,9 @@ import { watch } from 'vue';
 
 // Only the session (auth) and the theme are kept in the browser; every
 // domain record comes from the API. The key was bumped from 'finzenState.v3'
-// when the seeders and the entity stores were removed.
-const STORAGE_KEY = 'finzenState.v4';
+// when the seeders and the entity stores were removed, and from 'finzenState.v4'
+// when the session started keeping the refresh token.
+const STORAGE_KEY = 'finzenState.v5';
 
 // Exports
 export default class PiniaConfig {

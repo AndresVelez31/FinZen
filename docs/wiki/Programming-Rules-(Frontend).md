@@ -23,7 +23,11 @@ The back-end rules are in [Programming Rules (Backend)](Programming-Rules-(Backe
    keeps its route in `private static readonly PATH`. `AuthService` also exposes the session
    (`getCurrentUser`, `isAuthenticated`, `isAdmin`), because views cannot read stores.
 8. `BaseService` is the only place with the axios `try/catch`, the base URL, the
-   `Authorization` header. Services never repeat them. A `401` with a token ends the session.
+   `Authorization` header. Services never repeat them. A `401` with both tokens renews them once
+   with the refresh token (one renewal shared by concurrent requests, because a refresh token is
+   single use) and retries the request; if the renewal fails, or any other `401` with a token
+   arrives, the session ends. `AuthService.logout()` ends the local session first and then
+   revokes the refresh token.
 9. Every function that returns a promise is `async` and uses `await`
    (`return await this.httpGet(...)`): `getAll`, `getById`, `create`, `update`, `delete`.
 10. Calculations over data a view already loaded (filters, totals, progress) live in one util per
@@ -31,7 +35,7 @@ The back-end rules are in [Programming Rules (Backend)](Programming-Rules-(Backe
 
 ## Stores (`src/stores/`)
 
-11. Only the session (`authstore`: access token and current user) and the theme
+11. Only the session (`authstore`: access token, refresh token and current user) and the theme
     (`themestore`).
 12. No logic inside a store.
 

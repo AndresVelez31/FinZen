@@ -75,7 +75,9 @@ function handleLogout(): void {
     cancelButtonColor: '#94a3b8',
   }).then((result) => {
     if (result.isConfirmed) {
-      AuthService.logout();
+      AuthService.logout().catch(() => {
+        // The local session already ended; a failed revoke is not shown.
+      });
     }
   });
 }
