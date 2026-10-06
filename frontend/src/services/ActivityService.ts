@@ -9,25 +9,25 @@ import { BaseService } from '@/services/BaseService.js';
 export class ActivityService extends BaseService {
   private static readonly PATH = '/activities';
 
-  static async getAll(): Promise<ActivityInterface[]> {
+  public static async getAll(): Promise<ActivityInterface[]> {
     return await this.httpGet(this.PATH);
   }
 
-  static async getById(id: number): Promise<ActivityInterface> {
+  public static async getById(id: number): Promise<ActivityInterface> {
     return await this.httpGet(`${this.PATH}/${id}`);
   }
 
-  static async create(createActivityDTO: CreateActivityDTO): Promise<ActivityInterface> {
+  public static async create(createActivityDTO: CreateActivityDTO): Promise<ActivityInterface> {
     return await this.httpPost(this.PATH, createActivityDTO);
   }
 
-  static async update(updateActivityDTO: UpdateActivityDTO): Promise<ActivityInterface> {
+  public static async update(updateActivityDTO: UpdateActivityDTO): Promise<ActivityInterface> {
     const { id, ...activityUpdates } = updateActivityDTO;
     return await this.httpPatch(`${this.PATH}/${id}`, activityUpdates);
   }
 
   // The API also deletes the activity's transactions.
-  static async delete(id: number): Promise<void> {
+  public static async delete(id: number): Promise<void> {
     await this.httpDelete(`${this.PATH}/${id}`);
   }
 }
