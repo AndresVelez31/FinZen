@@ -22,8 +22,8 @@ function getBalance(account: AccountInterface): number {
   return AccountUtil.calculateBalance(account, transactions.value);
 }
 
-function deleteAccount(id: number): void {
-  Swal.fire({
+async function deleteAccount(id: number): Promise<void> {
+  const result = await Swal.fire({
     title: '¿Eliminar cuenta?',
     text: 'También se eliminarán las transacciones asociadas.',
     icon: 'warning',
@@ -32,28 +32,25 @@ function deleteAccount(id: number): void {
     cancelButtonText: 'Cancelar',
     confirmButtonColor: '#ef4444',
     cancelButtonColor: '#94a3b8',
-  }).then((result) => {
-    if (!result.isConfirmed) {
-      return;
-    }
-
-    AccountService.delete(id)
-      .then(() => {
-        accounts.value = accounts.value.filter((account) => account.id !== id);
-        // The API cascades the account's transactions, so they leave the list too.
-        transactions.value = transactions.value.filter(
-          (transaction) => transaction.accountId !== id,
-        );
-        Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
-      })
-      .catch((error: Error) => {
-        Swal.fire({
-          title: 'No se pudo eliminar la cuenta',
-          text: error.message,
-          icon: 'error',
-        });
-      });
   });
+
+  if (!result.isConfirmed) {
+    return;
+  }
+
+  try {
+    await AccountService.delete(id);
+    accounts.value = accounts.value.filter((account) => account.id !== id);
+    // The API cascades the account's transactions, so they leave the list too.
+    transactions.value = transactions.value.filter((transaction) => transaction.accountId !== id);
+    await Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1100, showConfirmButton: false });
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudo eliminar la cuenta',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+  }
 }
 
 // Lifecycle

@@ -10,7 +10,6 @@ import type { CreateAccountDTO } from '@/dtos/CreateAccountDTO.js';
 import type { UpdateAccountDTO } from '@/dtos/UpdateAccountDTO.js';
 import { ACCOUNT_TYPE_OPTIONS } from '@/enums/constants.js';
 import type { AccountFormErrorsInterface } from '@/interfaces/AccountFormErrorsInterface.js';
-import type { AccountInterface } from '@/interfaces/AccountInterface.js';
 import { AccountService } from '@/services/AccountService.js';
 
 // Variables
@@ -58,41 +57,37 @@ function buildAccountFields(): CreateAccountDTO {
   };
 }
 
-function submit(): void {
+async function submit(): Promise<void> {
   if (saving.value || !validate()) {
     return;
   }
 
   saving.value = true;
 
-  let request: Promise<AccountInterface>;
-  if (editing.value) {
-    const updateAccountDTO: UpdateAccountDTO = { id: accountId.value, ...buildAccountFields() };
-    request = AccountService.update(updateAccountDTO);
-  } else {
-    request = AccountService.create(buildAccountFields());
-  }
+  try {
+    if (editing.value) {
+      const updateAccountDTO: UpdateAccountDTO = { id: accountId.value, ...buildAccountFields() };
+      await AccountService.update(updateAccountDTO);
+    } else {
+      await AccountService.create(buildAccountFields());
+    }
 
-  request
-    .then(() =>
-      Swal.fire({
-        title: editing.value ? 'Cuenta actualizada' : 'Cuenta creada',
-        icon: 'success',
-        timer: 1300,
-        showConfirmButton: false,
-      }),
-    )
-    .then(() => router.push({ name: 'accounts' }))
-    .catch((error: Error) => {
-      Swal.fire({
-        title: 'No se pudo guardar la cuenta',
-        text: error.message,
-        icon: 'error',
-      });
-    })
-    .finally(() => {
-      saving.value = false;
+    await Swal.fire({
+      title: editing.value ? 'Cuenta actualizada' : 'Cuenta creada',
+      icon: 'success',
+      timer: 1300,
+      showConfirmButton: false,
     });
+    await router.push({ name: 'accounts' });
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudo guardar la cuenta',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+  } finally {
+    saving.value = false;
+  }
 }
 
 // Lifecycle

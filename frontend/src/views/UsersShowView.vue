@@ -51,43 +51,42 @@ function buildConfirmOptions(
   };
 }
 
-function saveUser(updateUserDTO: UpdateUserDTO): void {
-  UserService.update(updateUserDTO)
-    .then((updatedUser) => {
-      users.value = users.value.map((user) => (user.id === updatedUser.id ? updatedUser : user));
-    })
-    .catch((error: Error) => {
-      Swal.fire({
-        title: 'No se pudo actualizar el usuario',
-        text: error.message,
-        icon: 'error',
-      });
+async function saveUser(updateUserDTO: UpdateUserDTO): Promise<void> {
+  try {
+    const updatedUser = await UserService.update(updateUserDTO);
+    users.value = users.value.map((user) => (user.id === updatedUser.id ? updatedUser : user));
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudo actualizar el usuario',
+      text: (error as Error).message,
+      icon: 'error',
     });
+  }
 }
 
-function changeRole(user: UserInterface): void {
-  Swal.fire(
+async function changeRole(user: UserInterface): Promise<void> {
+  const result = await Swal.fire(
     buildConfirmOptions('¿Cambiar rol?', `¿Desea cambiar el rol de ${user.name}?`, 'Cambiar'),
-  ).then((result) => {
-    if (result.isConfirmed) {
-      saveUser({ id: user.id, role: user.role === 'admin' ? 'user' : 'admin' });
-    }
-  });
+  );
+
+  if (result.isConfirmed) {
+    await saveUser({ id: user.id, role: user.role === 'admin' ? 'user' : 'admin' });
+  }
 }
 
-function toggleActive(user: UserInterface): void {
+async function toggleActive(user: UserInterface): Promise<void> {
   const action = user.active ? 'Desactivar' : 'Activar';
-  Swal.fire(
+  const result = await Swal.fire(
     buildConfirmOptions(
       `¿${action} usuario?`,
       `¿Desea ${action.toLowerCase()} al usuario ${user.name}?`,
       action,
     ),
-  ).then((result) => {
-    if (result.isConfirmed) {
-      saveUser({ id: user.id, active: !user.active });
-    }
-  });
+  );
+
+  if (result.isConfirmed) {
+    await saveUser({ id: user.id, active: !user.active });
+  }
 }
 
 // Lifecycle

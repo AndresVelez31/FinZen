@@ -16,7 +16,7 @@ instead of seeders, and a working login. The review of Deliverable 1 also asked 
   `onMounted` at the end instead of between variables, explicit names (`cards`, `fRole`...).
 
 In class it was added that views must not use top-level `await`, asynchrony only happens in
-`onMounted` (event handlers chain `.then()` / `.catch()` instead), every service method uses
+`onMounted` (event handlers are `async` with `try/catch` instead), every service method uses
 `async`/`await`, and a `BaseService` superclass keeps the `try/catch` in one place. Slides 28–29
 (Tutorial 07) recommend `Relation<>` on **both** sides of a relation, and slide 23 (APIs REST)
 says the project must keep a migration history.
@@ -68,7 +68,7 @@ says the project must keep a migration history.
   `AuthService` keeps the session helpers (`logout`, `getCurrentUser`, `isAdmin`).
 - Views keep their data in `ref`s filled in `onMounted(async () => ...)`; no top-level `await`.
   The `onMounted` load is wrapped in `try/catch`; handlers such as `submit` and `delete...` are
-  not `async`: they chain `.then()` / `.catch()` / `.finally()`, and both show the API message with
+  `async`: they `await` the service inside `try/catch`, and both show the API message with
   SweetAlert2. Form views also go back to their list when the record cannot be loaded.
   SweetAlert2 is imported statically.
 - Seeders and the entity stores are deleted. `authstore` keeps `accessToken` and

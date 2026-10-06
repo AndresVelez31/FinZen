@@ -10,10 +10,10 @@ The back-end rules are in [Programming Rules (Backend)](Programming-Rules-(Backe
 3. Data is loaded inside `onMounted(async () => { ... })` into `ref`s, wrapped in `try/catch`.
    No `await` at the top level of `<script setup>`.
 4. Everything shown that depends on loaded data is a `computed`.
-5. Asynchrony in a view only lives in `onMounted(async () => ...)`, whose loads are inside
-   `try/catch`. Event handlers (`submit`, `delete...`) are not `async`: they chain the service
-   promise with `.then()` / `.catch()` / `.finally()` and show the error with SweetAlert2 in
-   `.catch()`. After a delete the list on screen is updated without reloading it.
+5. Data is loaded only in `onMounted(async () => ...)` inside `try/catch`, never with a top-level
+   `await`. Event handlers that call the API (`submit`, `delete...`) are `async`, `await` the
+   service inside `try/catch` and show the error with SweetAlert2. After a delete the list on
+   screen is updated without reloading it.
 6. Forms validate their fields before calling the service (the API validates again).
 
 ## Services (`src/services/`)

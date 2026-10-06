@@ -11,7 +11,6 @@ import type { UpdateTransactionDTO } from '@/dtos/UpdateTransactionDTO.js';
 import type { AccountInterface } from '@/interfaces/AccountInterface.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import type { TransactionFormErrorsInterface } from '@/interfaces/TransactionFormErrorsInterface.js';
-import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
 import { TransactionService } from '@/services/TransactionService.js';
@@ -75,7 +74,7 @@ function buildTransactionFields(accountId: number, activityId: number): CreateTr
   };
 }
 
-function submit(): void {
+async function submit(): Promise<void> {
   const { accountId, activityId } = form.value;
   if (saving.value || !validate() || !accountId || !activityId) {
     return;
@@ -83,37 +82,33 @@ function submit(): void {
 
   saving.value = true;
 
-  let request: Promise<TransactionInterface>;
-  if (editing.value) {
-    const updateTransactionDTO: UpdateTransactionDTO = {
-      id: transactionId.value,
-      ...buildTransactionFields(accountId, activityId),
-    };
-    request = TransactionService.update(updateTransactionDTO);
-  } else {
-    request = TransactionService.create(buildTransactionFields(accountId, activityId));
-  }
+  try {
+    if (editing.value) {
+      const updateTransactionDTO: UpdateTransactionDTO = {
+        id: transactionId.value,
+        ...buildTransactionFields(accountId, activityId),
+      };
+      await TransactionService.update(updateTransactionDTO);
+    } else {
+      await TransactionService.create(buildTransactionFields(accountId, activityId));
+    }
 
-  request
-    .then(() =>
-      Swal.fire({
-        title: editing.value ? 'Transacción actualizada' : 'Transacción creada',
-        icon: 'success',
-        timer: 1300,
-        showConfirmButton: false,
-      }),
-    )
-    .then(() => router.push({ name: 'transactions' }))
-    .catch((error: Error) => {
-      Swal.fire({
-        title: 'No se pudo guardar la transacción',
-        text: error.message,
-        icon: 'error',
-      });
-    })
-    .finally(() => {
-      saving.value = false;
+    await Swal.fire({
+      title: editing.value ? 'Transacción actualizada' : 'Transacción creada',
+      icon: 'success',
+      timer: 1300,
+      showConfirmButton: false,
     });
+    await router.push({ name: 'transactions' });
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudo guardar la transacción',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+  } finally {
+    saving.value = false;
+  }
 }
 
 // Lifecycle

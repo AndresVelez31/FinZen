@@ -63,8 +63,8 @@ function navigateTo(routeName: string): void {
   isMobileMenuOpen.value = false;
 }
 
-function handleLogout(): void {
-  Swal.fire({
+async function handleLogout(): Promise<void> {
+  const result = await Swal.fire({
     title: '¿Cerrar sesión?',
     text: 'Volverás a la pantalla de acceso.',
     icon: 'question',
@@ -73,13 +73,17 @@ function handleLogout(): void {
     cancelButtonText: 'Cancelar',
     confirmButtonColor: '#ef4444',
     cancelButtonColor: '#94a3b8',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      AuthService.logout().catch(() => {
-        // The local session already ended; a failed revoke is not shown.
-      });
-    }
   });
+
+  if (!result.isConfirmed) {
+    return;
+  }
+
+  try {
+    await AuthService.logout();
+  } catch {
+    // The local session already ended; a failed revoke is not shown.
+  }
 }
 
 // Watchers

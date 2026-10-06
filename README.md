@@ -67,8 +67,8 @@ Backend:   Controller -> Service -> TypeORM Repository -> SQLite
 ```
 
 - **Views** load their data only inside `onMounted`, always within `try/catch`, and derive
-  everything else with `computed`. Event handlers are not `async`: they chain `.then()` /
-  `.catch()`.
+  everything else with `computed`. Event handlers that call the API are `async`: they `await`
+  the service inside `try/catch`.
 - **Services** only do CRUD with the API. They extend `BaseService`, the only place with the axios
   `try/catch`, the `Authorization` header and the error handling.
 - **Utils** hold the calculations over data a view already loaded, one per service
