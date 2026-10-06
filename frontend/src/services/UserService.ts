@@ -1,32 +1,16 @@
+import type { UpdateUserDTO } from '@/dtos/UpdateUserDTO.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
-import { useUserStore } from '@/stores/userstore.js';
+import { BaseService } from '@/services/BaseService.js';
 
-export class UserService {
-  static getAll(): UserInterface[] {
-    return useUserStore().users;
+export class UserService extends BaseService {
+  private static readonly PATH = '/users';
+
+  static async getAll(): Promise<UserInterface[]> {
+    return await this.httpGet(this.PATH);
   }
 
-  static getById(id: number): UserInterface | undefined {
-    return useUserStore().users.find((user) => user.id === id);
-  }
-
-  static updateRole(id: number, role: string): void {
-    const user = UserService.getById(id);
-    if (!user) {
-      return;
-    }
-    user.role = role;
-    user.updatedAt = new Date().toISOString();
-  }
-
-  static toggleActive(id: number): void {
-    const user = UserService.getById(id);
-
-    if (!user) {
-      return;
-    }
-
-    user.active = !user.active;
-    user.updatedAt = new Date().toISOString();
+  static async update(updateUserDTO: UpdateUserDTO): Promise<UserInterface> {
+    const { id, ...userUpdates } = updateUserDTO;
+    return await this.httpPatch(`${this.PATH}/${id}`, userUpdates);
   }
 }
