@@ -41,21 +41,6 @@ jobs:
       - name: Type-check + Build
         run: npm run build
 
-      # The release bundle is exactly what the Dockerfile needs: the freshly
-      # built dist/ plus the nginx and Docker configuration.
-      - name: Package release bundle
-        run: |
-          mkdir -p ../release
-          cp -r dist Dockerfile nginx.conf ../release/
-          tar -czf ../finzen-release.tar.gz -C ../release .
-
-      - name: Upload release bundle
-        uses: actions/upload-artifact@v4
-        with:
-          name: finzen-release
-          path: finzen-release.tar.gz
-          retention-days: 7
-
   backend:
     runs-on: ubuntu-latest
     defaults:
@@ -82,22 +67,20 @@ jobs:
         run: npm run build
 
   docker:
-    needs: build-test
+    needs: [build-test, backend]
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download release bundle
-        uses: actions/download-artifact@v4
-        with:
-          name: finzen-release
+      - uses: actions/checkout@v4
 
-      - name: Build image
+      # Both Dockerfiles are multi-stage: they install, build and keep only the
+      # output, the same way the VM builds them with deploy.sh.
+      - name: Build images
         run: |
-          mkdir release
-          tar -xzf finzen-release.tar.gz -C release
-          docker image build -t finzen-frontend:ci release
+          docker image build -t finzen-backend:ci backend
+          docker image build -t finzen-frontend:ci frontend
 
-      - name: Run container and check routes
+      - name: Run frontend container and check routes
         run: |
           docker container run -d --name finzen-ci -p 8080:80 finzen-frontend:ci
           sleep 3
