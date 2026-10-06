@@ -53,8 +53,14 @@ number.
 18. Passwords are stored only as scrypt hashes made by `PasswordHasher`; the password column is
     `select: false` and only `UsersService.findCredentialsByEmail()` reads it, for the sign-in.
     The same message answers a wrong email and a wrong password.
-19. `POST /auth/token` signs in and returns an access token of 8 hours (`TokenService`); the
-    SPA signs out by deleting it.
+19. `POST /auth/token` signs in and returns an access token of 8 hours and a refresh token of 7
+    days (`TokenService`, renewable up to 30 days after the sign-in). `POST /auth/token/refresh`
+    exchanges the refresh token for a new pair (`401` if it is invalid, expired or reused; a reused
+    token revokes its whole session) and `POST /auth/token/revoke` signs out (`204`, it never
+    reveals whether the token existed). The access token already issued stays valid until it
+    expires. The refresh tokens live in memory, so restarting the API ends the renewals. A global
+    `ValidationPipe` validates the DTOs (`class-validator`) and answers `400` with a single
+    Spanish `message`.
 
 ## Configuration
 

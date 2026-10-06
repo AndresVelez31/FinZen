@@ -40,7 +40,7 @@ describe('AuthService', () => {
     vi.restoreAllMocks();
   });
 
-  it('gets the token with a trimmed, lower-case email and then the signed-in user', async () => {
+  it('gets the tokens with a trimmed, lower-case email and then the signed-in user', async () => {
     const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: TOKENS });
     const get = vi.spyOn(axios, 'get').mockResolvedValue({ data: ADMIN });
 
@@ -55,6 +55,7 @@ describe('AuthService', () => {
       headers: { Authorization: 'Bearer access-1' },
     });
     expect(user).toEqual(ADMIN);
+    expect(useAuthStore().refreshToken).toBe('refresh-1');
     expect(AuthService.isAuthenticated()).toBe(true);
     expect(AuthService.isAdmin()).toBe(true);
   });
@@ -68,17 +69,39 @@ describe('AuthService', () => {
     expect(AuthService.isAuthenticated()).toBe(false);
   });
 
-  it('clears the session on logout', () => {
+  it('clears the session and revokes the refresh token on logout', async () => {
+    const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: '' });
     const authStore = useAuthStore();
     authStore.accessToken = 'access-1';
+    authStore.refreshToken = 'refresh-1';
     authStore.currentUser = { ...ADMIN, role: 'user' };
 
     expect(AuthService.isAuthenticated()).toBe(true);
     expect(AuthService.isAdmin()).toBe(false);
 
-    AuthService.logout();
+    await AuthService.logout();
 
+    expect(post).toHaveBeenCalledWith(
+      expect.stringContaining('/api/auth/token/revoke'),
+      { refreshToken: 'refresh-1' },
+      {},
+    );
     expect(AuthService.isAuthenticated()).toBe(false);
     expect(AuthService.getCurrentUser()).toBeNull();
+    expect(authStore.refreshToken).toBeNull();
+  });
+
+  it('clears the session on logout even when the revoke fails', async () => {
+    vi.spyOn(axios, 'post').mockRejectedValue(new AxiosError('Network Error'));
+    const authStore = useAuthStore();
+    authStore.accessToken = 'access-1';
+    authStore.refreshToken = 'refresh-1';
+    authStore.currentUser = ADMIN;
+
+    await expect(AuthService.logout()).rejects.toThrow('No fue posible conectar con el servidor.');
+
+    expect(authStore.accessToken).toBeNull();
+    expect(authStore.refreshToken).toBeNull();
+    expect(AuthService.isAuthenticated()).toBe(false);
   });
 });

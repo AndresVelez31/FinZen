@@ -8,7 +8,8 @@ import type { UserInterface } from '@/interfaces/UserInterface.js';
 // Exports
 export const useAuthStore = defineStore('auth', () => {
   const accessToken = ref<string | null>(null);
+  const refreshToken = ref<string | null>(null);
   const currentUser = ref<UserInterface | null>(null);
 
-  return { accessToken, currentUser };
+  return { accessToken, refreshToken, currentUser };
 });

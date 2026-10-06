@@ -33,6 +33,18 @@ export class AuthService {
     });
   }
 
+  // Exchanges a refresh token for a new pair. The package throws when the token is
+  // invalid, expired or reused (a reused token also revokes its whole session).
+  async refresh(refreshToken: string): Promise<TokenPair> {
+    return await this.tokenService.refresh(refreshToken);
+  }
+
+  // Ends the session of the refresh token. The result is ignored on purpose: an
+  // unknown token is not revealed to the caller (RFC 7009).
+  async revoke(refreshToken: string): Promise<void> {
+    await this.tokenService.revoke(refreshToken);
+  }
+
   // The user, or null when the email or the password is wrong. With no account,
   // verify() checks a dummy hash, so the response takes the same time and does
   // not reveal which emails exist.

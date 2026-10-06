@@ -27,8 +27,8 @@ supports:
 Since Deliverable 2 the project is **full stack**:
 
 - `frontend/` — Vue SPA. Its services call the API with axios; Pinia only keeps the session
-  (access token and current user) and the theme, persisted in `localStorage` under
-  `finzenState.v4`.
+  (access token, refresh token and current user) and the theme, persisted in `localStorage` under
+  `finzenState.v5`.
 - `backend/` — NestJS REST API under `/api`, with TypeORM over SQLite. The schema and the demo
   data are created by migrations.
 
@@ -76,7 +76,9 @@ Backend:   Controller -> Service -> TypeORM Repository -> SQLite
   `AccountUtil.calculateBalance`).
 - **Stores** only keep the session and the theme.
 - **Backend modules** (`auth`, `users`, `accounts`, `activities`, `transactions`) own their
-  controller, service, entity and DTOs. Validation, ownership and cascading deletes live there.
+  controller, service, entity and DTOs. Validation, ownership and cascading deletes live there;
+  a global `ValidationPipe` (`class-validator`) checks the DTOs of the token routes and answers
+  `400` with a single Spanish `message`.
 
 For the detailed rules, see the
 [Programming Rules (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Programming-Rules-(Frontend)>).
@@ -211,19 +213,21 @@ The account form currently provides five account types: `Corriente`, `Ahorros`, 
 All routes live under `/api` and require `Authorization: Bearer <token>` unless marked public.
 Every list only contains the authenticated user's records; someone else's record answers `404`.
 
-| Method                      | Path                    | Access        | Description                                       |
-| --------------------------- | ----------------------- | ------------- | ------------------------------------------------- |
-| `GET`                       | `/api`                  | Public        | Health check                                      |
-| `POST`                      | `/api/auth/token`       | Public        | Sign in: returns the `accessToken` (8 hours)      |
-| `GET`                       | `/api/me`               | Authenticated | The signed-in user (never the password)           |
-| `GET` / `POST`              | `/api/accounts`         | Authenticated | List / create accounts                            |
-| `GET` / `PATCH` / `DELETE`  | `/api/accounts/:id`     | Authenticated | Read / update / delete (cascades transactions)    |
-| `GET` / `POST`              | `/api/transactions`     | Authenticated | List (newest first) / create                      |
-| `GET` / `PATCH` / `DELETE`  | `/api/transactions/:id` | Authenticated | Read / update / delete                            |
-| `GET`                       | `/api/activities[/:id]` | Authenticated | List / read activities                            |
-| `POST` / `PATCH` / `DELETE` | `/api/activities[/:id]` | Administrator | Manage activities (delete cascades transactions)  |
-| `GET`                       | `/api/users`            | Administrator | List users                                        |
-| `PATCH`                     | `/api/users/:id`        | Administrator | Change `role` and/or `active` (not your own user) |
+| Method                      | Path                      | Access        | Description                                                                                           |
+| --------------------------- | ------------------------- | ------------- | ----------------------------------------------------------------------------------------------------- |
+| `GET`                       | `/api`                    | Public        | Health check                                                                                          |
+| `POST`                      | `/api/auth/token`         | Public        | Sign in: returns the `accessToken` (8 hours) and the `refreshToken` (7 days, renewable up to 30 days) |
+| `POST`                      | `/api/auth/token/refresh` | Public        | Exchanges the refresh token for a new pair; `401` if invalid, expired or reused                       |
+| `POST`                      | `/api/auth/token/revoke`  | Public        | Sign out: revokes the refresh token (`204`)                                                           |
+| `GET`                       | `/api/me`                 | Authenticated | The signed-in user (never the password)                                                               |
+| `GET` / `POST`              | `/api/accounts`           | Authenticated | List / create accounts                                                                                |
+| `GET` / `PATCH` / `DELETE`  | `/api/accounts/:id`       | Authenticated | Read / update / delete (cascades transactions)                                                        |
+| `GET` / `POST`              | `/api/transactions`       | Authenticated | List (newest first) / create                                                                          |
+| `GET` / `PATCH` / `DELETE`  | `/api/transactions/:id`   | Authenticated | Read / update / delete                                                                                |
+| `GET`                       | `/api/activities[/:id]`   | Authenticated | List / read activities                                                                                |
+| `POST` / `PATCH` / `DELETE` | `/api/activities[/:id]`   | Administrator | Manage activities (delete cascades transactions)                                                      |
+| `GET`                       | `/api/users`              | Administrator | List users                                                                                            |
+| `PATCH`                     | `/api/users/:id`          | Administrator | Change `role` and/or `active` (not your own user)                                                     |
 
 ## Available scripts
 
@@ -259,7 +263,7 @@ contributing.
 
 Stop the API, delete `backend/database.sqlite` and start it again: the migrations recreate the
 schema and the demo data. To end the browser session, log out or run
-`localStorage.removeItem("finzenState.v4")` in the developer console.
+`localStorage.removeItem("finzenState.v5")` in the developer console.
 
 ## Production build and Docker
 
