@@ -114,8 +114,8 @@ async function submit(): Promise<void> {
 // Lifecycle
 onMounted(async () => {
   try {
-    accounts.value = await AccountService.getAll();
-    activities.value = await ActivityService.getAll();
+    accounts.value = await AccountService.getAllByUserId();
+    activities.value = await ActivityService.getAllByUserId();
 
     if (!editing.value) {
       form.value.accountId = accounts.value[0]?.id ?? null;
@@ -123,7 +123,7 @@ onMounted(async () => {
       return;
     }
 
-    const transaction = await TransactionService.getById(transactionId.value);
+    const transaction = await TransactionService.getByIdAndUserId(transactionId.value);
     form.value = {
       type: transaction.type,
       amount: String(transaction.amount),

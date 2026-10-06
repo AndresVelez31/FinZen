@@ -35,7 +35,7 @@ describe('BaseService', () => {
   it('sends the access token as a Bearer Authorization header', async () => {
     const get = vi.spyOn(axios, 'get').mockResolvedValue({ data: [] });
 
-    await AccountService.getAll();
+    await AccountService.getAllByUserId();
 
     expect(get).toHaveBeenCalledWith(expect.stringContaining('/api/accounts'), {
       headers: { Authorization: 'Bearer access-1' },
@@ -47,7 +47,7 @@ describe('BaseService', () => {
       buildHttpError(404, 'La cuenta no existe o no está disponible.'),
     );
 
-    await expect(AccountService.getById(99)).rejects.toThrow(
+    await expect(AccountService.getByIdAndUserId(99)).rejects.toThrow(
       'La cuenta no existe o no está disponible.',
     );
     expect(useAuthStore().accessToken).toBe('access-1');
@@ -56,7 +56,7 @@ describe('BaseService', () => {
   it('ends the session when the API rejects the token', async () => {
     vi.spyOn(axios, 'get').mockRejectedValue(buildHttpError(401, 'Unauthorized'));
 
-    await expect(AccountService.getAll()).rejects.toThrow('Tu sesión expiró.');
+    await expect(AccountService.getAllByUserId()).rejects.toThrow('Tu sesión expiró.');
     expect(useAuthStore().accessToken).toBeNull();
   });
 
@@ -71,7 +71,7 @@ describe('BaseService', () => {
       data: { accessToken: 'access-2', refreshToken: 'refresh-2', expiresIn: 28800 },
     });
 
-    const accounts = await AccountService.getAll();
+    const accounts = await AccountService.getAllByUserId();
 
     expect(post).toHaveBeenCalledWith(expect.stringContaining('/api/auth/token/refresh'), {
       refreshToken: 'refresh-1',
@@ -91,7 +91,7 @@ describe('BaseService', () => {
     vi.spyOn(axios, 'get').mockRejectedValue(buildHttpError(401, 'Unauthorized'));
     vi.spyOn(axios, 'post').mockRejectedValue(buildHttpError(401, 'Refresh token reused'));
 
-    await expect(AccountService.getAll()).rejects.toThrow('Tu sesión expiró.');
+    await expect(AccountService.getAllByUserId()).rejects.toThrow('Tu sesión expiró.');
     expect(authStore.accessToken).toBeNull();
     expect(authStore.refreshToken).toBeNull();
   });
@@ -99,7 +99,7 @@ describe('BaseService', () => {
   it('reports a clear message when the server cannot be reached', async () => {
     vi.spyOn(axios, 'get').mockRejectedValue(new AxiosError('Network Error'));
 
-    await expect(AccountService.getAll()).rejects.toThrow(
+    await expect(AccountService.getAllByUserId()).rejects.toThrow(
       'No fue posible conectar con el servidor.',
     );
   });

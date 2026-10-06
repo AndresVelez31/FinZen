@@ -97,7 +97,7 @@ onMounted(async () => {
   }
 
   try {
-    const account = await AccountService.getById(accountId.value);
+    const account = await AccountService.getByIdAndUserId(accountId.value);
     form.value = {
       name: account.name,
       type: account.type,

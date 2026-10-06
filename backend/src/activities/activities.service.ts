@@ -17,7 +17,7 @@ export class ActivitiesService {
     private readonly activitiesRepository: Repository<Activity>,
   ) {}
 
-  async findAll(userId: number): Promise<Activity[]> {
+  async findAllByUserId(userId: number): Promise<Activity[]> {
     return await this.activitiesRepository.find({
       where: { user: { id: userId } },
       order: { id: 'ASC' },
@@ -25,7 +25,7 @@ export class ActivitiesService {
   }
 
   // Another user's activity behaves exactly like a missing one.
-  async findOne(id: number, userId: number): Promise<Activity> {
+  async findOneByIdAndUserId(id: number, userId: number): Promise<Activity> {
     const activity = await this.activitiesRepository.findOneBy({ id, user: { id: userId } });
     if (!activity) {
       throw new NotFoundException('La actividad no existe o no está disponible.');
@@ -43,7 +43,7 @@ export class ActivitiesService {
       user: { id: userId },
     });
     const savedActivity = await this.activitiesRepository.save(activity);
-    return await this.findOne(savedActivity.id, userId);
+    return await this.findOneByIdAndUserId(savedActivity.id, userId);
   }
 
   async update(
@@ -51,7 +51,7 @@ export class ActivitiesService {
     updateActivityDto: UpdateActivityDto,
     userId: number,
   ): Promise<Activity> {
-    const activity = await this.findOne(id, userId);
+    const activity = await this.findOneByIdAndUserId(id, userId);
     const fields = this.validate({
       name: updateActivityDto.name ?? activity.name,
       color: updateActivityDto.color ?? activity.color,
@@ -65,7 +65,7 @@ export class ActivitiesService {
 
   // The activity's transactions are removed by the database (onDelete: 'CASCADE').
   async remove(id: number, userId: number): Promise<void> {
-    const activity = await this.findOne(id, userId);
+    const activity = await this.findOneByIdAndUserId(id, userId);
     await this.activitiesRepository.remove(activity);
   }
 

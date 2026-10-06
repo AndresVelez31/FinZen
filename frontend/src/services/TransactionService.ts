@@ -10,12 +10,12 @@ import { BaseService } from '@/services/BaseService.js';
 export class TransactionService extends BaseService {
   private static readonly PATH = '/transactions';
 
-  // The API returns them newest first (by date).
-  public static async getAll(): Promise<TransactionInterface[]> {
+  // The API returns only the signed-in user's records, newest first (by date).
+  public static async getAllByUserId(): Promise<TransactionInterface[]> {
     return await this.httpGet(this.PATH);
   }
 
-  public static async getById(id: number): Promise<TransactionInterface> {
+  public static async getByIdAndUserId(id: number): Promise<TransactionInterface> {
     return await this.httpGet(`${this.PATH}/${id}`);
   }
 

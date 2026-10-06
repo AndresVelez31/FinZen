@@ -18,13 +18,16 @@ export class ActivitiesController {
   constructor(private readonly activitiesService: ActivitiesService) {}
 
   @Get()
-  async findAll(@CurrentUser('id') userId: number): Promise<Activity[]> {
-    return await this.activitiesService.findAll(userId);
+  async findAllByUserId(@CurrentUser('id') userId: number): Promise<Activity[]> {
+    return await this.activitiesService.findAllByUserId(userId);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @CurrentUser('id') userId: number): Promise<Activity> {
-    return await this.activitiesService.findOne(Number(id), userId);
+  async findOneByIdAndUserId(
+    @Param('id') id: string,
+    @CurrentUser('id') userId: number,
+  ): Promise<Activity> {
+    return await this.activitiesService.findOneByIdAndUserId(Number(id), userId);
   }
 
   @Roles(Role.Admin)

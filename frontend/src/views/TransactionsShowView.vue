@@ -155,9 +155,9 @@ async function deleteTransaction(transaction: TransactionRowInterface): Promise<
 // Lifecycle
 onMounted(async () => {
   try {
-    transactions.value = await TransactionService.getAll();
-    accounts.value = await AccountService.getAll();
-    activities.value = await ActivityService.getAll();
+    transactions.value = await TransactionService.getAllByUserId();
+    accounts.value = await AccountService.getAllByUserId();
+    activities.value = await ActivityService.getAllByUserId();
   } catch (error) {
     await Swal.fire({
       title: 'No se pudieron cargar las transacciones',

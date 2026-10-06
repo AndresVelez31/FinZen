@@ -16,7 +16,7 @@ export class AccountsService {
     private readonly accountsRepository: Repository<Account>,
   ) {}
 
-  async findAll(userId: number): Promise<Account[]> {
+  async findAllByUserId(userId: number): Promise<Account[]> {
     return await this.accountsRepository.find({
       where: { user: { id: userId } },
       order: { id: 'ASC' },
@@ -24,7 +24,7 @@ export class AccountsService {
   }
 
   // Another user's account behaves exactly like a missing one.
-  async findOne(id: number, userId: number): Promise<Account> {
+  async findOneByIdAndUserId(id: number, userId: number): Promise<Account> {
     const account = await this.accountsRepository.findOneBy({ id, user: { id: userId } });
     if (!account) {
       throw new NotFoundException('La cuenta no existe o no está disponible.');
@@ -41,11 +41,11 @@ export class AccountsService {
       user: { id: userId },
     });
     const savedAccount = await this.accountsRepository.save(account);
-    return await this.findOne(savedAccount.id, userId);
+    return await this.findOneByIdAndUserId(savedAccount.id, userId);
   }
 
   async update(id: number, updateAccountDto: UpdateAccountDto, userId: number): Promise<Account> {
-    const account = await this.findOne(id, userId);
+    const account = await this.findOneByIdAndUserId(id, userId);
     const fields = this.validate({
       name: updateAccountDto.name ?? account.name,
       type: updateAccountDto.type ?? account.type,
@@ -58,7 +58,7 @@ export class AccountsService {
 
   // The account's transactions are removed by the database (onDelete: 'CASCADE').
   async remove(id: number, userId: number): Promise<void> {
-    const account = await this.findOne(id, userId);
+    const account = await this.findOneByIdAndUserId(id, userId);
     await this.accountsRepository.remove(account);
   }
 

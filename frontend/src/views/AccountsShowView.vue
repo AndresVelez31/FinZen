@@ -56,8 +56,8 @@ async function deleteAccount(id: number): Promise<void> {
 // Lifecycle
 onMounted(async () => {
   try {
-    accounts.value = await AccountService.getAll();
-    transactions.value = await TransactionService.getAll();
+    accounts.value = await AccountService.getAllByUserId();
+    transactions.value = await TransactionService.getAllByUserId();
   } catch (error) {
     await Swal.fire({
       title: 'No se pudieron cargar las cuentas',

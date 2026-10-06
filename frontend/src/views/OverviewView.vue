@@ -84,9 +84,9 @@ const recentTransactions = computed(() =>
 // Lifecycle
 onMounted(async () => {
   try {
-    accounts.value = await AccountService.getAll();
-    activities.value = await ActivityService.getAll();
-    transactions.value = await TransactionService.getAll();
+    accounts.value = await AccountService.getAllByUserId();
+    activities.value = await ActivityService.getAllByUserId();
+    transactions.value = await TransactionService.getAllByUserId();
   } catch (error) {
     await Swal.fire({
       title: 'No se pudo cargar el resumen',

@@ -25,14 +25,14 @@ export class TransactionsService {
     private readonly activitiesService: ActivitiesService,
   ) {}
 
-  async findAll(userId: number): Promise<Transaction[]> {
+  async findAllByUserId(userId: number): Promise<Transaction[]> {
     return await this.transactionsRepository.find({
       where: { account: { user: { id: userId } } },
       order: { date: 'DESC', id: 'DESC' },
     });
   }
 
-  async findOne(id: number, userId: number): Promise<Transaction> {
+  async findOneByIdAndUserId(id: number, userId: number): Promise<Transaction> {
     const transaction = await this.transactionsRepository.findOneBy({
       id,
       account: { user: { id: userId } },
@@ -46,7 +46,7 @@ export class TransactionsService {
   async create(createTransactionDto: CreateTransactionDto, userId: number): Promise<Transaction> {
     const fields = await this.validate(createTransactionDto, userId);
     const savedTransaction = await this.transactionsRepository.save(this.toEntityFields(fields));
-    return await this.findOne(savedTransaction.id, userId);
+    return await this.findOneByIdAndUserId(savedTransaction.id, userId);
   }
 
   async update(
@@ -54,7 +54,7 @@ export class TransactionsService {
     updateTransactionDto: UpdateTransactionDto,
     userId: number,
   ): Promise<Transaction> {
-    const transaction = await this.findOne(id, userId);
+    const transaction = await this.findOneByIdAndUserId(id, userId);
     const fields = await this.validate(
       {
         type: updateTransactionDto.type ?? transaction.type,
@@ -68,11 +68,11 @@ export class TransactionsService {
     );
 
     await this.transactionsRepository.save(this.toEntityFields(fields, transaction.id));
-    return await this.findOne(id, userId);
+    return await this.findOneByIdAndUserId(id, userId);
   }
 
   async remove(id: number, userId: number): Promise<void> {
-    const transaction = await this.findOne(id, userId);
+    const transaction = await this.findOneByIdAndUserId(id, userId);
     await this.transactionsRepository.remove(transaction);
   }
 
@@ -97,8 +97,8 @@ export class TransactionsService {
 
     // Both lookups throw NotFoundException when the account or activity
     // does not belong to the current user.
-    await this.accountsService.findOne(transactionDto.accountId, userId);
-    await this.activitiesService.findOne(transactionDto.activityId, userId);
+    await this.accountsService.findOneByIdAndUserId(transactionDto.accountId, userId);
+    await this.activitiesService.findOneByIdAndUserId(transactionDto.activityId, userId);
 
     return {
       type: transactionDto.type,

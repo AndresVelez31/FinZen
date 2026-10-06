@@ -14,13 +14,16 @@ export class AccountsController {
   constructor(private readonly accountsService: AccountsService) {}
 
   @Get()
-  async findAll(@CurrentUser('id') userId: number): Promise<Account[]> {
-    return await this.accountsService.findAll(userId);
+  async findAllByUserId(@CurrentUser('id') userId: number): Promise<Account[]> {
+    return await this.accountsService.findAllByUserId(userId);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @CurrentUser('id') userId: number): Promise<Account> {
-    return await this.accountsService.findOne(Number(id), userId);
+  async findOneByIdAndUserId(
+    @Param('id') id: string,
+    @CurrentUser('id') userId: number,
+  ): Promise<Account> {
+    return await this.accountsService.findOneByIdAndUserId(Number(id), userId);
   }
 
   @Post()

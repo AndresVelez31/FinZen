@@ -29,7 +29,8 @@ The back-end rules are in [Programming Rules (Backend)](Programming-Rules-(Backe
    arrives, the session ends. `AuthService.logout()` ends the local session first and then
    revokes the refresh token.
 9. Every function that returns a promise is `async` and uses `await`
-   (`return await this.httpGet(...)`): `getAll`, `getById`, `create`, `update`, `delete`.
+   (`return await this.httpGet(...)`): `getAllByUserId`, `getByIdAndUserId`, `create`, `update`,
+   `delete` (`UserService` keeps `getAll` and `update`: it lists every user for the administrator).
 10. Calculations over data a view already loaded (filters, totals, progress) live in one util per
     service (`AccountUtil`, `ActivityUtil`, `TransactionUtil`) and receive that data as parameters.
 
