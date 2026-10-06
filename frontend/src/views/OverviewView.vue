@@ -54,7 +54,7 @@ const totalBalance = computed(() =>
 );
 
 // Doughnut: expense by activity this month
-const donut = computed(() => {
+const donutChart = computed(() => {
   const entries = TransactionUtil.groupExpensesByActivity(
     monthTransactions.value,
     activities.value,
@@ -71,7 +71,7 @@ const donut = computed(() => {
     ],
   };
 });
-const hasDonut = computed(() => donut.value.labels.length > 0);
+const hasDonutChart = computed(() => donutChart.value.labels.length > 0);
 
 const recentTransactions = computed(() =>
   TransactionUtil.attachAccountAndActivity(
@@ -142,10 +142,10 @@ onMounted(async () => {
           <span class="badge badge-gray">Mes actual</span>
         </div>
         <ChartGraphic
-          v-if="hasDonut"
+          v-if="hasDonutChart"
           type="doughnut"
-          :labels="donut.labels"
-          :datasets="donut.datasets"
+          :labels="donutChart.labels"
+          :datasets="donutChart.datasets"
           :height="300"
           :options="{ cutout: '62%' }"
         />

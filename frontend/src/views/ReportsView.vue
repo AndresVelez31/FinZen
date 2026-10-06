@@ -104,7 +104,7 @@ const budgetChart = computed(() => ({
     },
   ],
 }));
-const hasBudget = computed(() => budgetChart.value.labels.length > 0);
+const hasBudgetChart = computed(() => budgetChart.value.labels.length > 0);
 
 // Savings progress (all-time, unlike the period-scoped figures above)
 const savingsActivities = computed(() =>
@@ -188,7 +188,7 @@ onMounted(async () => {
           <span class="badge badge-gray">{{ monthName }}</span>
         </div>
         <ChartGraphic
-          v-if="hasBudget"
+          v-if="hasBudgetChart"
           type="bar"
           :labels="budgetChart.labels"
           :datasets="budgetChart.datasets"

@@ -1,4 +1,8 @@
+// External imports
+import { Landmark, PiggyBank, Smartphone, Wallet } from 'lucide-vue-next';
+
 // Internal imports
+import type { AccountTypeOptionInterface } from '@/interfaces/AccountTypeOptionInterface.js';
 import type { FilterOptionInterface } from '@/interfaces/FilterOptionInterface.js';
 
 // Exports
@@ -25,6 +29,14 @@ export const TRANSACTION_TYPE_OPTIONS: FilterOptionInterface[] = [
 export const USER_ROLE_OPTIONS: FilterOptionInterface[] = [
   { value: 'admin', label: 'Administrador' },
   { value: 'user', label: 'Usuario' },
+];
+
+export const ACCOUNT_TYPE_OPTIONS: AccountTypeOptionInterface[] = [
+  { value: 'Corriente', label: 'Corriente', icon: Landmark },
+  { value: 'Ahorros', label: 'Ahorros', icon: PiggyBank },
+  { value: 'Efectivo', label: 'Efectivo', icon: Wallet },
+  { value: 'Digital', label: 'Digital', icon: Smartphone },
+  { value: 'Inversión', label: 'Inversión', icon: Landmark },
 ];
 
 export const ACTIVITY_COLORS: string[] = [
