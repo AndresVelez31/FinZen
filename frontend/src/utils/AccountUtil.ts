@@ -1,6 +1,8 @@
+// Imports
 import type { AccountInterface } from '@/interfaces/AccountInterface.js';
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 
+// Exports
 // Calculations over accounts a view already loaded with AccountService.
 export class AccountUtil {
   /**

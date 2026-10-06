@@ -1,3 +1,4 @@
+// Exports
 export interface TransactionFormErrorsInterface {
   amount?: string;
   accountId?: string;

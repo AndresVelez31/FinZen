@@ -1,3 +1,4 @@
+// Exports
 export class CreateActivityDto {
   name: string;
   color: string;

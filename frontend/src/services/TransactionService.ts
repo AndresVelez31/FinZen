@@ -1,8 +1,10 @@
+// Imports
 import type { CreateTransactionDTO } from '@/dtos/CreateTransactionDTO.js';
 import type { UpdateTransactionDTO } from '@/dtos/UpdateTransactionDTO.js';
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 import { BaseService } from '@/services/BaseService.js';
 
+// Exports
 // CRUD with the API. Queries and aggregations over the loaded transactions
 // live in TransactionUtil.
 export class TransactionService extends BaseService {

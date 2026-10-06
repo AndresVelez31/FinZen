@@ -1,3 +1,4 @@
+// Imports
 import type { AccountInterface } from '@/interfaces/AccountInterface.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import type { ExpenseBucketInterface } from '@/interfaces/ExpenseBucketInterface.js';
@@ -11,6 +12,7 @@ import { FormattersUtil } from '@/utils/FormattersUtil.js';
 const UNKNOWN_ACTIVITY_NAME = 'Otros';
 const UNKNOWN_ACTIVITY_COLOR = '#94a3b8';
 
+// Exports
 // Queries and aggregations over transactions a view already loaded with
 // TransactionService.
 export class TransactionUtil {

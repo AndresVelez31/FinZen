@@ -1,3 +1,4 @@
+// Imports
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CurrentUser } from '@nestjs/authentication';
 import { CreateTransactionDto } from './dto/create-transaction.dto.js';
@@ -5,6 +6,7 @@ import { UpdateTransactionDto } from './dto/update-transaction.dto.js';
 import type { Transaction } from './entities/transaction.entity.js';
 import { TransactionsService } from './transactions.service.js';
 
+// Exports
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}

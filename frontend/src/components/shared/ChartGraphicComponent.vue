@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Reusable Chart.js wrapper without domain dependencies.
 
+// Imports
 import { Chart, registerables } from 'chart.js';
 import type { ChartDataset, ChartOptions, ChartType } from 'chart.js';
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';

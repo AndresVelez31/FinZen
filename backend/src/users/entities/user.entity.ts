@@ -1,3 +1,4 @@
+// Imports
 import {
   Column,
   CreateDateColumn,
@@ -11,6 +12,7 @@ import { Account } from '../../accounts/entities/account.entity.js';
 import { Activity } from '../../activities/entities/activity.entity.js';
 import { Role } from '../enums/role.enum.js';
 
+// Exports
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// Imports
 import {
   ArrowLeftRight,
   LayoutDashboard,

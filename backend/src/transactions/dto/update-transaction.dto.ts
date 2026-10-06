@@ -1,3 +1,4 @@
+// Exports
 export class UpdateTransactionDto {
   type?: string;
   amount?: number;

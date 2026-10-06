@@ -1,3 +1,4 @@
+// Imports
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,6 +12,7 @@ import { Transaction } from './entities/transaction.entity.js';
 const TRANSACTION_TYPES = ['income', 'expense'];
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
+// Exports
 // A transaction has no userId: it belongs to whoever owns its account.
 @Injectable()
 export class TransactionsService {
