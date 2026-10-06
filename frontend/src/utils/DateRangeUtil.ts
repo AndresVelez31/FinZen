@@ -1,13 +1,13 @@
+// Internal imports
+import type { DateRangeInterface } from '@/interfaces/DateRangeInterface.js';
+
 // Exports
 export class DateRangeUtil {
   /**
    * Returns the first and last day of the given month as ISO date strings
    * (YYYY-MM-DD).
    */
-  public static buildMonthRange(
-    year: string | number,
-    month: string | number,
-  ): { start: string; end: string } {
+  public static buildMonthRange(year: string | number, month: string | number): DateRangeInterface {
     const paddedMonth = String(month).padStart(2, '0');
     const lastDay = new Date(Number(year), Number(month), 0).getDate();
 
@@ -22,7 +22,7 @@ export class DateRangeUtil {
    * regardless of today's date. Includes dates later in the month that
    * haven't happened yet.
    */
-  public static buildCurrentMonthRange(): { start: string; end: string } {
+  public static buildCurrentMonthRange(): DateRangeInterface {
     const now = new Date();
     return this.buildMonthRange(now.getFullYear(), now.getMonth() + 1);
   }
@@ -31,7 +31,7 @@ export class DateRangeUtil {
    * The current calendar month up to today: day 1 through today's date,
    * not the end of the month.
    */
-  public static buildMonthToDateRange(): { start: string; end: string } {
+  public static buildMonthToDateRange(): DateRangeInterface {
     const now = new Date();
     const paddedMonth = String(now.getMonth() + 1).padStart(2, '0');
 
