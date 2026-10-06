@@ -5,16 +5,72 @@ explains how to use them (option ii of the deliverable).
 
 ## 1. Tools
 
-| Tool | What it checks | Where it is configured | When it runs | How to run it (from `backend/`) |
-| --- | --- | --- | --- | --- |
-| **Prettier** | Formatting, same rules as the front-end: single quotes, semicolons, 100 columns, trailing commas | `.prettierrc` | Before every commit | `npm run format` (rewrites `src/`) |
-| **OXLint** (type-aware) | Lint rules plus type-based rules such as `no-floating-promises` (a promise nobody awaits) | `.oxlintrc.json` | Before every commit and in CI | `npm run lint` |
-| **TypeScript compiler** | Types in strict mode | `tsconfig.json` | On every build and in CI | `npm run build` |
-| **TypeORM CLI** | Generates the migration that matches the entities | `src/database/data-source.ts` | Every time an entity changes | `npm run migration:generate -- src/database/migrations/<Name>` |
-| **GitHub Actions** | Runs `lint` and `build` on every PR | `.github/workflows/ci.yml` | Automatically on each PR to `main` | — |
+The back-end style is enforced with the linter and the formatter chosen for the project. This page
+explains how to use them (option ii of the deliverable). Every command below runs from the
+`backend/` folder. There is no ESLint in the back-end: OXLint is the only linter.
 
-`no-floating-promises` is set to `error`: every call that returns a promise must be awaited or
-returned.
+### 1.1 Code formatting (Prettier)
+
+- **What it checks:** formatting only, same rules as the front-end (single quotes, semicolons, 100
+  columns, trailing commas). It formats `src/**/*.ts`.
+- **Config:** `.prettierrc`.
+- **Modifies files:** yes, `--write` rewrites them.
+- **When:** while coding (or on save) and before every commit.
+
+```bash
+cd backend
+npm run format
+```
+
+### 1.2 Linting (OXLint, type-aware)
+
+- **What it checks:** lint rules plus type-based rules. `typescript/no-floating-promises` is set to
+  `error`: every call that returns a promise must be awaited or returned.
+- **Config:** `.oxlintrc.json`.
+- **Modifies files:** no, it only reports.
+- **When:** while coding, before every commit and in CI.
+
+```bash
+cd backend
+npm run lint
+```
+
+### 1.3 Type checking (TypeScript)
+
+- **What it checks:** types in strict mode. There is no separate type-check script: `nest build`
+  compiles the project with the TypeScript compiler and fails on a type error.
+- **Config:** `tsconfig.json`.
+- **Modifies files:** it writes the compiled output to `dist/` only.
+- **When:** before every commit and in CI.
+
+```bash
+cd backend
+npm run build
+```
+
+### 1.4 Migrations (TypeORM CLI)
+
+- **What it does:** generates the migration that matches the entities.
+- **Config:** `src/database/data-source.ts`.
+- **Modifies files:** yes, it creates a migration file.
+- **When:** every time an entity changes.
+
+```bash
+cd backend
+npm run migration:generate -- src/database/migrations/<Name>
+```
+
+### 1.5 Before every commit
+
+```bash
+cd backend
+npm run format
+npm run lint
+npm run build
+```
+
+CI (`build-test`, `backend` and `docker` in `.github/workflows/ci.yml`) runs on every PR to `main`
+and must be green to merge. The `backend` job runs `lint` and `build`.
 
 ## 2. Naming (Nest.js conventions)
 
