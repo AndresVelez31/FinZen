@@ -172,12 +172,13 @@ Open [http://localhost:5173](http://localhost:5173) in the browser.
 
 ## Demo data and credentials
 
-The `SeedDemoData` migration inserts:
+The `SeedDemoData` and `SeedDemoDataUntilDecember` migrations insert:
 
 - 2 users;
 - 8 accounts;
 - 14 activities;
-- 80 transactions.
+- 125 transactions, from February to December 2026 (80 from `SeedDemoData` and 45 for October
+  to December from `SeedDemoDataUntilDecember`).
 
 | Role          | Email              | Password   | Access scope                                        |
 | ------------- | ------------------ | ---------- | --------------------------------------------------- |
