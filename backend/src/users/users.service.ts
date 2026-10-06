@@ -35,6 +35,25 @@ export class UsersService {
     return await this.usersRepository.findOneBy({ id, active: true });
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    return await this.usersRepository.findOneBy({ email });
+  }
+
+  // Saves a regular active user. It returns the user read back, because the saved
+  // entity still carries the hash and the column is `select: false`.
+  async create(name: string, email: string, passwordHash: string): Promise<User> {
+    const saved = await this.usersRepository.save(
+      this.usersRepository.create({
+        name,
+        email,
+        password: passwordHash,
+        role: Role.User,
+        active: true,
+      }),
+    );
+    return await this.findOne(saved.id);
+  }
+
   // For the sign-in only: AuthService compares the hash and never returns this user.
   async findCredentialsByEmail(email: string): Promise<User | null> {
     return await this.usersRepository.findOne({

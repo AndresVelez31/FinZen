@@ -55,7 +55,11 @@ number.
 18. Passwords are stored only as scrypt hashes made by `PasswordHasher`; the password column is
     `select: false` and only `UsersService.findCredentialsByEmail()` reads it, for the sign-in.
     The same message answers a wrong email and a wrong password.
-19. `POST /auth/token` signs in and returns an access token of 8 hours and a refresh token of 7
+19. `POST /auth/sign-up` (`SignUpDto`: name, e-mail, password of 12 to 128 characters) creates
+    a regular user and signs them in. The e-mail is trimmed, lowercased and normalized to NFC;
+    an existing one answers `409` (`ConflictException`); the password is hashed with
+    `PasswordHasher.hash()` and the response is the token pair of `TokenService.issue()`.
+    `POST /auth/token` (`SignInDto`) signs in and returns an access token of 8 hours and a refresh token of 7
     days (`TokenService`, renewable up to 30 days after the sign-in). `POST /auth/token/refresh`
     exchanges the refresh token for a new pair (`401` if it is invalid, expired or reused; a reused
     token revokes its whole session) and `POST /auth/token/revoke` signs out (`204`, it never
