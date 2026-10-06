@@ -45,7 +45,7 @@ const emit = defineEmits<{
             <td>
               <div class="u">
                 <span class="u-avatar" :class="{ admin: user.role === 'admin' }">
-                  {{ FormattersUtil.initials(user.name) }}
+                  {{ FormattersUtil.extractInitials(user.name) }}
                 </span>
                 <div class="u-name">
                   {{ user.name }}

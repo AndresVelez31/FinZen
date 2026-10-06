@@ -22,7 +22,7 @@ export class TransactionUtil {
    * Filters transactions by activity, account, type, month (format 'MM'),
    * and/or an inclusive ISO date range. Unset criteria are ignored.
    */
-  public static filter(
+  public static filterByCriteria(
     transactions: TransactionInterface[],
     criteria: TransactionFilterCriteriaInterface = {},
   ): TransactionInterface[] {
@@ -47,7 +47,7 @@ export class TransactionUtil {
    * Joins each transaction with its account and activity (name and color)
    * through two Maps, instead of a lookup per cell in the template.
    */
-  public static getRows(
+  public static attachAccountAndActivity(
     transactions: TransactionInterface[],
     accounts: AccountInterface[],
     activities: ActivityInterface[],
@@ -72,7 +72,7 @@ export class TransactionUtil {
    * Distinct years with at least one transaction, plus the current year,
    * sorted descending.
    */
-  public static getAvailableYears(transactions: TransactionInterface[]): number[] {
+  public static collectAvailableYears(transactions: TransactionInterface[]): number[] {
     const years = new Set(
       transactions.map((transaction) => new Date(transaction.date).getFullYear()),
     );
@@ -82,7 +82,9 @@ export class TransactionUtil {
 
   // Aggregations
 
-  public static summarize(transactions: TransactionInterface[]): PeriodSummaryInterface {
+  public static summarizeIncomeAndExpense(
+    transactions: TransactionInterface[],
+  ): PeriodSummaryInterface {
     const totalIncome = transactions
       .filter((transaction) => transaction.type === 'income')
       .reduce((sum, transaction) => sum + transaction.amount, 0);
@@ -98,7 +100,7 @@ export class TransactionUtil {
    * Groups the expenses by activity name, bucketing transactions whose
    * activity is unknown under 'Otros'. Sorted by total, highest first.
    */
-  public static aggregateExpensesByActivity(
+  public static groupExpensesByActivity(
     transactions: TransactionInterface[],
     activities: ActivityInterface[],
   ): ExpenseBucketInterface[] {
@@ -127,11 +129,13 @@ export class TransactionUtil {
   /**
    * Income and expense totals grouped by month (YYYY-MM), in calendar order.
    */
-  public static getMonthlyTotals(transactions: TransactionInterface[]): MonthlyTotalInterface[] {
+  public static sumIncomeAndExpenseByMonth(
+    transactions: TransactionInterface[],
+  ): MonthlyTotalInterface[] {
     const monthlyTotals: MonthlyTotalInterface[] = [];
 
     transactions.forEach((transaction) => {
-      const month = FormattersUtil.monthKey(transaction.date);
+      const month = FormattersUtil.extractMonthKey(transaction.date);
       let monthEntry = monthlyTotals.find((total) => total.month === month);
       if (!monthEntry) {
         monthEntry = { month, income: 0, expense: 0 };
@@ -154,15 +158,15 @@ export class TransactionUtil {
    * Cumulative net balance (income - expense) at the end of each month of
    * the given year, in calendar order.
    */
-  public static getCumulativeBalanceByMonth(
+  public static accumulateBalanceByMonth(
     transactions: TransactionInterface[],
     year: string | number,
   ): number[] {
-    const yearTransactions = TransactionUtil.filter(transactions, {
+    const yearTransactions = TransactionUtil.filterByCriteria(transactions, {
       from: `${year}-01-01`,
       to: `${year}-12-31`,
     });
-    const monthlyTotals = TransactionUtil.getMonthlyTotals(yearTransactions);
+    const monthlyTotals = TransactionUtil.sumIncomeAndExpenseByMonth(yearTransactions);
     let runningBalance = 0;
 
     return Array.from({ length: 12 }, (_, index) => {

@@ -26,14 +26,14 @@ export class FormattersUtil {
   /**
    * Extracts the "YYYY-MM" month key from an ISO date string, used to group by month.
    */
-  public static monthKey(dateStr: string): string {
+  public static extractMonthKey(dateStr: string): string {
     return dateStr.slice(0, 7);
   }
 
   /**
    * Extracts up to two initials from a full name (e.g. "Ana García" -> "AG").
    */
-  public static initials(name: string): string {
+  public static extractInitials(name: string): string {
     if (!name) return '';
     return name
       .split(' ')

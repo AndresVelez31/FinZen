@@ -18,27 +18,27 @@ describe('FormattersUtil.formatToCOP', () => {
   });
 });
 
-describe('FormattersUtil.monthKey', () => {
+describe('FormattersUtil.extractMonthKey', () => {
   it('extracts the YYYY-MM key from an ISO date', () => {
-    expect(FormattersUtil.monthKey('2026-01-05')).toBe('2026-01');
+    expect(FormattersUtil.extractMonthKey('2026-01-05')).toBe('2026-01');
   });
 
   it('extracts the key even with a full ISO timestamp', () => {
-    expect(FormattersUtil.monthKey('2026-11-30T10:00:00.000Z')).toBe('2026-11');
+    expect(FormattersUtil.extractMonthKey('2026-11-30T10:00:00.000Z')).toBe('2026-11');
   });
 });
 
-describe('FormattersUtil.initials', () => {
+describe('FormattersUtil.extractInitials', () => {
   it('returns initials for a two-word name', () => {
-    expect(FormattersUtil.initials('Ana Garcia')).toBe('AG');
+    expect(FormattersUtil.extractInitials('Ana Garcia')).toBe('AG');
   });
 
   it('returns a single initial for a one-word name', () => {
-    expect(FormattersUtil.initials('Ana')).toBe('A');
+    expect(FormattersUtil.extractInitials('Ana')).toBe('A');
   });
 
   it('returns an empty string for an empty name', () => {
-    expect(FormattersUtil.initials('')).toBe('');
+    expect(FormattersUtil.extractInitials('')).toBe('');
   });
 });
 

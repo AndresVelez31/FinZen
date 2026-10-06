@@ -71,7 +71,8 @@ Backend:   Controller -> Service -> TypeORM Repository -> SQLite
 - **Services** only do CRUD with the API. They extend `BaseService`, the only place with the axios
   `try/catch`, the `Authorization` header and the error handling.
 - **Utils** hold the calculations over data a view already loaded, one per service
-  (e.g. `TransactionUtil.summarize`, `ActivityUtil.getProgress`, `AccountUtil.getBalance`).
+  (e.g. `TransactionUtil.summarizeIncomeAndExpense`, `ActivityUtil.calculateTargetProgress`,
+  `AccountUtil.calculateBalance`).
 - **Stores** only keep the session and the theme.
 - **Backend modules** (`auth`, `users`, `accounts`, `activities`, `transactions`) own their
   controller, service, entity and DTOs. Validation, ownership and cascading deletes live there.

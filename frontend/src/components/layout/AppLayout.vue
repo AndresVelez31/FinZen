@@ -50,7 +50,7 @@ const navItems = computed<NavItemInterface[]>(() => [
 ]);
 
 const userInitials = computed<string>(() =>
-  FormattersUtil.initials(currentUser.value?.name ?? '?'),
+  FormattersUtil.extractInitials(currentUser.value?.name ?? '?'),
 );
 
 // Actions

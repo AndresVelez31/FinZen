@@ -40,16 +40,16 @@ describe('AccountUtil', () => {
   ];
 
   it('calculates a balance from the initial balance plus its own transactions', () => {
-    expect(AccountUtil.getBalance(accounts[0]!, transactions)).toBe(1200);
-    expect(AccountUtil.getBalance(accounts[1]!, transactions)).toBe(450);
+    expect(AccountUtil.calculateBalance(accounts[0]!, transactions)).toBe(1200);
+    expect(AccountUtil.calculateBalance(accounts[1]!, transactions)).toBe(450);
   });
 
   it('keeps the initial balance when the account has no transactions', () => {
-    expect(AccountUtil.getBalance(buildAccount({ id: 30 }), transactions)).toBe(1000);
+    expect(AccountUtil.calculateBalance(buildAccount({ id: 30 }), transactions)).toBe(1000);
   });
 
   it('adds up the balance of every account', () => {
-    expect(AccountUtil.getTotalBalance(accounts, transactions)).toBe(1650);
-    expect(AccountUtil.getTotalBalance([], transactions)).toBe(0);
+    expect(AccountUtil.calculateTotalBalance(accounts, transactions)).toBe(1650);
+    expect(AccountUtil.calculateTotalBalance([], transactions)).toBe(0);
   });
 });

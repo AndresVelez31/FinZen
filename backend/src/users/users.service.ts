@@ -10,7 +10,7 @@ import { Role } from './enums/role.enum.js';
 
 // Exports
 // The password column is `select: false`: every method returns users without
-// it. Only findByEmailWithPassword() reads the hash, and only the sign-in uses it.
+// it. Only findCredentialsByEmail() reads the hash, and only the sign-in uses it.
 @Injectable()
 export class UsersService {
   constructor(
@@ -36,7 +36,7 @@ export class UsersService {
   }
 
   // For the sign-in only: AuthService compares the hash and never returns this user.
-  async findByEmailWithPassword(email: string): Promise<User | null> {
+  async findCredentialsByEmail(email: string): Promise<User | null> {
     return await this.usersRepository.findOne({
       where: { email },
       select: {

@@ -23,7 +23,7 @@ import { TransactionUtil } from '@/utils/TransactionUtil.js';
 
 // Variables
 const router = useRouter();
-const monthRange = DateRangeUtil.currentMonthFull();
+const monthRange = DateRangeUtil.buildCurrentMonthRange();
 
 // Reactive variables
 const accounts = ref<AccountInterface[]>([]);
@@ -34,7 +34,10 @@ const transactions = ref<TransactionInterface[]>([]);
 const currentUser = computed(() => AuthService.getCurrentUser());
 
 const monthTransactions = computed(() =>
-  TransactionUtil.filter(transactions.value, { from: monthRange.start, to: monthRange.end }),
+  TransactionUtil.filterByCriteria(transactions.value, {
+    from: monthRange.start,
+    to: monthRange.end,
+  }),
 );
 const monthExpenses = computed(() =>
   monthTransactions.value.filter((transaction) => transaction.type === 'expense'),
@@ -42,15 +45,17 @@ const monthExpenses = computed(() =>
 const monthIncomes = computed(() =>
   monthTransactions.value.filter((transaction) => transaction.type === 'income'),
 );
-const monthSummary = computed(() => TransactionUtil.summarize(monthTransactions.value));
+const monthSummary = computed(() =>
+  TransactionUtil.summarizeIncomeAndExpense(monthTransactions.value),
+);
 
 const totalBalance = computed(() =>
-  AccountUtil.getTotalBalance(accounts.value, transactions.value),
+  AccountUtil.calculateTotalBalance(accounts.value, transactions.value),
 );
 
 // Doughnut: expense by activity this month
 const donut = computed(() => {
-  const entries = TransactionUtil.aggregateExpensesByActivity(
+  const entries = TransactionUtil.groupExpensesByActivity(
     monthTransactions.value,
     activities.value,
   );
@@ -69,7 +74,11 @@ const donut = computed(() => {
 const hasDonut = computed(() => donut.value.labels.length > 0);
 
 const recentTransactions = computed(() =>
-  TransactionUtil.getRows(transactions.value.slice(0, 5), accounts.value, activities.value),
+  TransactionUtil.attachAccountAndActivity(
+    transactions.value.slice(0, 5),
+    accounts.value,
+    activities.value,
+  ),
 );
 
 // Lifecycle
