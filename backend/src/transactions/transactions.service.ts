@@ -8,14 +8,14 @@ import { ActivitiesService } from '../activities/activities.service.js';
 import { CreateTransactionDto } from './dto/create-transaction.dto.js';
 import { UpdateTransactionDto } from './dto/update-transaction.dto.js';
 import { Transaction } from './entities/transaction.entity.js';
-
-const TRANSACTION_TYPES = ['income', 'expense'];
-const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+import { TransactionType } from './enums/transaction-type.enum.js';
 
 // Exports
 // A transaction has no userId: it belongs to whoever owns its account.
 @Injectable()
 export class TransactionsService {
+  private static readonly ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionsRepository: Repository<Transaction>,
@@ -78,13 +78,13 @@ export class TransactionsService {
     transactionDto: CreateTransactionDto,
     userId: number,
   ): Promise<CreateTransactionDto> {
-    if (!TRANSACTION_TYPES.includes(transactionDto.type)) {
+    if (!Object.values(TransactionType).includes(transactionDto.type)) {
       throw new BadRequestException('El tipo de transacción no es válido.');
     }
     if (!Number.isFinite(transactionDto.amount) || transactionDto.amount <= 0) {
       throw new BadRequestException('El monto de la transacción debe ser mayor que 0.');
     }
-    if (!ISO_DATE_PATTERN.test(transactionDto.date ?? '')) {
+    if (!TransactionsService.ISO_DATE_PATTERN.test(transactionDto.date ?? '')) {
       throw new BadRequestException('La fecha de la transacción no es válida.');
     }
 

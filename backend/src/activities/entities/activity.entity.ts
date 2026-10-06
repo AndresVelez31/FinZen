@@ -13,6 +13,7 @@ import {
 import type { Relation } from 'typeorm';
 import { Transaction } from '../../transactions/entities/transaction.entity.js';
 import { User } from '../../users/entities/user.entity.js';
+import { ActivityType } from '../enums/activity-type.enum.js';
 
 // Exports
 @Entity()
@@ -27,7 +28,7 @@ export class Activity {
   color: string;
 
   @Column({ type: 'varchar' })
-  type: string;
+  type: ActivityType;
 
   @Column({ type: 'decimal', precision: 14, scale: 2 })
   targetAmount: number;

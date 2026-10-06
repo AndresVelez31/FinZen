@@ -5,8 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateActivityDto } from './dto/create-activity.dto.js';
 import { UpdateActivityDto } from './dto/update-activity.dto.js';
 import { Activity } from './entities/activity.entity.js';
-
-const ACTIVITY_TYPES = ['expense', 'savings'];
+import { ActivityType } from './enums/activity-type.enum.js';
 
 // Exports
 @Injectable()
@@ -74,7 +73,7 @@ export class ActivitiesService {
     if (!name) {
       throw new BadRequestException('El nombre de la actividad es obligatorio.');
     }
-    if (!ACTIVITY_TYPES.includes(activityDto.type)) {
+    if (!Object.values(ActivityType).includes(activityDto.type)) {
       throw new BadRequestException('El tipo de actividad no es válido.');
     }
     if (!activityDto.color) {
