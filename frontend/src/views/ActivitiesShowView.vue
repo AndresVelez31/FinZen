@@ -1,9 +1,11 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import { Pencil, PiggyBank, Plus, Target, Trash2 } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+
+// Internal imports
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 import { ActivityService } from '@/services/ActivityService.js';
@@ -11,8 +13,10 @@ import { TransactionService } from '@/services/TransactionService.js';
 import { ActivityUtil } from '@/utils/ActivityUtil.js';
 import { FormattersUtil } from '@/utils/FormattersUtil.js';
 
-// State
+// Variables
 const router = useRouter();
+
+// Reactive variables
 const activities = ref<ActivityInterface[]>([]);
 const transactions = ref<TransactionInterface[]>([]);
 const loading = ref(true);

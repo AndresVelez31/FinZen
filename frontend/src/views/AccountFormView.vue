@@ -1,15 +1,17 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import { ArrowLeft, Landmark, PiggyBank, Save, Smartphone, Wallet } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
+// Internal imports
 import type { CreateAccountDTO } from '@/dtos/CreateAccountDTO.js';
 import type { UpdateAccountDTO } from '@/dtos/UpdateAccountDTO.js';
 import type { AccountFormErrorsInterface } from '@/interfaces/AccountFormErrorsInterface.js';
 import { AccountService } from '@/services/AccountService.js';
 
-// State
+// Variables
 const route = useRoute();
 const router = useRouter();
 
@@ -21,6 +23,7 @@ const TYPES = [
   { value: 'Inversión', label: 'Inversión', icon: Landmark },
 ];
 
+// Reactive variables
 const form = ref({
   name: '',
   type: TYPES[0]!.value,

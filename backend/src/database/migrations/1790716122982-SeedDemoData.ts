@@ -1,4 +1,4 @@
-// Imports
+// External imports
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 // Demo data that lived in the frontend seeders during Deliverable 1. The

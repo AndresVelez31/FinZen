@@ -1,4 +1,4 @@
-// Imports
+// Internal imports
 import type { UpdateUserDTO } from '@/dtos/UpdateUserDTO.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
 import { BaseService } from '@/services/BaseService.js';

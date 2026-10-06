@@ -1,8 +1,10 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import { PiggyBank, TrendingDown, TrendingUp, Wallet } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
+
+// Internal imports
 import BudgetSummaryTable from '@/components/reports/BudgetSummaryTableComponent.vue';
 import ChartGraphic from '@/components/shared/ChartGraphicComponent.vue';
 import RadialProgress from '@/components/shared/RadialProgressComponent.vue';
@@ -19,15 +21,14 @@ import { DateRangeUtil } from '@/utils/DateRangeUtil.js';
 import { FormattersUtil } from '@/utils/FormattersUtil.js';
 import { TransactionUtil } from '@/utils/TransactionUtil.js';
 
-// State
+// Variables
 const now = new Date();
-const selectedYear = ref(String(now.getFullYear()));
-const selectedMonth = ref(String(now.getMonth() + 1).padStart(2, '0'));
 
+// Reactive variables
 const activities = ref<ActivityInterface[]>([]);
 const transactions = ref<TransactionInterface[]>([]);
 
-// Computed
+// Selectors
 const years = computed<FilterOptionInterface[]>(() =>
   TransactionUtil.getAvailableYears(transactions.value).map((year) => ({
     value: String(year),
@@ -35,6 +36,10 @@ const years = computed<FilterOptionInterface[]>(() =>
   })),
 );
 
+const selectedYear = ref(String(now.getFullYear()));
+const selectedMonth = ref(String(now.getMonth() + 1).padStart(2, '0'));
+
+// Computed
 const monthName = computed(
   () => MONTH_OPTIONS.find((month) => month.value === selectedMonth.value)?.label ?? '',
 );

@@ -46,25 +46,38 @@ Names are explicit: `transaction`, not `t`; `filterRole`, not `fRole`; `activiti
 
 ## 4. Order inside a file
 
-Every `.ts` file starts its import block with `// Imports` and puts `// Exports` above what it
-exports (above its comments and decorators).
+Every `.ts` and `.vue` file splits its imports in two blocks: `// External imports` (packages:
+`vue`, `axios`, `vitest`...) and `// Internal imports` (project files: `@/...` and relative
+paths), separated by a blank line. A block without imports has no comment. `.ts` files put
+`// Exports` above what they export (above its comments and decorators).
 
-Imports are sorted alphabetically by path: external packages first, then `@/...`; a value import
-goes before a type import of the same path.
+Inside each block, imports are sorted alphabetically by path; a value import goes before a type
+import of the same path.
 
 `<script setup>` blocks use these section comments, in this order and only when the section has
 content:
 
 ```ts
-// Imports
+// External imports
+// Internal imports
 // Types
 // Props / // Emits
-// State
+// Variables
+// Reactive variables
+// Selectors
 // Computed
 // Actions
 // Watchers
 // Lifecycle
 ```
+
+- `Variables`: values that are not reactive on their own: `useRoute()`, `useRouter()`, stores,
+  constants and `let` variables the template never reads (`chartInstance`).
+- `Reactive variables`: everything declared with `ref()`: API data, form fields, UI state.
+- `Selectors`: what feeds a filter or a picker: its options (`activityOptions`, `years`,
+  `demoAccounts`) and the value the user picks (`filterRole`, `selectedMonth`). Option lists that
+  never change and are shared go in `enums/constants.ts` (`MONTH_OPTIONS`) instead.
+- `Computed`: every other value declared with `computed()`, derived from the sections above.
 
 `onMounted` always goes last, never between variables.
 

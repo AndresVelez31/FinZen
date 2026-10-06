@@ -1,4 +1,4 @@
-// Imports
+// Internal imports
 import type { AccountInterface } from '@/interfaces/AccountInterface.js';
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 

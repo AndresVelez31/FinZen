@@ -1,19 +1,22 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import { ArrowLeft, PiggyBank, Save, Target } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
+// Internal imports
 import type { CreateActivityDTO } from '@/dtos/CreateActivityDTO.js';
 import type { UpdateActivityDTO } from '@/dtos/UpdateActivityDTO.js';
 import { ACTIVITY_COLORS } from '@/enums/constants.js';
 import type { ActivityFormErrorsInterface } from '@/interfaces/ActivityFormErrorsInterface.js';
 import { ActivityService } from '@/services/ActivityService.js';
 
-// State
+// Variables
 const route = useRoute();
 const router = useRouter();
 
+// Reactive variables
 const form = ref({
   name: '',
   color: ACTIVITY_COLORS[0]!,

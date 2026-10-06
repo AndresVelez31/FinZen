@@ -1,4 +1,4 @@
-// Imports
+// Internal imports
 import type { AccountInterface } from '@/interfaces/AccountInterface.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import type { ExpenseBucketInterface } from '@/interfaces/ExpenseBucketInterface.js';

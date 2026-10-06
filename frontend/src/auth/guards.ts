@@ -1,5 +1,7 @@
-// Imports
+// External imports
 import type { NavigationGuardWithThis } from 'vue-router';
+
+// Internal imports
 import { AuthService } from '@/services/AuthService.js';
 
 // Exports

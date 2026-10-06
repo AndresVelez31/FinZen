@@ -3,7 +3,7 @@
 // where a gauge-style progress indicator communicates better than a
 // Chart.js chart (e.g. savings goal completion).
 
-// Imports
+// External imports
 import type { ApexOptions } from 'apexcharts';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
@@ -22,9 +22,11 @@ const props = withDefaults(
   },
 );
 
-// State
-const isDark = ref(document.documentElement.classList.contains('dark'));
+// Variables
 let themeObserver: MutationObserver | null = null;
+
+// Reactive variables
+const isDark = ref(document.documentElement.classList.contains('dark'));
 
 // Computed
 const series = computed(() => [Math.min(100, Math.max(0, props.value))]);

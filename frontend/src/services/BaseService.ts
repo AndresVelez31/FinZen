@@ -1,5 +1,7 @@
-// Imports
+// External imports
 import axios from 'axios';
+
+// Internal imports
 import { useAuthStore } from '@/stores/authstore.js';
 
 // Exports

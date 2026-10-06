@@ -1,6 +1,8 @@
-// Imports
+// External imports
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+// Internal imports
 import { AccountsController } from './accounts.controller.js';
 import { AccountsService } from './accounts.service.js';
 import { Account } from './entities/account.entity.js';

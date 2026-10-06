@@ -1,6 +1,8 @@
-// Imports
+// External imports
 import { Controller, Get } from '@nestjs/common';
 import { CurrentUser } from '@nestjs/authentication';
+
+// Internal imports
 import type { User } from './entities/user.entity.js';
 
 // Exports

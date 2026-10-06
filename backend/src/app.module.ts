@@ -1,7 +1,9 @@
-// Imports
+// External imports
 import { Module } from '@nestjs/common';
 import { AuthenticationModule } from '@nestjs/authentication';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
+// Internal imports
 import { AccountsModule } from './accounts/accounts.module.js';
 import { ActivitiesModule } from './activities/activities.module.js';
 import { AuthModule } from './auth/auth.module.js';

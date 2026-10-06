@@ -1,4 +1,4 @@
-// Imports
+// Internal imports
 import type { CreateTransactionDTO } from '@/dtos/CreateTransactionDTO.js';
 import type { UpdateTransactionDTO } from '@/dtos/UpdateTransactionDTO.js';
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';

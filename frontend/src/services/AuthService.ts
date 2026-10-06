@@ -1,4 +1,4 @@
-// Imports
+// Internal imports
 import type { LoginDTO } from '@/dtos/LoginDTO.js';
 import type { LoginResponseInterface } from '@/interfaces/LoginResponseInterface.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';

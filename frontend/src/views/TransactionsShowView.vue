@@ -1,9 +1,11 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import { Filter, Plus, RotateCcw } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+
+// Internal imports
 import ChartGraphic from '@/components/shared/ChartGraphicComponent.vue';
 import SelectorFilter from '@/components/shared/SelectorFilterComponent.vue';
 import TransactionsTable from '@/components/transactions/TransactionsTableComponent.vue';
@@ -19,21 +21,15 @@ import { TransactionService } from '@/services/TransactionService.js';
 import { FormattersUtil } from '@/utils/FormattersUtil.js';
 import { TransactionUtil } from '@/utils/TransactionUtil.js';
 
-// State
+// Variables
 const router = useRouter();
 
+// Reactive variables
 const transactions = ref<TransactionInterface[]>([]);
 const accounts = ref<AccountInterface[]>([]);
 const activities = ref<ActivityInterface[]>([]);
 
-const filterActivity = ref('');
-const filterAccount = ref('');
-const filterType = ref('');
-const filterMonth = ref('');
-const filterFrom = ref('');
-const filterTo = ref('');
-
-// Computed
+// Selectors
 const activityOptions = computed<FilterOptionInterface[]>(() =>
   activities.value.map((activity) => ({ value: String(activity.id), label: activity.name })),
 );
@@ -45,6 +41,14 @@ const accountOptions = computed<FilterOptionInterface[]>(() =>
   })),
 );
 
+const filterActivity = ref('');
+const filterAccount = ref('');
+const filterType = ref('');
+const filterMonth = ref('');
+const filterFrom = ref('');
+const filterTo = ref('');
+
+// Computed
 const filteredTransactions = computed(() =>
   TransactionUtil.filter(transactions.value, {
     activityId: filterActivity.value ? Number(filterActivity.value) : undefined,

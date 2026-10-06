@@ -78,7 +78,8 @@ must keep a migration history.
   `ActivityProgressInterface`, `LoginResponseInterface`, the form error shapes...). `Formatters`/
   `DateRange` became `FormattersUtil`/`DateRangeUtil`, and option lists moved to
   `enums/constants.ts`.
-- Every file starts its imports with `// Imports` and marks what it exports with `// Exports`.
+- Every file splits its imports under `// External imports` and `// Internal imports` and marks
+  what it exports with `// Exports` (see `CHORE-section-banners-imports-and-reactivity`).
 
 ## Consequences
 

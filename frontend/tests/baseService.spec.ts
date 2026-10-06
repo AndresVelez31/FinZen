@@ -1,7 +1,9 @@
-// Imports
+// External imports
 import axios, { AxiosError, AxiosHeaders } from 'axios';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+// Internal imports
 import { AccountService } from '@/services/AccountService.js';
 import { useAuthStore } from '@/stores/authstore.js';
 

@@ -1,6 +1,8 @@
-// Imports
+// External imports
 import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
 import { CurrentUser } from '@nestjs/authentication';
+
+// Internal imports
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { UpdateUserDto } from './dto/update-user.dto.js';
 import type { User } from './entities/user.entity.js';

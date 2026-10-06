@@ -1,5 +1,7 @@
-// Imports
+// External imports
 import { SetMetadata } from '@nestjs/common';
+
+// Internal imports
 import type { Role } from '../../users/enums/role.enum.js';
 
 // Exports

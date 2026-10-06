@@ -1,4 +1,4 @@
-// Imports
+// Internal imports
 import type { TransactionType } from '../enums/transaction-type.enum.js';
 
 // Exports

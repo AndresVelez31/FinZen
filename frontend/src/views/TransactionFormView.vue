@@ -1,9 +1,11 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import { ArrowLeft, Save, TrendingDown, TrendingUp } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+
+// Internal imports
 import type { CreateTransactionDTO } from '@/dtos/CreateTransactionDTO.js';
 import type { UpdateTransactionDTO } from '@/dtos/UpdateTransactionDTO.js';
 import type { AccountInterface } from '@/interfaces/AccountInterface.js';
@@ -13,10 +15,11 @@ import { AccountService } from '@/services/AccountService.js';
 import { ActivityService } from '@/services/ActivityService.js';
 import { TransactionService } from '@/services/TransactionService.js';
 
-// State
+// Variables
 const route = useRoute();
 const router = useRouter();
 
+// Reactive variables
 const accounts = ref<AccountInterface[]>([]);
 const activities = ref<ActivityInterface[]>([]);
 

@@ -1,8 +1,10 @@
-// Imports
+// External imports
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import type { DeepPartial } from 'typeorm';
+
+// Internal imports
 import { AccountsService } from '../accounts/accounts.service.js';
 import { ActivitiesService } from '../activities/activities.service.js';
 import { CreateTransactionDto } from './dto/create-transaction.dto.js';

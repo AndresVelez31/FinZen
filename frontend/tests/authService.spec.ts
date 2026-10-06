@@ -1,7 +1,9 @@
-// Imports
+// External imports
 import axios, { AxiosError, AxiosHeaders } from 'axios';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+// Internal imports
 import type { UserInterface } from '@/interfaces/UserInterface.js';
 import { AuthService } from '@/services/AuthService.js';
 import { useAuthStore } from '@/stores/authstore.js';

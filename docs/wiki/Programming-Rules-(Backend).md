@@ -63,4 +63,5 @@ number.
     committed.
 21. Every method that returns a promise is `async` and uses `await`, in services and controllers;
     no floating promises (enforced by OXLint).
-22. Every file has `// Imports` above its imports and `// Exports` above what it exports.
+22. Every file has `// External imports` above its packages, `// Internal imports` above its
+    relative imports and `// Exports` above what it exports.

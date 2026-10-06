@@ -1,6 +1,8 @@
-// Imports
+// External imports
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CurrentUser } from '@nestjs/authentication';
+
+// Internal imports
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { Role } from '../users/enums/role.enum.js';
 import { ActivitiesService } from './activities.service.js';

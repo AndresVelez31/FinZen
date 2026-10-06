@@ -1,4 +1,4 @@
-// Imports
+// Internal imports
 import type { CreateActivityDTO } from '@/dtos/CreateActivityDTO.js';
 import type { UpdateActivityDTO } from '@/dtos/UpdateActivityDTO.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';

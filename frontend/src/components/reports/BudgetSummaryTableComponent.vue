@@ -1,6 +1,8 @@
 <script setup lang="ts">
-// Imports
+// External imports
 import { Inbox } from 'lucide-vue-next';
+
+// Internal imports
 import EmptyState from '@/components/shared/EmptyStateComponent.vue';
 import type { BudgetVsActualInterface } from '@/interfaces/BudgetVsActualInterface.js';
 import { FormattersUtil } from '@/utils/FormattersUtil.js';

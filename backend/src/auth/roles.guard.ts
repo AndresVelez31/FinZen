@@ -1,7 +1,9 @@
-// Imports
+// External imports
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+
+// Internal imports
 import type { User } from '../users/entities/user.entity.js';
 import type { Role } from '../users/enums/role.enum.js';
 import { ROLES_KEY } from './decorators/roles.decorator.js';
