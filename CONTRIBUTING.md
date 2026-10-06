@@ -124,7 +124,7 @@ PR titles follow the same format as commit messages:
 
 The title must **summarize the entire PR**, not copy a single commit — if the PR has several commits, the title describes the change as a whole, the same way a squash-merge message would. `<scope>` is the issue code in lowercase when there is one (e.g. `service-41`, `utils-13`); omit it if the change doesn't map to a single issue.
 
-This matters beyond style: this repo merges PRs with **merge commits** (`Merge pull request #NN from <branch>`), and GitHub records the PR title as the second line of that merge commit. A vague or copy-pasted title becomes permanent, hard-to-read history on `main`.
+This matters beyond style: this repo only allows **squash merges**. Each PR lands on `main` as a single commit whose title is the PR title and whose body is the PR description, so a vague or copy-pasted title becomes permanent, hard-to-read history on `main`. `main` is protected: changes only enter through a PR, the CI checks (`build-test`, `backend`, `docker`) must pass, the branch must be up to date with `main`, and every review conversation must be resolved. No approval is required, and the branch is not deleted automatically after the merge.
 
 ```
 feat(service-41): implement ReportService with strict domain model

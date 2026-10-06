@@ -31,5 +31,7 @@ The initial `ci.yml` already installed dependencies, ran `npm run lint`, the Vit
 ## Consequences
 
 - Lint errors, failing tests, type errors or a broken Nginx image fail the workflow on every PR.
-- Deployment stays manual, following the GCP tutorial; the CI artifact contains exactly the files
-  the VM needs (`dist/`, `Dockerfile`, `nginx.conf`).
+- Deployment stays manual, following the GCP tutorial.
+- Update (Deliverable 2): `dist/` is no longer committed and the Dockerfiles are multi-stage, so
+  the release artifact was removed; the `docker` job now builds the backend and frontend images
+  straight from the repository and checks the Nginx routes.
