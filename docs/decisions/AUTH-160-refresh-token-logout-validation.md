@@ -46,3 +46,8 @@ Accepted
   legitimate client renews ends both.
 - Validation errors of the token routes are Spanish single messages; DTOs without decorators are
   still checked inside their services.
+
+> Later change: the sign-in/sign-up/sign-out names were unified across the stack. `AuthService.logout()`
+> is now `AuthService.signOut()`, `LoginView` is `SignInView`, `LoginResponseInterface` is
+> `SignInResponseInterface`, the SPA route `/login` is `/sign-in`, and the backend `AuthService.revoke()`
+> is `AuthService.signOut()` (the route `POST /auth/token/revoke` does not change).

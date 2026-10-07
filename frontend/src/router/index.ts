@@ -7,10 +7,10 @@ import AccountFormView from '@/views/AccountFormView.vue';
 import AccountsShowView from '@/views/AccountsShowView.vue';
 import ActivitiesShowView from '@/views/ActivitiesShowView.vue';
 import ActivityFormView from '@/views/ActivityFormView.vue';
-import LoginView from '@/views/LoginView.vue';
 import OverviewView from '@/views/OverviewView.vue';
-import RegisterView from '@/views/RegisterView.vue';
 import ReportsView from '@/views/ReportsView.vue';
+import SignInView from '@/views/SignInView.vue';
+import SignUpView from '@/views/SignUpView.vue';
 import TransactionFormView from '@/views/TransactionFormView.vue';
 import TransactionsShowView from '@/views/TransactionsShowView.vue';
 import UsersShowView from '@/views/UsersShowView.vue';
@@ -28,9 +28,9 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/login',
-      name: 'login',
-      component: LoginView,
+      path: '/sign-in',
+      name: 'sign-in',
+      component: SignInView,
       meta: {
         title: 'Iniciar sesión | FinZen',
         public: true,
@@ -38,15 +38,18 @@ const router = createRouter({
       },
     },
     {
-      path: '/register',
-      name: 'register',
-      component: RegisterView,
+      path: '/sign-up',
+      name: 'sign-up',
+      component: SignUpView,
       meta: {
         title: 'Crear cuenta | FinZen',
         public: true,
         layout: 'blank',
       },
     },
+    // Old URLs keep working
+    { path: '/login', redirect: { name: 'sign-in' } },
+    { path: '/register', redirect: { name: 'sign-up' } },
     {
       path: '/',
       name: 'overview',

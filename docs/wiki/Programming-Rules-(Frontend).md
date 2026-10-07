@@ -22,14 +22,14 @@ The back-end rules are in [Programming Rules (Backend)](<Programming-Rules-(Back
    with an explicit access modifier (`public static`, `protected static` or `private static`), and
    keeps its route in `private static readonly PATH`. `AuthService` also exposes the session
    (`getCurrentUser`, `isAuthenticated`, `isAdmin`), because views cannot read stores.
-   `AuthService.login()` and `AuthService.register()` (used by `LoginView` and
-   `RegisterView`, which share `AuthLayoutComponent`) both start the session with the tokens
+   `AuthService.signIn()` and `AuthService.signUp()` (used by `SignInView` and
+   `SignUpView`, which share `AuthLayoutComponent`) both start the session with the tokens
    the API returns.
 8. `BaseService` is the only place with the axios `try/catch`, the base URL, the
    `Authorization` header. Services never repeat them. A `401` with both tokens renews them once
    with the refresh token (one renewal shared by concurrent requests, because a refresh token is
    single use) and retries the request; if the renewal fails, or any other `401` with a token
-   arrives, the session ends. `AuthService.logout()` ends the local session first and then
+   arrives, the session ends. `AuthService.signOut()` ends the local session first and then
    revokes the refresh token.
 9. Every function that returns a promise is `async` and uses `await`
    (`return await this.httpGet(...)`): `getAllByUserId`, `getByIdAndUserId`, `create`, `update`,
@@ -64,7 +64,7 @@ The back-end rules are in [Programming Rules (Backend)](<Programming-Rules-(Back
 ## Routing and security
 
 18. Every route has `meta.title`; private routes pass the auth guard and `/activities` and
-    `/users` also need the `admin` role. `/login` and `/register` are public.
+    `/users` also need the `admin` role. `/sign-in` and `/sign-up` are public.
 19. Navigate with `router.push()` or `<RouterLink>`, never `window.location`.
 20. The browser only hides what the user cannot do; the API is the one that enforces it.
 

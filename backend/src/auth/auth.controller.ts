@@ -38,7 +38,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('token/revoke')
-  async revoke(@Body() refreshTokenDto: RefreshTokenDto): Promise<void> {
-    await this.authService.revoke(refreshTokenDto.refreshToken);
+  async signOut(@Body() refreshTokenDto: RefreshTokenDto): Promise<void> {
+    await this.authService.signOut(refreshTokenDto.refreshToken);
   }
 }

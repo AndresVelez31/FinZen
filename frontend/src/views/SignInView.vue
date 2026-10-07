@@ -43,7 +43,7 @@ async function submit(): Promise<void> {
   loading.value = true;
 
   try {
-    await AuthService.login({ email: email.value, password: password.value });
+    await AuthService.signIn({ email: email.value, password: password.value });
     await router.push({ name: 'overview' });
   } catch (error) {
     errorMessage.value = (error as Error).message;
@@ -118,7 +118,7 @@ async function submit(): Promise<void> {
 
     <p class="switch">
       ¿No tienes cuenta?
-      <RouterLink :to="{ name: 'register' }">Crea una</RouterLink>
+      <RouterLink :to="{ name: 'sign-up' }">Crea una</RouterLink>
     </p>
 
     <div class="demo">

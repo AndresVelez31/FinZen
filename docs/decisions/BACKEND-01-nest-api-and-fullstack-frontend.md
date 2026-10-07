@@ -60,13 +60,13 @@ says the project must keep a migration history.
 - `BaseService` wraps axios like the Tutorial 07 services: base URL from `VITE_API_BASE_URL`,
   `Authorization` header, the only `try/catch`, and conversion of any failure into an `Error`
   with the API message. A `401` with a token clears the session and `AppLayout` sends the user
-  to `/login`.
+  to `/sign-in`.
 - Every service `extends BaseService` and only does CRUD with the API through its
   `private static readonly PATH`; every method is `async` and uses `return await`, in the
   front-end and the back-end. The calculations over loaded data live in one util per service
   (`AccountUtil`, `ActivityUtil`, `TransactionUtil`) and receive the arrays as parameters
   (`TransactionUtil.summarizeIncomeAndExpense(transactions)`), so views derive them with `computed`.
-  `AuthService` keeps the session helpers (`logout`, `getCurrentUser`, `isAdmin`).
+  `AuthService` keeps the session helpers (`signOut`, `getCurrentUser`, `isAdmin`).
 - Views keep their data in `ref`s filled in `onMounted(async () => ...)`; no top-level `await`.
   The `onMounted` load is wrapped in `try/catch`; handlers such as `submit` and `delete...` are
   `async`: they `await` the service inside `try/catch`, and both show the API message with
@@ -76,7 +76,7 @@ says the project must keep a migration history.
   `currentUser`; `PiniaConfig` persists it with the theme under `finzenState.v4`.
 - Every front-end interface lives in `src/interfaces/`, one per file with the `Interface` suffix:
   the four class-diagram entities and the derived shapes (`TransactionRowInterface`,
-  `ActivityProgressInterface`, `LoginResponseInterface`, the form error shapes...). `Formatters`/
+  `ActivityProgressInterface`, `SignInResponseInterface`, the form error shapes...). `Formatters`/
   `DateRange` became `FormattersUtil`/`DateRangeUtil`, and option lists moved to
   `enums/constants.ts`.
 - Every file splits its imports under `// External imports` and `// Internal imports` and marks

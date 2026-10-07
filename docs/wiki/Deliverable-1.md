@@ -72,7 +72,7 @@ The application features **9 structured routes / views**:
 
 | # | Route | View Component | Access Role | Description |
 |---|---|---|---|---|
-| 1 | `/login` | `LoginView.vue` | Public | Authentication with email & password |
+| 1 | `/sign-in` | `SignInView.vue` | Public | Authentication with email & password |
 | 2 | `/` | `DashboardView.vue` | User / Admin | Overview: net balance, metric cards, 6-month trend chart, recent movements |
 | 3 | `/transactions` | `TransactionsView.vue` | User / Admin | Transactions table with combined filtering (type, account, month) and actions |
 | 4 | `/transactions/new` | `TransactionFormView.vue` | User / Admin | Form to record new transactions |
@@ -131,5 +131,5 @@ FinZen is built as a **Single Page Application (SPA)** with **Client-Side Render
 - **`StatCard.vue`**: Visual metric card for financial KPIs. Reused in Dashboard and Reports.
 
 ### Route Guards
-- **Authentication Guard**: Unauthenticated users visiting private routes are intercepted and redirected to `/login`.
+- **Authentication Guard**: Unauthenticated users visiting private routes are intercepted and redirected to `/sign-in`.
 - **Role-Based Authorization Guard**: Non-admin users attempting to access `/activities` or `/users` are redirected to `/`.

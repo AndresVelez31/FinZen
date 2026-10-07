@@ -54,7 +54,7 @@ describe('AuthService', () => {
     const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: TOKENS });
     const get = vi.spyOn(axios, 'get').mockResolvedValue({ data: ADMIN });
 
-    const user = await AuthService.login({ email: '  ADMIN@finzen.app ', password: 'admin123' });
+    const user = await AuthService.signIn({ email: '  ADMIN@finzen.app ', password: 'admin123' });
 
     expect(post).toHaveBeenCalledWith(
       expect.stringContaining('/api/auth/token'),
@@ -70,11 +70,11 @@ describe('AuthService', () => {
     expect(AuthService.isAdmin()).toBe(true);
   });
 
-  it('registers the user, stores the tokens and loads the signed-in user', async () => {
+  it('signs up the user, stores the tokens and loads the signed-in user', async () => {
     const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: TOKENS });
     const get = vi.spyOn(axios, 'get').mockResolvedValue({ data: NEW_USER });
 
-    const user = await AuthService.register({
+    const user = await AuthService.signUp({
       name: '  Ana Prueba ',
       email: '  Ana.Prueba@Example.com ',
       password: 'contrasena-segura-1',
@@ -99,12 +99,12 @@ describe('AuthService', () => {
     vi.spyOn(axios, 'post').mockRejectedValue(buildHttpError(401, 'Credenciales inválidas.'));
 
     await expect(
-      AuthService.login({ email: 'admin@finzen.app', password: 'wrong' }),
+      AuthService.signIn({ email: 'admin@finzen.app', password: 'wrong' }),
     ).rejects.toThrow('Credenciales inválidas.');
     expect(AuthService.isAuthenticated()).toBe(false);
   });
 
-  it('clears the session and revokes the refresh token on logout', async () => {
+  it('clears the session and revokes the refresh token on sign-out', async () => {
     const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: '' });
     const authStore = useAuthStore();
     authStore.accessToken = 'access-1';
@@ -114,7 +114,7 @@ describe('AuthService', () => {
     expect(AuthService.isAuthenticated()).toBe(true);
     expect(AuthService.isAdmin()).toBe(false);
 
-    await AuthService.logout();
+    await AuthService.signOut();
 
     expect(post).toHaveBeenCalledWith(
       expect.stringContaining('/api/auth/token/revoke'),
@@ -126,14 +126,14 @@ describe('AuthService', () => {
     expect(authStore.refreshToken).toBeNull();
   });
 
-  it('clears the session on logout even when the revoke fails', async () => {
+  it('clears the session on sign-out even when the revoke fails', async () => {
     vi.spyOn(axios, 'post').mockRejectedValue(new AxiosError('Network Error'));
     const authStore = useAuthStore();
     authStore.accessToken = 'access-1';
     authStore.refreshToken = 'refresh-1';
     authStore.currentUser = ADMIN;
 
-    await expect(AuthService.logout()).rejects.toThrow('No fue posible conectar con el servidor.');
+    await expect(AuthService.signOut()).rejects.toThrow('No fue posible conectar con el servidor.');
 
     expect(authStore.accessToken).toBeNull();
     expect(authStore.refreshToken).toBeNull();

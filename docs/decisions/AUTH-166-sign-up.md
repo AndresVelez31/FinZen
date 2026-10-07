@@ -43,3 +43,8 @@ Accepted
 - Anyone can create a regular account; administrators are still only created in the database.
 - Two requests with the same new e-mail can race: the second one fails on the unique index with a
   `500` instead of a `409`. It is accepted for this project.
+
+> Later change: the sign-in/sign-up/sign-out names were unified across the stack. `RegisterView`
+> (`/register`) is now `SignUpView` (`/sign-up`), `LoginView` (`/login`) is `SignInView` (`/sign-in`),
+> `AuthService.register()` and `login()` are `signUp()` and `signIn()`, and `LoginDTO`/`RegisterDTO`
+> are `SignInDTO`/`SignUpDTO`. The old `/login` and `/register` URLs redirect to the new ones.

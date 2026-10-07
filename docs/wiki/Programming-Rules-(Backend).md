@@ -62,7 +62,7 @@ number.
     `POST /auth/token` (`SignInDto`) signs in and returns an access token of 8 hours and a refresh token of 7
     days (`TokenService`, renewable up to 30 days after the sign-in). `POST /auth/token/refresh`
     exchanges the refresh token for a new pair (`401` if it is invalid, expired or reused; a reused
-    token revokes its whole session) and `POST /auth/token/revoke` signs out (`204`, it never
+    token revokes its whole session) and `POST /auth/token/revoke` signs out (`AuthService.signOut()`) (`204`, it never
     reveals whether the token existed). The access token already issued stays valid until it
     expires. The refresh tokens live in memory, so restarting the API ends the renewals. A global
     `ValidationPipe` validates the DTOs (`class-validator`) and answers `400` with a single

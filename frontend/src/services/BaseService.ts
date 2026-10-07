@@ -3,7 +3,7 @@ import axios from 'axios';
 import type { AxiosResponse } from 'axios';
 
 // Internal imports
-import type { LoginResponseInterface } from '@/interfaces/LoginResponseInterface.js';
+import type { SignInResponseInterface } from '@/interfaces/SignInResponseInterface.js';
 import { useAuthStore } from '@/stores/authstore.js';
 
 // Exports
@@ -101,7 +101,7 @@ export class BaseService {
       const { data } = await axios.post(`${BaseService.API_URL}${BaseService.REFRESH_PATH}`, {
         refreshToken: authStore.refreshToken,
       });
-      const tokens: LoginResponseInterface = data;
+      const tokens: SignInResponseInterface = data;
       authStore.accessToken = tokens.accessToken;
       authStore.refreshToken = tokens.refreshToken;
       return true;
@@ -124,7 +124,7 @@ export class BaseService {
     }
 
     // A 401 with a token means it expired and could not be renewed: the session
-    // ends and AppLayout goes back to the login page. A wrong password at sign-in
+    // ends and AppLayout goes back to the sign-in page. A wrong password at sign-in
     // sends no token.
     if (error.response.status === 401 && useAuthStore().accessToken) {
       BaseService.clearSession();

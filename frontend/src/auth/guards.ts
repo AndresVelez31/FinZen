@@ -5,13 +5,13 @@ import type { NavigationGuardWithThis } from 'vue-router';
 import { AuthService } from '@/services/AuthService.js';
 
 // Exports
-// Redirects an already-authenticated user away from /login and /register, sends an
-// unauthenticated one to /login for any non-public route, and otherwise lets
+// Redirects an already-authenticated user away from /sign-in and /sign-up, sends an
+// unauthenticated one to /sign-in for any non-public route, and otherwise lets
 // navigation through.
 export const authGuard: NavigationGuardWithThis<undefined> = (to) => {
   const authenticated = AuthService.isAuthenticated();
 
-  if ((to.name === 'login' || to.name === 'register') && authenticated) {
+  if ((to.name === 'sign-in' || to.name === 'sign-up') && authenticated) {
     return { name: 'overview' };
   }
 
@@ -20,7 +20,7 @@ export const authGuard: NavigationGuardWithThis<undefined> = (to) => {
   }
 
   if (!authenticated) {
-    return { name: 'login' };
+    return { name: 'sign-in' };
   }
 
   return true;
@@ -28,7 +28,7 @@ export const authGuard: NavigationGuardWithThis<undefined> = (to) => {
 
 // Sends a non-admin user back to the overview on any route flagged
 // meta.admin. Runs after authGuard, so by the time this executes the user
-// is either authenticated or already being redirected to /login.
+// is either authenticated or already being redirected to /sign-in.
 export const adminGuard: NavigationGuardWithThis<undefined> = (to) => {
   if (to.meta.admin && !AuthService.isAdmin()) {
     return { name: 'overview' };
