@@ -1,5 +1,6 @@
 // Internal imports
 import type { LoginDTO } from '@/dtos/LoginDTO.js';
+import type { RegisterDTO } from '@/dtos/RegisterDTO.js';
 import type { LoginResponseInterface } from '@/interfaces/LoginResponseInterface.js';
 import type { UserInterface } from '@/interfaces/UserInterface.js';
 import { BaseService } from '@/services/BaseService.js';
@@ -10,6 +11,7 @@ export class AuthService extends BaseService {
   private static readonly PATH = '/auth/token';
   private static readonly PROFILE_PATH = '/me';
   private static readonly REVOKE_PATH = '/auth/token/revoke';
+  private static readonly SIGN_UP_PATH = '/auth/sign-up';
 
   // API calls
 
@@ -20,13 +22,19 @@ export class AuthService extends BaseService {
       password: loginDTO.password,
     });
 
-    const authStore = useAuthStore();
-    authStore.accessToken = loginResponse.accessToken;
-    authStore.refreshToken = loginResponse.refreshToken;
-    const currentUser: UserInterface = await this.httpGet(this.PROFILE_PATH);
-    authStore.currentUser = currentUser;
+    return await this.startSession(loginResponse);
+  }
 
-    return currentUser;
+  // Creates the account; the API answers with the same tokens as the login, so the
+  // new user is signed in right away.
+  public static async register(registerDTO: RegisterDTO): Promise<UserInterface> {
+    const loginResponse: LoginResponseInterface = await this.httpPost(this.SIGN_UP_PATH, {
+      name: registerDTO.name.trim(),
+      email: registerDTO.email.trim().toLowerCase(),
+      password: registerDTO.password,
+    });
+
+    return await this.startSession(loginResponse);
   }
 
   // Session
@@ -53,5 +61,18 @@ export class AuthService extends BaseService {
 
   public static isAdmin(): boolean {
     return this.getCurrentUser()?.role === 'admin';
+  }
+
+  // Helpers
+
+  // Stores the tokens, then loads the signed-in user with them.
+  private static async startSession(loginResponse: LoginResponseInterface): Promise<UserInterface> {
+    const authStore = useAuthStore();
+    authStore.accessToken = loginResponse.accessToken;
+    authStore.refreshToken = loginResponse.refreshToken;
+    const currentUser: UserInterface = await this.httpGet(this.PROFILE_PATH);
+    authStore.currentUser = currentUser;
+
+    return currentUser;
   }
 }

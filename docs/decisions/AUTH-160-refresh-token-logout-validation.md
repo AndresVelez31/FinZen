@@ -28,7 +28,7 @@ Accepted
   is signed out whatever happens, and then calls the route. `AppLayout` does not show a failed
   revoke.
 - **Validation.** A global `ValidationPipe` with `class-validator` and `class-transformer` checks
-  `LoginDto` and `RefreshTokenDto`. Its `exceptionFactory` answers `400` with the first constraint
+  `SignInDto` (called `LoginDto` when this was decided) and `RefreshTokenDto`. Its `exceptionFactory` answers `400` with the first constraint
   message of the first error, so the API keeps the `{ message: string }` shape the SPA shows
   as-is. `whitelist` is not enabled because the other DTOs have no decorators.
 - The session persisted in the browser now includes the refresh token; `STORAGE_KEY` moves to

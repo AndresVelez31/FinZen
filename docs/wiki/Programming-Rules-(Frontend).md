@@ -1,7 +1,7 @@
 # Programming Rules (Frontend)
 
 Rules the team applies in every PR. A PR that breaks one is sent back citing the rule number.
-The back-end rules are in [Programming Rules (Backend)](Programming-Rules-(Backend)).
+The back-end rules are in [Programming Rules (Backend)](<Programming-Rules-(Backend)>).
 
 ## Views (`src/views/`)
 
@@ -22,6 +22,9 @@ The back-end rules are in [Programming Rules (Backend)](Programming-Rules-(Backe
    with an explicit access modifier (`public static`, `protected static` or `private static`), and
    keeps its route in `private static readonly PATH`. `AuthService` also exposes the session
    (`getCurrentUser`, `isAuthenticated`, `isAdmin`), because views cannot read stores.
+   `AuthService.login()` and `AuthService.register()` (used by `LoginView` and
+   `RegisterView`, which share `AuthLayoutComponent`) both start the session with the tokens
+   the API returns.
 8. `BaseService` is the only place with the axios `try/catch`, the base URL, the
    `Authorization` header. Services never repeat them. A `401` with both tokens renews them once
    with the refresh token (one renewal shared by concurrent requests, because a refresh token is
@@ -61,7 +64,7 @@ The back-end rules are in [Programming Rules (Backend)](Programming-Rules-(Backe
 ## Routing and security
 
 18. Every route has `meta.title`; private routes pass the auth guard and `/activities` and
-    `/users` also need the `admin` role.
+    `/users` also need the `admin` role. `/login` and `/register` are public.
 19. Navigate with `router.push()` or `<RouterLink>`, never `window.location`.
 20. The browser only hides what the user cannot do; the API is the one that enforces it.
 

@@ -16,7 +16,7 @@
 FinZen helps users understand their financial activity from a single interface. The application
 supports:
 
-- login with `@nestjs/authentication` (JWT access token) and `user` / `admin` roles;
+- sign-up, login with `@nestjs/authentication` (JWT access token) and `user` / `admin` roles;
 - personal accounts with calculated balances;
 - income and expense transactions;
 - expense budgets and savings goals organized as activities;
@@ -32,7 +32,7 @@ Since Deliverable 2 the project is **full stack**:
 - `backend/` — NestJS REST API under `/api`, with TypeORM over SQLite. The schema and the demo
   data are created by migrations.
 
-The API requires a valid access token on every route except `/api` and `/api/auth/token/*`, only
+The API requires a valid access token on every route except `/api` and `/api/auth/*`, only
 returns the
 records of the authenticated user, and restricts user and activity administration to admins.
 
@@ -186,13 +186,17 @@ The `SeedDemoData` and `SeedDemoDataUntilDecember` migrations insert:
 | Administrator | `admin@finzen.app` | `admin123` | All protected pages, including Activities and Users |
 | Regular user  | `user@finzen.app`  | `user123`  | Overview, Accounts, Transactions, and Reports       |
 
+New accounts can be created at `/register` (name, e-mail and a password of 12 to 128
+characters). They get the `user` role and start with no data.
+
 ## Application routes
 
-The router currently defines **13 routes**.
+The router currently defines **14 routes**.
 
 | Path                     | Route name            | View                       | Access        |
 | ------------------------ | --------------------- | -------------------------- | ------------- |
 | `/login`                 | `login`               | `LoginView.vue`            | Public        |
+| `/register`              | `register`            | `RegisterView.vue`         | Public        |
 | `/`                      | `overview`            | `OverviewView.vue`         | Authenticated |
 | `/transactions`          | `transactions`        | `TransactionsShowView.vue` | Authenticated |
 | `/transactions/new`      | `transactions.create` | `TransactionFormView.vue`  | Authenticated |
@@ -218,6 +222,7 @@ Every list only contains the authenticated user's records; someone else's record
 | Method                      | Path                      | Access        | Description                                                                                           |
 | --------------------------- | ------------------------- | ------------- | ----------------------------------------------------------------------------------------------------- |
 | `GET`                       | `/api`                    | Public        | Health check                                                                                          |
+| `POST`                      | `/api/auth/sign-up`       | Public        | Registers a user (role `user`) and signs them in: returns the token pair; `409` if the e-mail exists  |
 | `POST`                      | `/api/auth/token`         | Public        | Sign in: returns the `accessToken` (8 hours) and the `refreshToken` (7 days, renewable up to 30 days) |
 | `POST`                      | `/api/auth/token/refresh` | Public        | Exchanges the refresh token for a new pair; `401` if invalid, expired or reused                       |
 | `POST`                      | `/api/auth/token/revoke`  | Public        | Sign out: revokes the refresh token (`204`)                                                           |

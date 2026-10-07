@@ -5,13 +5,13 @@ import type { NavigationGuardWithThis } from 'vue-router';
 import { AuthService } from '@/services/AuthService.js';
 
 // Exports
-// Redirects an already-authenticated user away from /login, sends an
-// unauthenticated one there for any non-public route, and otherwise lets
+// Redirects an already-authenticated user away from /login and /register, sends an
+// unauthenticated one to /login for any non-public route, and otherwise lets
 // navigation through.
 export const authGuard: NavigationGuardWithThis<undefined> = (to) => {
   const authenticated = AuthService.isAuthenticated();
 
-  if (to.name === 'login' && authenticated) {
+  if ((to.name === 'login' || to.name === 'register') && authenticated) {
     return { name: 'overview' };
   }
 

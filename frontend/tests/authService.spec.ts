@@ -18,6 +18,16 @@ const ADMIN: UserInterface = {
   updatedAt: '2026-01-01T00:00:00.000Z',
 };
 
+const NEW_USER: UserInterface = {
+  id: 3,
+  name: 'Ana Prueba',
+  role: 'user',
+  email: 'ana.prueba@example.com',
+  active: true,
+  createdAt: '2026-01-01T00:00:00.000Z',
+  updatedAt: '2026-01-01T00:00:00.000Z',
+};
+
 const TOKENS = { accessToken: 'access-1', refreshToken: 'refresh-1', expiresIn: 28800 };
 
 function buildHttpError(status: number, message: string): AxiosError {
@@ -58,6 +68,31 @@ describe('AuthService', () => {
     expect(useAuthStore().refreshToken).toBe('refresh-1');
     expect(AuthService.isAuthenticated()).toBe(true);
     expect(AuthService.isAdmin()).toBe(true);
+  });
+
+  it('registers the user, stores the tokens and loads the signed-in user', async () => {
+    const post = vi.spyOn(axios, 'post').mockResolvedValue({ data: TOKENS });
+    const get = vi.spyOn(axios, 'get').mockResolvedValue({ data: NEW_USER });
+
+    const user = await AuthService.register({
+      name: '  Ana Prueba ',
+      email: '  Ana.Prueba@Example.com ',
+      password: 'contrasena-segura-1',
+    });
+
+    expect(post).toHaveBeenCalledWith(
+      expect.stringContaining('/api/auth/sign-up'),
+      { name: 'Ana Prueba', email: 'ana.prueba@example.com', password: 'contrasena-segura-1' },
+      {},
+    );
+    expect(get).toHaveBeenCalledWith(expect.stringContaining('/api/me'), {
+      headers: { Authorization: 'Bearer access-1' },
+    });
+    expect(user).toEqual(NEW_USER);
+    expect(useAuthStore().accessToken).toBe('access-1');
+    expect(useAuthStore().refreshToken).toBe('refresh-1');
+    expect(AuthService.isAuthenticated()).toBe(true);
+    expect(AuthService.isAdmin()).toBe(false);
   });
 
   it('rejects with the API message and does not open a session', async () => {

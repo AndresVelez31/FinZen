@@ -9,6 +9,7 @@ import ActivitiesShowView from '@/views/ActivitiesShowView.vue';
 import ActivityFormView from '@/views/ActivityFormView.vue';
 import LoginView from '@/views/LoginView.vue';
 import OverviewView from '@/views/OverviewView.vue';
+import RegisterView from '@/views/RegisterView.vue';
 import ReportsView from '@/views/ReportsView.vue';
 import TransactionFormView from '@/views/TransactionFormView.vue';
 import TransactionsShowView from '@/views/TransactionsShowView.vue';
@@ -32,6 +33,16 @@ const router = createRouter({
       component: LoginView,
       meta: {
         title: 'Iniciar sesión | FinZen',
+        public: true,
+        layout: 'blank',
+      },
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
+      meta: {
+        title: 'Crear cuenta | FinZen',
         public: true,
         layout: 'blank',
       },
