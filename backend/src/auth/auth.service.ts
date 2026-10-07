@@ -1,7 +1,7 @@
 // External imports
-import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PasswordHasher, TokenService } from '@nestjs/authentication';
 import type { TokenPair } from '@nestjs/authentication';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 // Internal imports
 import type { User } from '../users/entities/user.entity.js';

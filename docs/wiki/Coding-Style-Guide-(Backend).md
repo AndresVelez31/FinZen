@@ -23,6 +23,7 @@ returned.
 | Module | `accounts.module.ts` | `AccountsModule` |
 | Controller | `accounts.controller.ts` | `AccountsController` |
 | Service | `accounts.service.ts` | `AccountsService` |
+| Validator | `accounts.validate.ts` | `AccountsValidator` |
 | Entity | `entities/account.entity.ts` | `Account` (singular) |
 | DTO | `dto/create-account.dto.ts` | `CreateAccountDto` |
 | Credential provider | `jwt-auth.provider.ts` | `JwtAuthProvider` |
@@ -30,7 +31,8 @@ returned.
 | Enum | `enums/role.enum.ts` | `Role` |
 | Migration | `<timestamp>-<Name>.ts` | `<Name><timestamp>` |
 
-Controller methods use the Nest names `findAll`, `findOne`, `create`, `update`, `remove`.
+Controller methods mirror their service: `findAllByUserId`, `findOneByIdAndUserId`, `create`,
+`update`, `remove` (`UsersController` keeps `findAll` and `findOne`: the administrator lists every user).
 
 ## 3. TypeScript
 
@@ -47,8 +49,9 @@ Controller methods use the Nest names `findAll`, `findOne`, `create`, `update`, 
   imports has no comment.
 - Imports sorted alphabetically by path inside each block.
 - Every method that returns a promise is `async` and uses `await`, in services and controllers.
-- Services: constructor, public methods in CRUD order (`findAll`, `findOne`, `create`,
-  `update`, `remove`), then private helpers.
+- Services: constructor, public methods in CRUD order (`findAllByUserId`, `findOneByIdAndUserId`,
+  `create`, `update`, `remove`), then private helpers. Data that belongs to a user is always
+  read filtered by `userId`; `UsersService` keeps `findAll` and `findOne` because it is not filtered.
 
 ## 5. Comments and messages
 

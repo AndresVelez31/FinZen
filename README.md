@@ -67,8 +67,8 @@ Backend:   Controller -> Service -> TypeORM Repository -> SQLite
 ```
 
 - **Views** load their data only inside `onMounted`, always within `try/catch`, and derive
-  everything else with `computed`. Event handlers are not `async`: they chain `.then()` /
-  `.catch()`.
+  everything else with `computed`. Event handlers that call the API are `async`: they `await`
+  the service inside `try/catch`.
 - **Services** only do CRUD with the API. They extend `BaseService`, the only place with the axios
   `try/catch`, the `Authorization` header and the error handling.
 - **Utils** hold the calculations over data a view already loaded, one per service
@@ -76,7 +76,8 @@ Backend:   Controller -> Service -> TypeORM Repository -> SQLite
   `AccountUtil.calculateBalance`).
 - **Stores** only keep the session and the theme.
 - **Backend modules** (`auth`, `users`, `accounts`, `activities`, `transactions`) own their
-  controller, service, entity and DTOs. Validation, ownership and cascading deletes live there;
+  controller, service, validator, entity and DTOs. The `<feature>.validate.ts` validator checks the
+  fields of a body; the service keeps persistence, ownership and cascading deletes;
   a global `ValidationPipe` (`class-validator`) checks the DTOs of the token routes and answers
   `400` with a single Spanish `message`.
 

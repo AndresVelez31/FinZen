@@ -2,7 +2,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 // Internal imports
-import { authGuard, adminGuard } from '@/auth/guards.js';
+import { adminGuard, authGuard } from '@/auth/guards.js';
 import AccountFormView from '@/views/AccountFormView.vue';
 import AccountsShowView from '@/views/AccountsShowView.vue';
 import ActivitiesShowView from '@/views/ActivitiesShowView.vue';

@@ -5,13 +5,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 // Internal imports
 import { ActivitiesController } from './activities.controller.js';
 import { ActivitiesService } from './activities.service.js';
+import { ActivitiesValidator } from './activities.validate.js';
 import { Activity } from './entities/activity.entity.js';
 
 // Exports
 @Module({
   imports: [TypeOrmModule.forFeature([Activity])],
   controllers: [ActivitiesController],
-  providers: [ActivitiesService],
+  providers: [ActivitiesService, ActivitiesValidator],
   exports: [ActivitiesService],
 })
 export class ActivitiesModule {}

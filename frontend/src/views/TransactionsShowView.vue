@@ -121,8 +121,8 @@ function editTransaction(transaction: TransactionRowInterface): void {
   router.push({ name: 'transactions.edit', params: { id: transaction.id } });
 }
 
-function deleteTransaction(transaction: TransactionRowInterface): void {
-  Swal.fire({
+async function deleteTransaction(transaction: TransactionRowInterface): Promise<void> {
+  const result = await Swal.fire({
     title: '¿Eliminar transacción?',
     html: `<b>${transaction.description}</b><br>${FormattersUtil.formatToCOP(transaction.amount)}`,
     icon: 'warning',
@@ -131,34 +131,33 @@ function deleteTransaction(transaction: TransactionRowInterface): void {
     cancelButtonText: 'Cancelar',
     confirmButtonColor: '#ef4444',
     cancelButtonColor: '#94a3b8',
-  }).then((result) => {
-    if (!result.isConfirmed) {
-      return;
-    }
-
-    TransactionService.delete(transaction.id)
-      .then(() => {
-        transactions.value = transactions.value.filter(
-          (existingTransaction) => existingTransaction.id !== transaction.id,
-        );
-        Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1200, showConfirmButton: false });
-      })
-      .catch((error: Error) => {
-        Swal.fire({
-          title: 'No se pudo eliminar la transacción',
-          text: error.message,
-          icon: 'error',
-        });
-      });
   });
+
+  if (!result.isConfirmed) {
+    return;
+  }
+
+  try {
+    await TransactionService.delete(transaction.id);
+    transactions.value = transactions.value.filter(
+      (existingTransaction) => existingTransaction.id !== transaction.id,
+    );
+    await Swal.fire({ title: 'Eliminada', icon: 'success', timer: 1200, showConfirmButton: false });
+  } catch (error) {
+    await Swal.fire({
+      title: 'No se pudo eliminar la transacción',
+      text: (error as Error).message,
+      icon: 'error',
+    });
+  }
 }
 
 // Lifecycle
 onMounted(async () => {
   try {
-    transactions.value = await TransactionService.getAll();
-    accounts.value = await AccountService.getAll();
-    activities.value = await ActivityService.getAll();
+    transactions.value = await TransactionService.getAllByUserId();
+    accounts.value = await AccountService.getAllByUserId();
+    activities.value = await ActivityService.getAllByUserId();
   } catch (error) {
     await Swal.fire({
       title: 'No se pudieron cargar las transacciones',

@@ -9,11 +9,12 @@ import { BaseService } from '@/services/BaseService.js';
 export class ActivityService extends BaseService {
   private static readonly PATH = '/activities';
 
-  public static async getAll(): Promise<ActivityInterface[]> {
+  // The API returns only the signed-in user's records.
+  public static async getAllByUserId(): Promise<ActivityInterface[]> {
     return await this.httpGet(this.PATH);
   }
 
-  public static async getById(id: number): Promise<ActivityInterface> {
+  public static async getByIdAndUserId(id: number): Promise<ActivityInterface> {
     return await this.httpGet(`${this.PATH}/${id}`);
   }
 

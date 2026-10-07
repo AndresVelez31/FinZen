@@ -1,6 +1,6 @@
 // External imports
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CurrentUser } from '@nestjs/authentication';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 
 // Internal imports
 import { CreateTransactionDto } from './dto/create-transaction.dto.js';
@@ -14,13 +14,16 @@ export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Get()
-  async findAll(@CurrentUser('id') userId: number): Promise<Transaction[]> {
-    return await this.transactionsService.findAll(userId);
+  async findAllByUserId(@CurrentUser('id') userId: number): Promise<Transaction[]> {
+    return await this.transactionsService.findAllByUserId(userId);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @CurrentUser('id') userId: number): Promise<Transaction> {
-    return await this.transactionsService.findOne(Number(id), userId);
+  async findOneByIdAndUserId(
+    @Param('id') id: string,
+    @CurrentUser('id') userId: number,
+  ): Promise<Transaction> {
+    return await this.transactionsService.findOneByIdAndUserId(Number(id), userId);
   }
 
   @Post()
