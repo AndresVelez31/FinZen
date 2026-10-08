@@ -1,7 +1,7 @@
 // External imports
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 // Internal imports
 import { UpdateUserDto } from './dto/update-user.dto.js';
@@ -40,10 +40,17 @@ export class UsersService {
   }
 
   // Saves a regular active user. It returns the user read back, because the saved
-  // entity still carries the hash and the column is `select: false`.
-  async create(name: string, email: string, passwordHash: string): Promise<User> {
-    const saved = await this.usersRepository.save(
-      this.usersRepository.create({
+  // entity still carries the hash and the column is `select: false`. With a manager
+  // it runs inside that transaction (the sign-up also copies the activity template).
+  async create(
+    name: string,
+    email: string,
+    passwordHash: string,
+    manager?: EntityManager,
+  ): Promise<User> {
+    const repository = manager?.getRepository(User) ?? this.usersRepository;
+    const saved = await repository.save(
+      repository.create({
         name,
         email,
         password: passwordHash,
@@ -51,7 +58,11 @@ export class UsersService {
         active: true,
       }),
     );
-    return await this.findOne(saved.id);
+    const user = await repository.findOneBy({ id: saved.id });
+    if (!user) {
+      throw new NotFoundException('El usuario no existe.');
+    }
+    return user;
   }
 
   // For the sign-in only: AuthService compares the hash and never returns this user.

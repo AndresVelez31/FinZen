@@ -1,9 +1,10 @@
 // External imports
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 // Internal imports
+import { Role } from '../users/enums/role.enum.js';
 import { ActivitiesValidator } from './activities.validate.js';
 import { CreateActivityDto } from './dto/create-activity.dto.js';
 import { UpdateActivityDto } from './dto/update-activity.dto.js';
@@ -62,6 +63,27 @@ export class ActivitiesService {
 
     Object.assign(activity, fields);
     return await this.activitiesRepository.save(activity);
+  }
+
+  // The administrators' activities are the template: every new user starts with a copy of them
+  // and then owns and edits those copies. It runs inside the sign-up transaction, so a user is
+  // never left without activities.
+  async copyTemplateToUser(userId: number, manager: EntityManager): Promise<void> {
+    const repository = manager.getRepository(Activity);
+    const template = await repository.find({
+      where: { user: { role: Role.Admin } },
+      order: { id: 'ASC' },
+    });
+    const copies = template.map((activity) =>
+      repository.create({
+        name: activity.name,
+        color: activity.color,
+        type: activity.type,
+        targetAmount: activity.targetAmount,
+        user: { id: userId },
+      }),
+    );
+    await repository.save(copies);
   }
 
   // The activity's transactions are removed by the database (onDelete: 'CASCADE').

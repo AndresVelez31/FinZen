@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 
 // Internal imports
+import { ActivitiesModule } from '../activities/activities.module.js';
 import { UsersModule } from '../users/users.module.js';
 import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
@@ -14,7 +15,7 @@ import { RolesGuard } from './roles.guard.js';
 // every route require a signed-in user; this module adds the credential
 // provider, the token routes and the role check.
 @Module({
-  imports: [UsersModule],
+  imports: [UsersModule, ActivitiesModule],
   controllers: [AuthController],
   providers: [AuthService, JwtAuthProvider, { provide: APP_GUARD, useClass: RolesGuard }],
 })

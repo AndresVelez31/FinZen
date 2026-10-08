@@ -21,7 +21,8 @@ supports:
 - income and expense transactions;
 - expense budgets and savings goals organized as activities;
 - filters, summaries, charts, and financial reports;
-- user and activity administration through protected administrator routes;
+- activities per user, copied from the administrator's activities (the template) at sign-up;
+- user administration through protected administrator routes;
 - responsive light and dark themes.
 
 Since Deliverable 2 the project is **full stack**:
@@ -33,7 +34,7 @@ Since Deliverable 2 the project is **full stack**:
   data are created by migrations.
 
 The API requires a valid access token on every route except `/api` and `/api/auth/*`, only
-returns the records of the authenticated user, and restricts user and activity administration to admins.
+returns the records of the authenticated user, and restricts user administration to admins.
 
 ## Technology stack
 
@@ -179,17 +180,20 @@ The `SeedDemoData` and `SeedDemoDataUntilDecember` migrations insert:
 
 - 2 users;
 - 8 accounts;
-- 14 activities;
+- 14 activities (7 of the administrator, which are the template for new users, and 7 of the
+  demo user);
 - 125 transactions, from February to December 2026 (80 from `SeedDemoData` and 45 for October
   to December from `SeedDemoDataUntilDecember`).
 
 | Role          | Email              | Password   | Access scope                                        |
 | ------------- | ------------------ | ---------- | --------------------------------------------------- |
-| Administrator | `admin@finzen.app` | `admin123` | All protected pages, including Activities and Users |
-| Regular user  | `user@finzen.app`  | `user123`  | Overview, Accounts, Transactions, and Reports       |
+| Administrator | `admin@finzen.app` | `admin123` | All protected pages, including Users                       |
+| Regular user  | `user@finzen.app`  | `user123`  | Overview, Accounts, Transactions, Reports, and Activities  |
 
 New accounts can be created at `/sign-up` (name, e-mail and a password of 12 to 128
-characters). They get the `user` role and start with no data. The old `/login` and
+characters). They get the `user` role and start with a copy of the administrator's activities
+(the template), which they can then edit, extend or delete; they have no accounts or transactions.
+The `CopyActivityTemplate` migration gives that copy to users who signed up before it. The old `/login` and
 `/register` URLs redirect to `/sign-in` and `/sign-up`.
 
 ## Application routes
@@ -208,9 +212,9 @@ The router currently defines **14 routes** (plus the two redirects described abo
 | `/accounts/new`          | `accounts.create`     | `AccountFormView.vue`      | Authenticated |
 | `/accounts/:id/edit`     | `accounts.edit`       | `AccountFormView.vue`      | Authenticated |
 | `/reports`               | `reports`             | `ReportsView.vue`          | Authenticated |
-| `/activities`            | `activities`          | `ActivitiesShowView.vue`   | Administrator |
-| `/activities/new`        | `activities.create`   | `ActivityFormView.vue`     | Administrator |
-| `/activities/:id/edit`   | `activities.edit`     | `ActivityFormView.vue`     | Administrator |
+| `/activities`            | `activities`          | `ActivitiesShowView.vue`   | Authenticated |
+| `/activities/new`        | `activities.create`   | `ActivityFormView.vue`     | Authenticated |
+| `/activities/:id/edit`   | `activities.edit`     | `ActivityFormView.vue`     | Authenticated |
 | `/users`                 | `users`               | `UsersShowView.vue`        | Administrator |
 
 The account form currently provides five account types: `Corriente`, `Ahorros`, `Efectivo`,
@@ -225,7 +229,7 @@ Every list only contains the authenticated user's records; someone else's record
 | Method                      | Path                      | Access        | Description                                                                                           |
 | --------------------------- | ------------------------- | ------------- | ----------------------------------------------------------------------------------------------------- |
 | `GET`                       | `/api`                    | Public        | Health check                                                                                          |
-| `POST`                      | `/api/auth/sign-up`       | Public        | Signs up a user (role `user`) and signs them in: returns the token pair; `409` if the e-mail exists   |
+| `POST`                      | `/api/auth/sign-up`       | Public        | Signs up a user (role `user`, with a copy of the activity template) and signs them in; `409` if taken |
 | `POST`                      | `/api/auth/token`         | Public        | Sign in: returns the `accessToken` (8 hours) and the `refreshToken` (7 days, renewable up to 30 days) |
 | `POST`                      | `/api/auth/token/refresh` | Public        | Exchanges the refresh token for a new pair; `401` if invalid, expired or reused                       |
 | `POST`                      | `/api/auth/token/revoke`  | Public        | Sign out: revokes the refresh token (`204`)                                                           |
@@ -235,7 +239,7 @@ Every list only contains the authenticated user's records; someone else's record
 | `GET` / `POST`              | `/api/transactions`       | Authenticated | List (newest first) / create                                                                          |
 | `GET` / `PATCH` / `DELETE`  | `/api/transactions/:id`   | Authenticated | Read / update / delete                                                                                |
 | `GET`                       | `/api/activities[/:id]`   | Authenticated | List / read activities                                                                                |
-| `POST` / `PATCH` / `DELETE` | `/api/activities[/:id]`   | Administrator | Manage activities (delete cascades transactions)                                                      |
+| `POST` / `PATCH` / `DELETE` | `/api/activities[/:id]`   | Authenticated | Manage your activities (delete cascades transactions); an admin's are the template for new users     |
 | `GET`                       | `/api/users`              | Administrator | List users                                                                                            |
 | `PATCH`                     | `/api/users/:id`          | Administrator | Change `role` and/or `active` (not your own user)                                                     |
 
