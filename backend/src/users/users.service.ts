@@ -40,15 +40,15 @@ export class UsersService {
   }
 
   // Saves a regular active user. It returns the user read back, because the saved
-  // entity still carries the hash and the column is `select: false`. With a manager
-  // it runs inside that transaction (the sign-up also copies the activity template).
+  // entity still carries the hash and the column is `select: false`. It runs inside the
+  // sign-up transaction (manager), which also copies the activity template.
   async create(
     name: string,
     email: string,
     passwordHash: string,
-    manager?: EntityManager,
+    manager: EntityManager,
   ): Promise<User> {
-    const repository = manager?.getRepository(User) ?? this.usersRepository;
+    const repository = manager.getRepository(User);
     const saved = await repository.save(
       repository.create({
         name,
