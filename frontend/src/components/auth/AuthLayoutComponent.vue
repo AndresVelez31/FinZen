@@ -34,10 +34,14 @@ import { PieChart, ShieldCheck, TrendingUp, Wallet } from 'lucide-vue-next';
       </div>
     </section>
 
-    <!-- Right: the card content of each view -->
+    <!-- Right: the form of the current route; only this part changes between sign-in and sign-up -->
     <section class="form-side">
       <div class="form-card fade-up">
-        <slot />
+        <RouterView v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </RouterView>
       </div>
     </section>
   </div>
@@ -136,7 +140,7 @@ import { PieChart, ShieldCheck, TrendingUp, Wallet } from 'lucide-vue-next';
   flex-shrink: 0;
 }
 
-/* Form card: the views fill it through the slot, so their elements are reached with :deep() */
+/* Form card: the views are rendered inside it, so their elements are reached with :deep() */
 .form-side {
   display: flex;
   align-items: center;
@@ -169,7 +173,7 @@ import { PieChart, ShieldCheck, TrendingUp, Wallet } from 'lucide-vue-next';
 .form-card :deep(h2) {
   font-size: 1.6rem;
 }
-.form-card > :deep(.muted) {
+.form-card :deep(.auth-form > .muted) {
   margin-bottom: 26px;
   font-size: 0.92rem;
 }
