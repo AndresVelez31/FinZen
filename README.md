@@ -1,6 +1,6 @@
 # FinZen · Personal Finance Manager
 
-> A client-side Single Page Application for tracking accounts, transactions,
+> A full stack application (Vue SPA + NestJS REST API) for tracking accounts, transactions,
 > budgets, savings goals, and personal-finance reports.
 >
 > University Project — Web Application Software Engineering (6th Semester).
@@ -33,8 +33,7 @@ Since Deliverable 2 the project is **full stack**:
   data are created by migrations.
 
 The API requires a valid access token on every route except `/api` and `/api/auth/*`, only
-returns the
-records of the authenticated user, and restricts user and activity administration to admins.
+returns the records of the authenticated user, and restricts user and activity administration to admins.
 
 ## Technology stack
 
@@ -82,7 +81,8 @@ Backend:   Controller -> Service -> TypeORM Repository -> SQLite
   `400` with a single Spanish `message`.
 
 For the detailed rules, see the
-[Programming Rules (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Programming-Rules-(Frontend)>).
+[Programming Rules (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Programming-Rules-(Frontend)>) and the
+[Programming Rules (Backend)](<https://github.com/AndresVelez31/FinZen/wiki/Programming-Rules-(Backend)>).
 
 ## Repository structure
 
@@ -102,7 +102,9 @@ FinZen/
 │   ├── Dockerfile
 │   └── package.json
 ├── docs/
+│   ├── architecture/       # draw.io diagrams (sources + PNG) per deliverable
 │   ├── decisions/          # Architecture and implementation decision records
+│   ├── wiki/               # Wiki pages, one folder per deliverable
 │   └── domain-model.md     # Domain-model reference
 ├── frontend/
 │   ├── public/             # Static assets copied by Vite
@@ -263,14 +265,16 @@ npm run migration:run      # Apply pending migrations (the app also runs them on
 npm run migration:revert   # Undo the last migration
 ```
 
-The `lint` and `format` scripts modify matching files. Consult the
-[Coding Style Guide (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Frontend)>) before
+`format` modifies files in both projects; `lint` modifies them in the frontend (`--fix`) and only
+reports in the backend. Consult the
+[Coding Style Guide (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Frontend)>) and the
+[Coding Style Guide (Backend)](<https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Backend)>) before
 contributing.
 
 ## Resetting demo data
 
 Stop the API, delete `backend/database.sqlite` and start it again: the migrations recreate the
-schema and the demo data. To end the browser session, log out or run
+schema and the demo data. To end the browser session, sign out or run
 `localStorage.removeItem("finzenState.v5")` in the developer console.
 
 ## Production build and Docker
@@ -308,7 +312,7 @@ See [`docs/decisions/INFRA-ci-workflow.md`](./docs/decisions/INFRA-ci-workflow.m
 
 - [GitHub Wiki](https://github.com/AndresVelez31/FinZen/wiki) — Deliverable documentation and project architecture.
 - [Main application screenshots](https://github.com/AndresVelez31/FinZen/wiki/Screenshots) — Overview, transactions, and reports.
-- [Coding Style Guide (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Frontend)>) — Naming and code conventions.
-- [Programming Rules (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Programming-Rules-(Frontend)>) — Layer responsibilities and dependency rules.
+- [Coding Style Guide (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Frontend)>) and [Coding Style Guide (Backend)](<https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Backend)>) — How to use the formatter, linters, type checker and tests.
+- [Programming Rules (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Programming-Rules-(Frontend)>) and [Programming Rules (Backend)](<https://github.com/AndresVelez31/FinZen/wiki/Programming-Rules-(Backend)>) — Layer responsibilities, naming and code conventions.
 - [`CONTRIBUTING.md`](./CONTRIBUTING.md) — Branching, commit, and Pull Request workflow.
 - [`docs/decisions/`](./docs/decisions) — Architecture and implementation decision records.

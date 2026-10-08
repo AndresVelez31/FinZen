@@ -2,6 +2,12 @@
 
 This document details the core foundation for Deliverable 1 of the **FinZen** Personal Expense Tracker.
 
+> **Note:** this page is a snapshot of Deliverable 1, when FinZen was a client-side SPA persisted in
+> `localStorage` with seeders. Since Deliverable 2 the data lives in the Nest.js API and some names
+> changed (`OverviewView`, `*ShowView`, `*Component`). The current state is in
+> [Deliverable 2 — Full Stack](Deliverable-2), the
+> [Programming Rules (Frontend)](<Programming-Rules-(Frontend)>) and the README.
+
 ---
 
 ## 1. Domain Model (Entities & Relationships)
@@ -68,7 +74,7 @@ erDiagram
 
 ## 2. Application Scope & Pages Catalogue
 
-The application features **9 structured routes / views**:
+The application features **10 structured routes / views**:
 
 | # | Route | View Component | Access Role | Description |
 |---|---|---|---|---|

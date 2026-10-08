@@ -19,22 +19,22 @@
 Explore the complete architecture and standards documentation across the following pages:
 
 1. 📦 **[Deliverable 1 — Base Architecture & Scope](Deliverable-1)**  
-   Contains the core domain model (User, Account, Activity, Transaction), layered system architecture, pages catalogue, seeders, and reusable components.
+   Snapshot of the first, client-side version (localStorage and seeders): domain model, layered architecture, pages catalogue and reusable components.
 
 2. 🎨 **[Coding Style Guide (Frontend)](Coding-Style-Guide-(Frontend))**  
-   Defines coding standards, naming conventions, formatting guidelines (Prettier), and linter rules (ESLint / TypeScript).
+   How to use the style tools: Prettier, OXLint + ESLint, vue-tsc and Vitest (what each checks, config, when to run it).
 
 3. 🛡️ **[Programming Rules (Frontend)](Programming-Rules-(Frontend))**  
-   Essential architectural and coding rules categorized by layer (Router, Views, Services, Stores, Components, DTOs, Interfaces, and Environment variables).
+   Architectural and coding rules by layer (Views, Services, Stores, Interfaces, DTOs, Components, Routing, Environment), plus naming, TypeScript and file layout.
 
 4. 🧱 **[Deliverable 2 — Full Stack](Deliverable-2)**  
    Class diagram and the general, front-end and back-end architecture diagrams.
 
 5. 🎨 **[Coding Style Guide (Backend)](Coding-Style-Guide-(Backend))**  
-   Prettier and type-aware OXLint in the Nest.js project, and its naming conventions.
+   How to use the style tools in the Nest.js project: Prettier, type-aware OXLint, the TypeScript build and migrations.
 
 6. 🛡️ **[Programming Rules (Backend)](Programming-Rules-(Backend))**  
-   Rules for modules, controllers, services, entities, migrations and security.
+   Rules for modules, controllers, services, entities, migrations and security, plus naming and code style.
 
 ---
 

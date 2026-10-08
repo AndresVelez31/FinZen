@@ -154,7 +154,7 @@ El frontend se desarrolla utilizando Vue 3 con Composition API.
 
 Los tutoriales del curso construyen progresivamente una SPA con Vue,
 Router, TypeScript, Pinia, servicios, DTOs, componentes, `computed` y
-`watch`. fileciteturn4file3
+`watch`.
 
 ### Regla
 
@@ -179,7 +179,6 @@ recargar completamente la página.
 
 Esto es diferente de la arquitectura MPA/SSR estudiada con Express/EJS.
 Las presentaciones distinguen explícitamente MPA/SSR de SPA/CSR.
-fileciteturn2file5
 
 ### Regla
 
@@ -233,7 +232,6 @@ Ejemplo:
 El patrón utilizado en los tutoriales define rutas como `/books`,
 `/books/create` y `/books/:id`, asociadas respectivamente a vistas
 `BooksIndexView`, `BooksCreateView` y `BooksShowView`.
-fileciteturn4file5turn4file6
 
 ------------------------------------------------------------------------
 
@@ -278,7 +276,7 @@ export const useTransactionStore = defineStore('transaction', () => {
 
 Los tutoriales evolucionan desde acceso directo a datos hacia
 `BookService` y posteriormente hacia Pinia, manteniendo el store como
-contenedor del estado. fileciteturn4file2turn4file7
+contenedor del estado.
 
 ------------------------------------------------------------------------
 
@@ -307,7 +305,7 @@ export class TransactionService {
 ```
 
 La arquitectura utilizada en los tutoriales establece explícitamente
-services con métodos estáticos. fileciteturn3file6
+services con métodos estáticos.
 
 ### Razón
 
@@ -387,7 +385,7 @@ export type CreateTransactionDTO =
 ```
 
 Los tutoriales introducen explícitamente `Omit<>` para construir DTOs
-derivados de las interfaces. fileciteturn4file0
+derivados de las interfaces.
 
 ------------------------------------------------------------------------
 
@@ -495,7 +493,6 @@ Esta organización replica la separación utilizada en los tutoriales:
 `views`, `components`, `services`, `interfaces`, `dtos`, `stores` y
 `utils`. La presentación de elementos avanzados describe explícitamente
 el proyecto como una arquitectura modular por capas/módulos.
-fileciteturn2file15
 
 ------------------------------------------------------------------------
 
@@ -537,7 +534,6 @@ Puede:
 
 Los componentes fueron definidos en clase como piezas reutilizables que
 encapsulan lógica, vista y estilos, con responsabilidad específica.
-fileciteturn2file14
 
 ### Regla práctica
 
@@ -587,7 +583,7 @@ defineStore('transaction', () => {
 ```
 
 Los stores no deben tener getters ni acciones complejas según la
-convención establecida en `ARQUITECTURA.md`. fileciteturn5file11
+convención establecida en `ARQUITECTURA.md`.
 
 ------------------------------------------------------------------------
 
@@ -608,7 +604,7 @@ El seeder solamente define datos iniciales.
 El store solamente define estado.
 
 La configuración de Pinia decide cuándo cargar los seeders y cuándo
-restaurar el estado persistido. fileciteturn5file2
+restaurar el estado persistido.
 
 ------------------------------------------------------------------------
 
@@ -648,7 +644,7 @@ Las utilidades no deben depender directamente de Vue ni de Pinia.
 
 La presentación de elementos avanzados define la capa Util como
 funciones independientes, reutilizables, sin estado propio y sin
-dependencia directa de Vue. fileciteturn1file2
+dependencia directa de Vue.
 
 ------------------------------------------------------------------------
 
@@ -704,7 +700,6 @@ Se utiliza exclusivamente Composition API.
 
 Los tutoriales construyen las vistas de esta forma y el documento de
 arquitectura establece `<script setup lang="ts">` como convención.
-fileciteturn5file2
 
 ------------------------------------------------------------------------
 
@@ -730,7 +725,7 @@ const props = defineProps({
 ```
 
 La presentación/tutorial de componentes utiliza `defineProps` con
-genéricos de TypeScript. fileciteturn5file2
+genéricos de TypeScript.
 
 ------------------------------------------------------------------------
 
@@ -764,7 +759,6 @@ Regla:
 
 La presentación avanzada dedica una sección a variables computadas y
 plantea explícitamente la diferencia entre `computed` y `ref`.
-fileciteturn2file3
 
 ------------------------------------------------------------------------
 
@@ -792,7 +786,7 @@ watch(selectedActivity, () => {
 
 La presentación define los watchers precisamente como mecanismos para
 observar cambios y ejecutar lógica cuando algo cambia, incluyendo API,
-LocalStorage, validaciones y redirecciones. fileciteturn2file7
+LocalStorage, validaciones y redirecciones.
 
 No utilizar `watch` para reemplazar un `computed` cuando solamente se
 necesita derivar un valor.
@@ -872,7 +866,7 @@ if (transaction) {
 ```
 
 Los tutoriales y `ARQUITECTURA.md` establecen explícitamente la
-preferencia por early returns/guard clauses. fileciteturn5file10
+preferencia por early returns/guard clauses.
 
 ------------------------------------------------------------------------
 
@@ -926,7 +920,7 @@ La vista puede realizar validaciones básicas necesarias para UX, pero no
 debe ser la única responsable de garantizar la integridad de los datos.
 
 El tutorial avanzado muestra explícitamente validación y saneamiento en
-la capa de Service. fileciteturn1file6
+la capa de Service.
 
 ------------------------------------------------------------------------
 
@@ -957,7 +951,7 @@ persistencia.
 
 El entregable establece que inicialmente la "base de datos" debe estar
 en LocalStorage y que al cargar la aplicación por primera vez deben
-existir datos ficticios. fileciteturn5file15
+existir datos ficticios.
 
 ### Regla
 
@@ -989,7 +983,7 @@ La clave utilizada en los tutoriales es:
 piniaState
 ```
 
-y el estado se sincroniza mediante `watch`. fileciteturn4file13
+y el estado se sincroniza mediante `watch`.
 
 ------------------------------------------------------------------------
 
@@ -1029,7 +1023,6 @@ Configuración mínima:
 ```
 
 Esta configuración sigue la convención establecida en `ARQUITECTURA.md`.
-fileciteturn3file17
 
 ------------------------------------------------------------------------
 
@@ -1069,7 +1062,6 @@ import { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 ```
 
 Esta regla está asociada a `verbatimModuleSyntax`.
-fileciteturn3file12
 
 ------------------------------------------------------------------------
 
@@ -1088,7 +1080,7 @@ TransactionService.ts
 ```
 
 Esta convención está definida por la configuración NodeNext utilizada en
-el proyecto. fileciteturn3file12
+el proyecto.
 
 ------------------------------------------------------------------------
 
@@ -1112,7 +1104,6 @@ const transactions = ref([]);
 
 La presentación de TypeScript también señala que no siempre es necesario
 declarar tipos cuando TypeScript puede inferirlos correctamente.
-fileciteturn2file4
 
 La regla es:
 
@@ -1152,7 +1143,6 @@ La regla es:
   -----------------------------------------------------------------------------
 
 Estas convenciones están alineadas con `ARQUITECTURA.md`.
-fileciteturn5file12
 
 ------------------------------------------------------------------------
 
@@ -1283,7 +1273,6 @@ Debe reutilizarse en:
 
 El contexto del proyecto define explícitamente estos tres componentes
 como componentes reutilizables y exige al menos dos.
-fileciteturn5file0
 
 ------------------------------------------------------------------------
 
@@ -1314,7 +1303,6 @@ La extracción hace el código más difícil de entender
 
 El entregable solicita explícitamente utilizar el criterio del
 desarrollador para decidir cuándo crear componentes reutilizables.
-fileciteturn5file15
 
 ------------------------------------------------------------------------
 
@@ -1337,7 +1325,7 @@ Users
 ```
 
 El contexto del proyecto exige guards para restringir estas páginas
-según el rol del usuario. fileciteturn5file0
+según el rol del usuario.
 
 Conceptualmente:
 
@@ -1395,7 +1383,7 @@ Ejemplo:
 
 La presentación del curso define Tailwind como un framework
 utility-first donde pequeñas clases representan responsabilidades
-visuales individuales. fileciteturn2file8
+visuales individuales.
 
 ### Reglas
 
@@ -1427,7 +1415,7 @@ RouterView
 No duplicar el sidebar completo en cada View.
 
 La arquitectura de referencia utiliza `App.vue` como shell/layout
-global. fileciteturn5file2
+global.
 
 ------------------------------------------------------------------------
 
@@ -1447,7 +1435,7 @@ Los elementos principales del proyecto ---tablas, formularios, cards y
 gráficos--- deben contemplar pantallas pequeñas.
 
 El contexto del proyecto establece explícitamente diseño responsive como
-requisito técnico. fileciteturn5file0
+requisito técnico.
 
 ------------------------------------------------------------------------
 
@@ -1479,7 +1467,6 @@ No fue posible cargar las transacciones.
 ```
 
 Esto forma parte de los requisitos técnicos definidos para el proyecto.
-fileciteturn5file0
 
 ------------------------------------------------------------------------
 
@@ -1504,7 +1491,6 @@ Chart.js
 ```
 
 El contexto exige Chart.js y al menos una librería visual adicional.
-fileciteturn5file15
 
 ------------------------------------------------------------------------
 
@@ -1542,7 +1528,7 @@ La aplicación inicialmente utiliza LocalStorage/sessionStorage para:
 
 El contexto define explícitamente que los usuarios ficticios deben
 almacenarse inicialmente en LocalStorage y que el rol debe utilizarse
-para proteger rutas administrativas. fileciteturn5file0
+para proteger rutas administrativas.
 
 No distribuir la lógica de autenticación arbitrariamente entre
 componentes.
@@ -1573,7 +1559,7 @@ Configuración establecida:
 
 Prettier solamente formatea. No corrige errores lógicos ni optimiza
 rendimiento. La presentación de Vue lo define explícitamente como
-herramienta de formateo automático. fileciteturn2file0
+herramienta de formateo automático.
 
 ------------------------------------------------------------------------
 
@@ -1587,7 +1573,7 @@ El linting se utiliza para:
 -   mantener estándares de equipo.
 
 La presentación de fundamentos explica precisamente estas
-responsabilidades. fileciteturn5file18
+responsabilidades.
 
 No ignorar warnings o errores simplemente para conseguir que el build
 termine.
@@ -1622,7 +1608,7 @@ npm run build
 ```
 
 Los scripts y su propósito siguen la organización establecida en
-`ARQUITECTURA.md`. fileciteturn5file7
+`ARQUITECTURA.md`.
 
 ------------------------------------------------------------------------
 
@@ -1709,7 +1695,7 @@ Debe contener:
 
 Este documento debe ser la guía de estilo solicitada por el entregable.
 El entregable permite definir una guía manual o explicar el uso del
-linter seleccionado. fileciteturn5file14
+linter seleccionado.
 
 ------------------------------------------------------------------------
 
@@ -1817,7 +1803,6 @@ No agregar dependencias simplemente porque "son populares".
 
 El entregable exige utilizar GitHub Projects para dividir tareas y que
 cada integrante indique qué está haciendo y qué queda pendiente.
-fileciteturn5file15
 
 Se recomienda un tablero:
 
@@ -1950,7 +1935,7 @@ Debe:
 
 El entregable establece que el arquitecto debe analizar los commits y
 pushes y puede revertir versiones que no cumplan las reglas
-establecidas. fileciteturn5file14
+establecidas.
 
 ------------------------------------------------------------------------
 
@@ -1991,7 +1976,6 @@ Transaction
 ```
 
 El modelo actual define estas entidades y sus relaciones.
-fileciteturn3file0
 
 ### User
 
@@ -2051,7 +2035,7 @@ Activity 1 ─── * Transaction
 ```
 
 El detalle de estas entidades y relaciones está definido en
-`contexto.md`. fileciteturn5file5
+`contexto.md`.
 
 ------------------------------------------------------------------------
 
@@ -2070,7 +2054,6 @@ El proyecto actual tiene siete páginas:
 ```
 
 El contexto define exactamente estas páginas y sus responsabilidades.
-fileciteturn5file0
 
 ------------------------------------------------------------------------
 
@@ -2096,7 +2079,7 @@ El proyecto debe tener:
 -   diseño responsive.
 
 Estos requisitos están definidos por el entregable y por el contexto del
-proyecto. fileciteturn5file15turn5file0
+proyecto.
 
 ------------------------------------------------------------------------
 
@@ -2566,25 +2549,21 @@ entender dónde debe colocar una nueva funcionalidad.
 Esta guía consolida las reglas observadas en:
 
 -   `ARQUITECTURA.md`: arquitectura, capas, carpetas, patrones,
-    TypeScript, naming y calidad. fileciteturn5file1turn5file4
+    TypeScript, naming y calidad.
 -   Tutorial 03 de Vue: creación de SPA, Vue Router, SFC y Tailwind.
-    fileciteturn4file3turn4file12
 -   Tutorial 04 de Vue: interfaces, services, DTOs, Pinia, seeders y
-    LocalStorage. fileciteturn4file1turn4file0turn4file7
+    LocalStorage.
 -   Tutorial 05 de Vue: services adicionales, components, props,
-    watchers y utilidades. fileciteturn4file11turn4file4
+    watchers y utilidades.
 -   Presentación de elementos avanzados: capa Util, `computed`, `watch`,
     components y revisión de código.
-    fileciteturn2file0turn2file7turn2file14
 -   `Entregable 1 Parte 1 - Base`: requisitos de arquitectura, reglas de
     programación, GitHub, arquitecto, wiki, Projects, LocalStorage,
     páginas, CRUDs y componentes reutilizables.
-    fileciteturn5file14turn5file15
 -   `contexto.md`: modelo de dominio, páginas, componentes reutilizables
     y requisitos técnicos del proyecto de Finanzas Personales.
-    fileciteturn5file0
 -   `Resumen Proyecto`: definición del Dashboard de Finanzas Personales
-    y modelo de cuatro clases. fileciteturn3file0
+    y modelo de cuatro clases.
 
 ------------------------------------------------------------------------
 
