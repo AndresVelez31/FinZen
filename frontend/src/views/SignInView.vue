@@ -12,11 +12,15 @@ import { AuthService } from '@/services/AuthService.js';
 const router = useRouter();
 
 // Reactive variables
-const email = ref('');
-const password = ref('');
-const showPassword = ref(false);
+const form = ref({
+  email: '',
+  password: '',
+});
+// One message for the whole form: the API answers the same for a wrong e-mail or a wrong
+// password, so it never says which one failed.
 const errorMessage = ref('');
-const loading = ref(false);
+const showPassword = ref(false);
+const saving = ref(false);
 
 // Selectors
 const demoAccounts: DemoAccountInterface[] = [
@@ -26,28 +30,30 @@ const demoAccounts: DemoAccountInterface[] = [
 
 // Actions
 function useDemoAccount(account: DemoAccountInterface): void {
-  email.value = account.email;
-  password.value = account.password;
+  form.value = { email: account.email, password: account.password };
   errorMessage.value = '';
 }
 
 async function submit(): Promise<void> {
   errorMessage.value = '';
 
-  if (!email.value.trim() || !password.value) {
+  if (saving.value) {
+    return;
+  }
+  if (!form.value.email.trim() || !form.value.password) {
     errorMessage.value = 'Introduce el correo y la contraseña.';
     return;
   }
 
-  loading.value = true;
+  saving.value = true;
 
   try {
-    await AuthService.signIn({ email: email.value, password: password.value });
+    await AuthService.signIn({ email: form.value.email, password: form.value.password });
     await router.push({ name: 'overview' });
   } catch (error) {
     errorMessage.value = (error as Error).message;
   } finally {
-    loading.value = false;
+    saving.value = false;
   }
 }
 </script>
@@ -68,7 +74,7 @@ async function submit(): Promise<void> {
           <Mail :size="17" class="ii" />
           <input
             id="email"
-            v-model="email"
+            v-model="form.email"
             class="input"
             type="email"
             placeholder="tu@email.com"
@@ -85,7 +91,7 @@ async function submit(): Promise<void> {
           <Lock :size="17" class="ii" />
           <input
             id="password"
-            v-model="password"
+            v-model="form.password"
             class="input"
             :type="showPassword ? 'text' : 'password'"
             placeholder="••••••••"
@@ -109,9 +115,9 @@ async function submit(): Promise<void> {
         {{ errorMessage }}
       </p>
 
-      <button class="btn btn-primary submit" type="submit" :disabled="loading" :aria-busy="loading">
-        <span v-if="loading" class="spinner" aria-hidden="true"></span>
-        {{ loading ? 'Accediendo…' : 'Iniciar sesión' }}
+      <button class="btn btn-primary submit" type="submit" :disabled="saving" :aria-busy="saving">
+        <span v-if="saving" class="spinner" aria-hidden="true"></span>
+        {{ saving ? 'Accediendo…' : 'Iniciar sesión' }}
       </button>
     </form>
 
