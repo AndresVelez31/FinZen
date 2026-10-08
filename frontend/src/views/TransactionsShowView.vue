@@ -1,20 +1,20 @@
 <script setup lang="ts">
 // External imports
-import { ChevronDown, Plus, RotateCcw, SlidersHorizontal } from 'lucide-vue-next';
+import { Plus } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 // Internal imports
 import ChartGraphic from '@/components/shared/ChartGraphicComponent.vue';
-import DatePicker from '@/components/shared/DatePickerComponent.vue';
 import PaginatedList from '@/components/shared/PaginatedListComponent.vue';
-import SelectorFilter from '@/components/shared/SelectorFilterComponent.vue';
+import TransactionFilters from '@/components/transactions/TransactionFiltersComponent.vue';
 import TransactionsTable from '@/components/transactions/TransactionsTableComponent.vue';
-import { MONTH_OPTIONS, TRANSACTION_TYPE_OPTIONS } from '@/enums/constants.js';
+import { EMPTY_TRANSACTION_FILTERS } from '@/enums/constants.js';
 import type { AccountInterface } from '@/interfaces/AccountInterface.js';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import type { FilterOptionInterface } from '@/interfaces/FilterOptionInterface.js';
+import type { TransactionFiltersInterface } from '@/interfaces/TransactionFiltersInterface.js';
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 import type { TransactionRowInterface } from '@/interfaces/TransactionRowInterface.js';
 import { AccountService } from '@/services/AccountService.js';
@@ -30,8 +30,6 @@ const router = useRouter();
 const transactions = ref<TransactionInterface[]>([]);
 const accounts = ref<AccountInterface[]>([]);
 const activities = ref<ActivityInterface[]>([]);
-// Only matters on phones, where the filters start folded so the list is visible first.
-const filtersOpen = ref(false);
 
 // Selectors
 const activityOptions = computed<FilterOptionInterface[]>(() =>
@@ -45,22 +43,17 @@ const accountOptions = computed<FilterOptionInterface[]>(() =>
   })),
 );
 
-const filterActivity = ref('');
-const filterAccount = ref('');
-const filterType = ref('');
-const filterMonth = ref('');
-const filterFrom = ref('');
-const filterTo = ref('');
+const filters = ref<TransactionFiltersInterface>({ ...EMPTY_TRANSACTION_FILTERS });
 
 // Computed
 const filteredTransactions = computed(() =>
   TransactionUtil.filterByCriteria(transactions.value, {
-    activityId: filterActivity.value ? Number(filterActivity.value) : undefined,
-    accountId: filterAccount.value ? Number(filterAccount.value) : undefined,
-    type: filterType.value || undefined,
-    month: filterMonth.value || undefined,
-    from: filterFrom.value || undefined,
-    to: filterTo.value || undefined,
+    activityId: filters.value.activityId ? Number(filters.value.activityId) : undefined,
+    accountId: filters.value.accountId ? Number(filters.value.accountId) : undefined,
+    type: filters.value.type || undefined,
+    month: filters.value.month || undefined,
+    from: filters.value.from || undefined,
+    to: filters.value.to || undefined,
   }),
 );
 
@@ -73,28 +66,7 @@ const filteredTransactionRows = computed<TransactionRowInterface[]>(() =>
 );
 
 // Changes with any filter; used as the list's key so a new filter starts again from page 1.
-const filterSelection = computed(() =>
-  [
-    filterActivity.value,
-    filterAccount.value,
-    filterType.value,
-    filterMonth.value,
-    filterFrom.value,
-    filterTo.value,
-  ].join('|'),
-);
-
-const activeFilters = computed(
-  () =>
-    [
-      filterActivity.value,
-      filterAccount.value,
-      filterType.value,
-      filterMonth.value,
-      filterFrom.value,
-      filterTo.value,
-    ].filter(Boolean).length,
-);
+const filterSelection = computed(() => Object.values(filters.value).join('|'));
 
 // Bar chart: expense by activity for the filtered set
 const barChart = computed(() => {
@@ -124,15 +96,6 @@ const totals = computed(() => {
 });
 
 // Actions
-function resetFilters(): void {
-  filterActivity.value = '';
-  filterAccount.value = '';
-  filterType.value = '';
-  filterMonth.value = '';
-  filterFrom.value = '';
-  filterTo.value = '';
-}
-
 function editTransaction(transaction: TransactionRowInterface): void {
   router.push({ name: 'transactions.edit', params: { id: transaction.id } });
 }
@@ -201,59 +164,11 @@ onMounted(async () => {
     </div>
 
     <!-- Filters -->
-    <section class="card filters" :class="{ open: filtersOpen }">
-      <div class="filters-head">
-        <button
-          type="button"
-          class="filters-toggle"
-          :aria-expanded="filtersOpen"
-          aria-controls="transaction-filters"
-          @click="filtersOpen = !filtersOpen"
-        >
-          <SlidersHorizontal :size="17" />
-          <span>Filtros</span>
-          <span v-if="activeFilters" class="filters-count">{{ activeFilters }}</span>
-          <ChevronDown :size="17" class="filters-chevron" />
-        </button>
-        <button v-if="activeFilters" type="button" class="btn btn-ghost btn-sm" @click="resetFilters">
-          <RotateCcw :size="14" />
-          Limpiar
-        </button>
-      </div>
-      <div id="transaction-filters" class="filters-grid">
-        <SelectorFilter
-          label="Actividad"
-          v-model="filterActivity"
-          :options="activityOptions"
-          placeholder="Todas"
-        />
-
-        <SelectorFilter
-          label="Cuenta"
-          v-model="filterAccount"
-          :options="accountOptions"
-          placeholder="Todas"
-        />
-
-        <SelectorFilter label="Tipo" v-model="filterType" :options="TRANSACTION_TYPE_OPTIONS" placeholder="Todos" />
-        <SelectorFilter label="Mes" v-model="filterMonth" :options="MONTH_OPTIONS" placeholder="Todos" />
-        <div class="field">
-          <label for="filter-from">Desde</label>
-          <DatePicker
-            id="filter-from"
-            v-model="filterFrom"
-            placeholder="Cualquiera"
-            clearable
-            :max="filterTo"
-          />
-        </div>
-
-        <div class="field">
-          <label for="filter-to">Hasta</label>
-          <DatePicker id="filter-to" v-model="filterTo" placeholder="Cualquiera" clearable :min="filterFrom" />
-        </div>
-      </div>
-    </section>
+    <TransactionFilters
+      v-model="filters"
+      :activity-options="activityOptions"
+      :account-options="accountOptions"
+    />
 
     <!-- Chart -->
     <section class="card panel">
@@ -316,84 +231,6 @@ html.dark .summary-pill.in {
 .summary-pill.out {
   background: color-mix(in srgb, var(--danger) 11%, transparent);
   color: var(--danger);
-}
-.filters {
-  padding: 16px 20px 20px;
-  margin-bottom: 20px;
-}
-.filters-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 34px;
-  margin-bottom: 14px;
-}
-.filters-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--text);
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: default;
-}
-.filters-count {
-  min-width: 22px;
-  height: 22px;
-  padding: 0 7px;
-  display: grid;
-  place-items: center;
-  border-radius: 999px;
-  background: var(--primary);
-  color: var(--primary-contrast);
-  font-size: 0.74rem;
-  font-weight: 700;
-}
-.filters-chevron {
-  display: none;
-  color: var(--text-soft);
-  transition: transform 0.22s var(--ease-out);
-}
-.filters-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 14px;
-  align-items: end;
-}
-
-@media (max-width: 720px) {
-  .filters {
-    padding: 4px 16px;
-  }
-  .filters-head {
-    min-height: 52px;
-    margin-bottom: 0;
-  }
-  .filters-toggle {
-    flex: 1;
-    min-height: 44px;
-    cursor: pointer;
-  }
-  .filters-chevron {
-    display: block;
-    margin-left: auto;
-  }
-  .filters.open .filters-chevron {
-    transform: rotate(180deg);
-  }
-  .filters-grid {
-    display: none;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    padding: 4px 0 16px;
-  }
-  .filters.open .filters-grid {
-    display: grid;
-  }
 }
 .panel {
   padding: 22px;
