@@ -61,8 +61,8 @@ The back-end rules are in [Programming Rules (Backend)](<Programming-Rules-(Back
 
 ## Routing and security
 
-17. Every route has `meta.title`; private routes pass the auth guard and `/activities` and
-    `/users` also need the `admin` role. `/sign-in` and `/sign-up` are public.
+17. Every route has `meta.title`; private routes pass the auth guard and `/users` also needs the
+    `admin` role. `/sign-in` and `/sign-up` are public.
 18. Navigate with `router.push()` or `<RouterLink>`, never `window.location`.
 19. The browser only hides what the user cannot do; the API is the one that enforces it.
 

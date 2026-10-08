@@ -2,8 +2,10 @@
 import { PasswordHasher, TokenService } from '@nestjs/authentication';
 import type { TokenPair } from '@nestjs/authentication';
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { DataSource } from 'typeorm';
 
 // Internal imports
+import { ActivitiesService } from '../activities/activities.service.js';
 import type { User } from '../users/entities/user.entity.js';
 import { UsersService } from '../users/users.service.js';
 import { SignInDto } from './dto/sign-in.dto.js';
@@ -14,24 +16,32 @@ import { SignUpDto } from './dto/sign-up.dto.js';
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
+    private readonly activitiesService: ActivitiesService,
     private readonly passwordHasher: PasswordHasher,
     private readonly tokenService: TokenService,
+    private readonly dataSource: DataSource,
   ) {}
 
   // Like the sign-up of the NestJS authentication guide, but the SPA is a token
   // client, so it receives the same token pair as the sign-in instead of a session
-  // cookie.
+  // cookie. The user and their copy of the activity template are saved in one transaction.
   async signUp(signUpDto: SignUpDto): Promise<TokenPair> {
     const email = this.normalizeEmail(signUpDto.email);
     if (await this.usersService.findByEmail(email)) {
       throw new ConflictException('Ya existe una cuenta con ese correo.');
     }
 
-    const user = await this.usersService.create(
-      signUpDto.name.trim(),
-      email,
-      await this.passwordHasher.hash(signUpDto.password),
-    );
+    const passwordHash = await this.passwordHasher.hash(signUpDto.password);
+    const user = await this.dataSource.transaction(async (manager) => {
+      const createdUser = await this.usersService.create(
+        signUpDto.name.trim(),
+        email,
+        passwordHash,
+        manager,
+      );
+      await this.activitiesService.copyTemplateToUser(createdUser.id, manager);
+      return createdUser;
+    });
 
     return await this.issueTokens(user.id);
   }

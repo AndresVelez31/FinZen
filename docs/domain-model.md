@@ -97,6 +97,10 @@ classDiagram
 `targetAmount: decimal`, `createdAt: datetime`, `updatedAt: datetime`, `userId: int`, `user: User`,
 `transactions: Transaction[]`.
 
+Cada usuario tiene sus propias actividades. Las de los administradores son la **plantilla**: al
+registrarse, el usuario recibe una copia de ellas y desde ahí las edita, amplía o borra sin afectar
+la plantilla ni a otros usuarios.
+
 ### Transaction
 `id: int`, `type: TransactionType` (`income` | `expense`), `amount: decimal`, `date: date`,
 `description: string`, `updatedAt: datetime`, `accountId: int`, `account: Account`,

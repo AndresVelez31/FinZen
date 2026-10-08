@@ -104,19 +104,19 @@ const router = createRouter({
       path: '/activities',
       name: 'activities',
       component: ActivitiesShowView,
-      meta: { title: 'Actividades | FinZen', admin: true },
+      meta: { title: 'Actividades | FinZen' },
     },
     {
       path: '/activities/new',
       name: 'activities.create',
       component: ActivityFormView,
-      meta: { title: 'Nueva actividad | FinZen', admin: true },
+      meta: { title: 'Nueva actividad | FinZen' },
     },
     {
       path: '/activities/:id/edit',
       name: 'activities.edit',
       component: ActivityFormView,
-      meta: { title: 'Editar actividad | FinZen', admin: true },
+      meta: { title: 'Editar actividad | FinZen' },
     },
     {
       path: '/users',
