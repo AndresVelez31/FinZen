@@ -57,7 +57,7 @@ async function submit(): Promise<void> {
   loading.value = true;
 
   try {
-    await AuthService.register({
+    await AuthService.signUp({
       name: name.value,
       email: email.value,
       password: password.value,
@@ -180,7 +180,7 @@ async function submit(): Promise<void> {
 
     <p class="switch">
       ¿Ya tienes cuenta?
-      <RouterLink :to="{ name: 'login' }">Inicia sesión</RouterLink>
+      <RouterLink :to="{ name: 'sign-in' }">Inicia sesión</RouterLink>
     </p>
   </AuthLayoutComponent>
 </template>

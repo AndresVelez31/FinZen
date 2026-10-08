@@ -101,9 +101,9 @@ changes
 
 Before staging and committing, ensure that:
 
-- [ ] Code runs and builds without errors (`npm run build`).
+- [ ] The "Before every commit" commands of the [Coding Style Guide (Frontend)](https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Frontend)) (`format`, `lint`, `type-check`, `test:unit`) and of the [Coding Style Guide (Backend)](https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Backend)) (`format`, `lint`, `build`) pass in every project you touched.
 - [ ] No unexplained runtime errors or console warnings.
-- [ ] Layering rule `View → Service → Store` is respected.
+- [ ] Layering is respected: `View → Service → BaseService → API` in the frontend (views never read stores) and `Controller → Service → Repository` in the backend.
 - [ ] Files and components are placed in their proper folders.
 - [ ] No duplicated domain or calculation logic.
 - [ ] Identifiers and function names are clean and self-explanatory.
@@ -151,7 +151,7 @@ Do not use `[CODE-NN] Issue Title` as the PR title — that duplicates the linke
 
 1. Does the feature meet the user requirements?
 2. Is the code located in the correct layer (`views/`, `services/`, `stores/`, `utils/`, etc.)?
-3. Does it follow `View → Service → Store`?
+3. Does it follow `View → Service → BaseService → API` (frontend) and `Controller → Service → Repository` (backend)?
 4. Is there any duplicated logic?
 5. Are naming conventions descriptive and standard?
 6. Are empty / error UI states handled?

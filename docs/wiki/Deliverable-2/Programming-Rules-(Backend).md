@@ -62,7 +62,7 @@ number.
     `POST /auth/token` (`SignInDto`) signs in and returns an access token of 8 hours and a refresh token of 7
     days (`TokenService`, renewable up to 30 days after the sign-in). `POST /auth/token/refresh`
     exchanges the refresh token for a new pair (`401` if it is invalid, expired or reused; a reused
-    token revokes its whole session) and `POST /auth/token/revoke` signs out (`204`, it never
+    token revokes its whole session) and `POST /auth/token/revoke` signs out (`AuthService.signOut()`) (`204`, it never
     reveals whether the token existed). The access token already issued stays valid until it
     expires. The refresh tokens live in memory, so restarting the API ends the renewals. A global
     `ValidationPipe` validates the DTOs (`class-validator`) and answers `400` with a single
@@ -75,5 +75,34 @@ number.
     committed.
 21. Every method that returns a promise is `async` and uses `await`, in services and controllers;
     no floating promises (enforced by OXLint).
-22. Every file has `// External imports` above its packages, `// Internal imports` above its
-    relative imports and `// Exports` above what it exports.
+22. Every file has `// External imports` above its packages (`@nestjs/...`, `typeorm`),
+    `// Internal imports` above its relative imports, separated by a blank line, and `// Exports`
+    above what it exports (above its decorators and comments). A block without imports has no
+    comment, and imports are sorted alphabetically by path inside each block.
+
+## Naming and code style
+
+23. Files and classes follow the Nest.js conventions:
+
+| Element | File | Class |
+| --- | --- | --- |
+| Module | `accounts.module.ts` | `AccountsModule` |
+| Controller | `accounts.controller.ts` | `AccountsController` |
+| Service | `accounts.service.ts` | `AccountsService` |
+| Validator | `accounts.validate.ts` | `AccountsValidator` |
+| Entity | `entities/account.entity.ts` | `Account` (singular) |
+| DTO | `dto/create-account.dto.ts` | `CreateAccountDto` |
+| Credential provider | `jwt-auth.provider.ts` | `JwtAuthProvider` |
+| Guard / decorator | `roles.guard.ts`, `decorators/roles.decorator.ts` | `RolesGuard`, `Roles` |
+| Enum | `enums/role.enum.ts` | `Role` |
+| Migration | `<timestamp>-<Name>.ts` | `<Name><timestamp>` |
+
+24. Services have the constructor, then the public methods in CRUD order (`findAllByUserId`,
+    `findOneByIdAndUserId`, `create`, `update`, `remove`), then private helpers. Controller
+    methods mirror their service. `UsersService` and `UsersController` keep `findAll` and
+    `findOne` because the administrator lists every user.
+25. ES modules: relative imports end in `.js` (`'./accounts.service.js'`). `import type` for
+    types, except the DTO classes used in `@Body()`, which are imported as values because Nest
+    reads their metadata.
+26. Comments are in English and only explain *why*. Error messages returned to the client are in
+    Spanish because the SPA shows them as they come.

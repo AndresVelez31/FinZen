@@ -55,9 +55,9 @@ export class AuthService {
     return await this.tokenService.refresh(refreshToken);
   }
 
-  // Ends the session of the refresh token. The result is ignored on purpose: an
+  // Signs the client out by revoking its refresh token family. The result is ignored on purpose: an
   // unknown token is not revealed to the caller (RFC 7009).
-  async revoke(refreshToken: string): Promise<void> {
+  async signOut(refreshToken: string): Promise<void> {
     await this.tokenService.revoke(refreshToken);
   }
 

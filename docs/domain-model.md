@@ -1,9 +1,12 @@
 # Modelo de Dominio — FinZen
 
-> Fuente de verdad: diagrama de clases oficial del proyecto.
+> Fuente de verdad: diagrama de clases oficial del proyecto
+> (`docs/architecture/deliverable-2/class-diagram.drawio`), implementado por las entidades de
+> TypeORM en `backend/src/*/entities/`.
 
 El sistema contiene exactamente cuatro clases: `User`, `Account`, `Activity` y `Transaction`.
-Para soportar persistencia plana (ej. `localStorage`) y evitar referencias circulares, el modelo implementa **llaves foráneas** (`userId`, `accountId`, `activityId`).
+Cada relación es una **llave foránea** (`userId`, `accountId`, `activityId`) con
+`ON DELETE CASCADE` en la base de datos SQLite.
 
 ## Diagrama oficial
 
@@ -12,9 +15,10 @@ classDiagram
     class User {
         -int id
         -string name
-        -string role
+        -Role role
         -string email
         -string password
+        -boolean active
         -datetime createdAt
         -datetime updatedAt
         -Account[] accounts
@@ -26,12 +30,12 @@ classDiagram
 
     class Account {
         -int id
-        -int userId
         -string name
         -string type
         -decimal balance
         -datetime createdAt
         -datetime updatedAt
+        -int userId
         -User user
         -Transaction[] transactions
         +CRUD()
@@ -41,13 +45,13 @@ classDiagram
 
     class Activity {
         -int id
-        -int userId
         -string name
         -string color
-        -string type
+        -ActivityType type
         -decimal targetAmount
         -datetime createdAt
         -datetime updatedAt
+        -int userId
         -User user
         -Transaction[] transactions
         +CRUD()
@@ -57,13 +61,14 @@ classDiagram
 
     class Transaction {
         -int id
-        -int accountId
-        -int activityId
-        -string type
+        -TransactionType type
         -decimal amount
-        -datetime date
+        -date date
         -string description
+        -datetime updatedAt
+        -int accountId
         -Account account
+        -int activityId
         -Activity activity
         +CRUD()
         +getters()
@@ -79,16 +84,25 @@ classDiagram
 ## Atributos
 
 ### User
-`id: int`, `name: string`, `role: string`, `email: string`, `password: string`, `createdAt: datetime`, `updatedAt: datetime`, `accounts: Account[]`, `activities: Activity[]`.
+`id: int`, `name: string`, `role: Role` (`admin` | `user`), `email: string`, `password: string`
+(hash scrypt, `select: false`), `active: boolean`, `createdAt: datetime`, `updatedAt: datetime`,
+`accounts: Account[]`, `activities: Activity[]`.
 
 ### Account
-`id: int`, `userId: int`, `name: string`, `type: string`, `balance: decimal`, `createdAt: datetime`, `updatedAt: datetime`, `user: User`, `transactions: Transaction[]`.
+`id: int`, `name: string`, `type: string`, `balance: decimal`, `createdAt: datetime`,
+`updatedAt: datetime`, `userId: int`, `user: User`, `transactions: Transaction[]`.
 
 ### Activity
-`id: int`, `userId: int`, `name: string`, `color: string`, `type: string`, `targetAmount: decimal`, `createdAt: datetime`, `updatedAt: datetime`, `user: User`, `transactions: Transaction[]`.
+`id: int`, `name: string`, `color: string`, `type: ActivityType` (`expense` | `savings`),
+`targetAmount: decimal`, `createdAt: datetime`, `updatedAt: datetime`, `userId: int`, `user: User`,
+`transactions: Transaction[]`.
 
 ### Transaction
-`id: int`, `accountId: int`, `activityId: int`, `type: string`, `amount: decimal`, `date: datetime`, `description: string`, `account: Account`, `activity: Activity`.
+`id: int`, `type: TransactionType` (`income` | `expense`), `amount: decimal`, `date: date`,
+`description: string`, `updatedAt: datetime`, `accountId: int`, `account: Account`,
+`activityId: int`, `activity: Activity`.
+
+`Transaction` no tiene `createdAt`: `date` es el momento en que ocurrió el movimiento y lo reemplaza.
 
 ## Relaciones
 
@@ -97,12 +111,15 @@ classDiagram
 - `Account 1 : 0..* Transaction` (vía `accountId`)
 - `Activity 1 : 0..* Transaction` (vía `activityId`)
 
-**No existe una relación directa `User → Transaction`.**
+**No existe una relación directa `User → Transaction`**: el dueño de una transacción es el dueño
+de su cuenta.
 
-Tampoco contiene `accountNumber`, `bank` o `initialBalance` en `Account`, `active` en `User`, ni `updatedAt` en `Transaction`.
+`Account` tampoco contiene `accountNumber`, `bank` ni `initialBalance`.
 
-En TypeScript, `decimal` se representa normalmente como `number`.
+En TypeScript, `decimal` se representa como `number`.
 
 ## Regla de consistencia
 
-Cualquier interfaz, DTO, store, seeder, service o vista que contradiga esta definición está desactualizada. Un cambio al modelo debe hacerse primero en el diagrama/documentación y luego propagarse al código.
+Cualquier entidad, migración, interfaz, DTO, service o vista que contradiga esta definición está
+desactualizada. Un cambio al modelo debe hacerse primero en el diagrama/documentación y luego
+propagarse al código (entidad + migración en el backend, interfaz y DTOs en el frontend).

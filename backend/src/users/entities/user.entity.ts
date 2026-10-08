@@ -29,7 +29,7 @@ export class User {
   @Column({ type: 'varchar', unique: true })
   email: string;
 
-  // Never sent to the client: only the login query selects it explicitly.
+  // Never sent to the client: only the sign-in query selects it explicitly.
   @Column({ type: 'varchar', select: false })
   password: string;
 

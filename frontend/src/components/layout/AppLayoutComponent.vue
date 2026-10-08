@@ -63,7 +63,7 @@ function navigateTo(routeName: string): void {
   isMobileMenuOpen.value = false;
 }
 
-async function handleLogout(): Promise<void> {
+async function handleSignOut(): Promise<void> {
   const result = await Swal.fire({
     title: '¿Cerrar sesión?',
     text: 'Volverás a la pantalla de acceso.',
@@ -80,18 +80,18 @@ async function handleLogout(): Promise<void> {
   }
 
   try {
-    await AuthService.logout();
+    await AuthService.signOut();
   } catch {
     // The local session already ended; a failed revoke is not shown.
   }
 }
 
 // Watchers
-// The session ends either on logout or when the API rejects an expired
-// token (BaseService clears it); both cases go back to the login page.
+// The session ends either on sign-out or when the API rejects an expired
+// token (BaseService clears it); both cases go back to the sign-in page.
 watch(isAuthenticated, (authenticated) => {
   if (!authenticated) {
-    router.push({ name: 'login' });
+    router.push({ name: 'sign-in' });
   }
 });
 </script>
@@ -138,7 +138,7 @@ watch(isAuthenticated, (authenticated) => {
           </div>
           <button
             class="btn btn-ghost btn-icon"
-            @click="handleLogout"
+            @click="handleSignOut"
             aria-label="Cerrar sesión"
             title="Cerrar sesión"
           >

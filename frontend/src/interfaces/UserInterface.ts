@@ -1,5 +1,5 @@
 // Exports
-// The API never sends the password (see LoginDTO for the credentials).
+// The API never sends the password (see SignInDTO for the credentials).
 export interface UserInterface {
   id: number;
   name: string;

@@ -3,7 +3,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
 
 // Demo data that lived in the frontend seeders during Deliverable 1. The
 // passwords are scrypt hashes (PasswordHasher of @nestjs/authentication) of the
-// demo credentials shown on the login page
+// demo credentials shown on the sign-in page
 // (admin123 / user123).
 const USERS = [
   {

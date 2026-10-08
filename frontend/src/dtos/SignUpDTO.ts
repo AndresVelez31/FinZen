@@ -2,6 +2,6 @@
 import type { UserInterface } from '@/interfaces/UserInterface.js';
 
 // Exports
-export type LoginDTO = Pick<UserInterface, 'email'> & {
+export type SignUpDTO = Pick<UserInterface, 'name' | 'email'> & {
   password: string;
 };

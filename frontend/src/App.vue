@@ -4,7 +4,7 @@ import { computed, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 
 // Internal imports
-import AppLayout from '@/components/layout/AppLayout.vue';
+import AppLayoutComponent from '@/components/layout/AppLayoutComponent.vue';
 import { useThemeStore } from '@/stores/themestore.js';
 
 // Variables
@@ -27,7 +27,7 @@ watchEffect(() => {
     </transition>
   </RouterView>
 
-  <AppLayout v-else />
+  <AppLayoutComponent v-else />
 </template>
 
 <style>

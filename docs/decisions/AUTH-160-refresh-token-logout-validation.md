@@ -25,7 +25,7 @@ Accepted
   together share one renewal. If the renewal fails, the original `401` ends the session.
 - **Real logout.** `POST /auth/token/revoke` revokes the refresh token and answers `204` even for
   an unknown token (RFC 7009). `AuthService.logout()` clears the local session first, so the user
-  is signed out whatever happens, and then calls the route. `AppLayout` does not show a failed
+  is signed out whatever happens, and then calls the route. `AppLayoutComponent` does not show a failed
   revoke.
 - **Validation.** A global `ValidationPipe` with `class-validator` and `class-transformer` checks
   `SignInDto` (called `LoginDto` when this was decided) and `RefreshTokenDto`. Its `exceptionFactory` answers `400` with the first constraint
@@ -46,3 +46,8 @@ Accepted
   legitimate client renews ends both.
 - Validation errors of the token routes are Spanish single messages; DTOs without decorators are
   still checked inside their services.
+
+> Later change: the sign-in/sign-up/sign-out names were unified across the stack. `AuthService.logout()`
+> is now `AuthService.signOut()`, `LoginView` is `SignInView`, `LoginResponseInterface` is
+> `SignInResponseInterface`, the SPA route `/login` is `/sign-in`, and the backend `AuthService.revoke()`
+> is `AuthService.signOut()` (the route `POST /auth/token/revoke` does not change).

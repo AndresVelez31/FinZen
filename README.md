@@ -1,6 +1,6 @@
 # FinZen · Personal Finance Manager
 
-> A client-side Single Page Application for tracking accounts, transactions,
+> A full stack application (Vue SPA + NestJS REST API) for tracking accounts, transactions,
 > budgets, savings goals, and personal-finance reports.
 >
 > University Project — Web Application Software Engineering (6th Semester).
@@ -16,7 +16,7 @@
 FinZen helps users understand their financial activity from a single interface. The application
 supports:
 
-- sign-up, login with `@nestjs/authentication` (JWT access token) and `user` / `admin` roles;
+- sign-up, sign-in with `@nestjs/authentication` (JWT access token) and `user` / `admin` roles;
 - personal accounts with calculated balances;
 - income and expense transactions;
 - expense budgets and savings goals organized as activities;
@@ -33,8 +33,7 @@ Since Deliverable 2 the project is **full stack**:
   data are created by migrations.
 
 The API requires a valid access token on every route except `/api` and `/api/auth/*`, only
-returns the
-records of the authenticated user, and restricts user and activity administration to admins.
+returns the records of the authenticated user, and restricts user and activity administration to admins.
 
 ## Technology stack
 
@@ -82,7 +81,8 @@ Backend:   Controller -> Service -> TypeORM Repository -> SQLite
   `400` with a single Spanish `message`.
 
 For the detailed rules, see the
-[Programming Rules (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Programming-Rules-(Frontend)>).
+[Programming Rules (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Programming-Rules-(Frontend)>) and the
+[Programming Rules (Backend)](<https://github.com/AndresVelez31/FinZen/wiki/Programming-Rules-(Backend)>).
 
 ## Repository structure
 
@@ -102,7 +102,9 @@ FinZen/
 │   ├── Dockerfile
 │   └── package.json
 ├── docs/
+│   ├── architecture/       # draw.io diagrams (sources + PNG) per deliverable
 │   ├── decisions/          # Architecture and implementation decision records
+│   ├── wiki/               # Wiki pages, one folder per deliverable
 │   └── domain-model.md     # Domain-model reference
 ├── frontend/
 │   ├── public/             # Static assets copied by Vite
@@ -186,17 +188,18 @@ The `SeedDemoData` and `SeedDemoDataUntilDecember` migrations insert:
 | Administrator | `admin@finzen.app` | `admin123` | All protected pages, including Activities and Users |
 | Regular user  | `user@finzen.app`  | `user123`  | Overview, Accounts, Transactions, and Reports       |
 
-New accounts can be created at `/register` (name, e-mail and a password of 12 to 128
-characters). They get the `user` role and start with no data.
+New accounts can be created at `/sign-up` (name, e-mail and a password of 12 to 128
+characters). They get the `user` role and start with no data. The old `/login` and
+`/register` URLs redirect to `/sign-in` and `/sign-up`.
 
 ## Application routes
 
-The router currently defines **14 routes**.
+The router currently defines **14 routes** (plus the two redirects described above).
 
 | Path                     | Route name            | View                       | Access        |
 | ------------------------ | --------------------- | -------------------------- | ------------- |
-| `/login`                 | `login`               | `LoginView.vue`            | Public        |
-| `/register`              | `register`            | `RegisterView.vue`         | Public        |
+| `/sign-in`               | `sign-in`             | `SignInView.vue`           | Public        |
+| `/sign-up`               | `sign-up`             | `SignUpView.vue`           | Public        |
 | `/`                      | `overview`            | `OverviewView.vue`         | Authenticated |
 | `/transactions`          | `transactions`        | `TransactionsShowView.vue` | Authenticated |
 | `/transactions/new`      | `transactions.create` | `TransactionFormView.vue`  | Authenticated |
@@ -222,7 +225,7 @@ Every list only contains the authenticated user's records; someone else's record
 | Method                      | Path                      | Access        | Description                                                                                           |
 | --------------------------- | ------------------------- | ------------- | ----------------------------------------------------------------------------------------------------- |
 | `GET`                       | `/api`                    | Public        | Health check                                                                                          |
-| `POST`                      | `/api/auth/sign-up`       | Public        | Registers a user (role `user`) and signs them in: returns the token pair; `409` if the e-mail exists  |
+| `POST`                      | `/api/auth/sign-up`       | Public        | Signs up a user (role `user`) and signs them in: returns the token pair; `409` if the e-mail exists   |
 | `POST`                      | `/api/auth/token`         | Public        | Sign in: returns the `accessToken` (8 hours) and the `refreshToken` (7 days, renewable up to 30 days) |
 | `POST`                      | `/api/auth/token/refresh` | Public        | Exchanges the refresh token for a new pair; `401` if invalid, expired or reused                       |
 | `POST`                      | `/api/auth/token/revoke`  | Public        | Sign out: revokes the refresh token (`204`)                                                           |
@@ -262,14 +265,16 @@ npm run migration:run      # Apply pending migrations (the app also runs them on
 npm run migration:revert   # Undo the last migration
 ```
 
-The `lint` and `format` scripts modify matching files. Consult the
-[Coding Style Guide (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Frontend)>) before
+`format` modifies files in both projects; `lint` modifies them in the frontend (`--fix`) and only
+reports in the backend. Consult the
+[Coding Style Guide (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Frontend)>) and the
+[Coding Style Guide (Backend)](<https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Backend)>) before
 contributing.
 
 ## Resetting demo data
 
 Stop the API, delete `backend/database.sqlite` and start it again: the migrations recreate the
-schema and the demo data. To end the browser session, log out or run
+schema and the demo data. To end the browser session, sign out or run
 `localStorage.removeItem("finzenState.v5")` in the developer console.
 
 ## Production build and Docker
@@ -307,7 +312,7 @@ See [`docs/decisions/INFRA-ci-workflow.md`](./docs/decisions/INFRA-ci-workflow.m
 
 - [GitHub Wiki](https://github.com/AndresVelez31/FinZen/wiki) — Deliverable documentation and project architecture.
 - [Main application screenshots](https://github.com/AndresVelez31/FinZen/wiki/Screenshots) — Overview, transactions, and reports.
-- [Coding Style Guide (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Frontend)>) — Naming and code conventions.
-- [Programming Rules (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Programming-Rules-(Frontend)>) — Layer responsibilities and dependency rules.
+- [Coding Style Guide (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Frontend)>) and [Coding Style Guide (Backend)](<https://github.com/AndresVelez31/FinZen/wiki/Coding-Style-Guide-(Backend)>) — How to use the formatter, linters, type checker and tests.
+- [Programming Rules (Frontend)](<https://github.com/AndresVelez31/FinZen/wiki/Programming-Rules-(Frontend)>) and [Programming Rules (Backend)](<https://github.com/AndresVelez31/FinZen/wiki/Programming-Rules-(Backend)>) — Layer responsibilities, naming and code conventions.
 - [`CONTRIBUTING.md`](./CONTRIBUTING.md) — Branching, commit, and Pull Request workflow.
 - [`docs/decisions/`](./docs/decisions) — Architecture and implementation decision records.
