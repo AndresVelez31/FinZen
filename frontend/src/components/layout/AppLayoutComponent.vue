@@ -90,10 +90,12 @@ async function handleSignOut(): Promise<void> {
 }
 
 // Watchers
-// The session ends either on sign-out or when the API rejects an expired
-// token (BaseService clears it); both cases go back to the sign-in page.
+// The session ends either on sign-out or when BaseService drops tokens that expired and
+// could not be renewed; in both cases the rest of the session is cleared (AuthService) and
+// the user goes back to the sign-in page.
 watch(isAuthenticated, (authenticated) => {
   if (!authenticated) {
+    AuthService.clearSession();
     router.push({ name: 'sign-in' });
   }
 });

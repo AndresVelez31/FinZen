@@ -1,6 +1,8 @@
-import { defineConfig } from 'vitest/config';
+// External imports
 import { fileURLToPath, URL } from 'node:url';
+import { defineConfig } from 'vitest/config';
 
+// Exports
 export default defineConfig({
   resolve: {
     alias: {
