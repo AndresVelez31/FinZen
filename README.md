@@ -128,7 +128,7 @@ FinZen/
 │   ├── Dockerfile
 │   ├── nginx.conf
 │   └── package.json
-├── deploy.sh               # Sets the VM IP and runs docker compose up -d --build
+├── deploy.sh               # bash deploy.sh <VM IP>: sets the IP and runs docker compose up -d --build
 ├── docker-compose.yml
 ├── CONTRIBUTING.md
 └── README.md
@@ -288,12 +288,15 @@ installs every dependency and runs `npm run build`, and the final image only kee
 (`dist/` plus production dependencies for the API, the static files for Nginx). The VM therefore
 needs enough memory to build (the class uses a bigger machine than in Tutorial 08).
 
-On the VM, replace `YOUR_VM_IP` in [`deploy.sh`](./deploy.sh) with its external IP and run:
+On the VM, run [`deploy.sh`](./deploy.sh) with the VM's external IP as its argument (the file is
+never edited, so `git pull` stays clean):
 
 ```bash
-cp .env.example .env    # set JWT_SECRET
-bash deploy.sh          # exports VITE_API_BASE_URL and CORS_ORIGIN, then docker compose up -d --build
+cp .env.example .env              # first time only: set JWT_SECRET
+bash deploy.sh 136.64.179.51      # exports VITE_API_BASE_URL and CORS_ORIGIN, then docker compose up -d --build
 ```
+
+Without the IP the script stops and prints how to call it.
 
 `VITE_API_BASE_URL` is passed as a build argument because Vite embeds it in the bundle.
 `docker-compose.yml` starts the API on port `3000` (SQLite in the `backend-data` volume) and the
