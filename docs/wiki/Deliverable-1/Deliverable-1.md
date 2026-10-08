@@ -1,141 +1,80 @@
 # Deliverable 1 — Base Architecture & Scope
 
-This document details the core foundation for Deliverable 1 of the **FinZen** Personal Expense Tracker.
+This page contains items 1 to 4 of *Entregable 1 Parte 1 — Proyecto Front-end (SPA)*: team logo, verbal model, domain class diagram, and Front-end architecture diagram for **FinZen**.
 
-> **Note:** this page is a snapshot of Deliverable 1, when FinZen was a client-side SPA persisted in
-> `localStorage` with seeders. Since Deliverable 2 the data lives in the Nest.js API and some names
-> changed (`OverviewView`, `*ShowView`, `*Component`). The current state is in
-> [Deliverable 2 — Full Stack](Deliverable-2), the
-> [Programming Rules (Frontend)](<Programming-Rules-(Frontend)>) and the README.
 
----
+## 1. Team Logo
 
-## 1. Domain Model (Entities & Relationships)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/wiki/AndresVelez31/FinZen/images/Logo%20FinZen.png" width="220"/>
+</p>
 
-The system is modeled around **four core domain entities**:
+<p align="center"><b>FinZen — Personal Finance. A Clearer Tomorrow.</b></p>
 
-```mermaid
-erDiagram
-    USER ||--o{ ACCOUNT : owns
-    USER ||--o{ ACTIVITY : creates
-    USER ||--o{ TRANSACTION : executes
-    ACCOUNT ||--o{ TRANSACTION : registers
-    ACTIVITY ||--o{ TRANSACTION : categorizes
-
-    USER {
-        string id PK
-        string name
-        string email
-        string password
-        string role "admin | user"
-        boolean active
-        string createdAt
-        string updatedAt
-    }
-
-    ACCOUNT {
-        string id PK
-        string userId FK
-        string type "checking | savings | cash | digital"
-        string accountNumber
-        string bank
-        number initialBalance
-    }
-
-    ACTIVITY {
-        string id PK
-        string userId FK
-        string name
-        string color
-        string type "expense | savings"
-        number targetAmount
-    }
-
-    TRANSACTION {
-        string id PK
-        string userId FK
-        string accountId FK
-        string activityId FK
-        string type "income | expense"
-        number amount
-        string date
-        string description
-    }
-```
-
-### Entity Contracts
-
-1. **User**: Represents authentication, identity, and role-based permissions (`admin` vs `user`).
-2. **Account**: Financial buckets (Bank accounts, Cash wallets, Digital wallets) with an `initialBalance` and dynamically computed current balance.
-3. **Activity**: Financial category / bucket with color tagging, type (`expense` or `savings`), and target budgeting amounts.
-4. **Transaction**: Individual financial movement linking an account and an activity with a signed amount, date, and description.
+The mark combines a rising bar chart with an upward trend line to represent the goal of the application: turning scattered income and expenses into a clear, growing financial picture. The teal palette was chosen to evoke trust and stability, common associations with finance products.
 
 ---
 
-## 2. Application Scope & Pages Catalogue
+## 2. Definitive Verbal Model
 
-The application features **10 structured routes / views**:
+### What is FinZen?
 
-| # | Route | View Component | Access Role | Description |
-|---|---|---|---|---|
-| 1 | `/sign-in` | `SignInView.vue` | Public | Authentication with email & password |
-| 2 | `/` | `DashboardView.vue` | User / Admin | Overview: net balance, metric cards, 6-month trend chart, recent movements |
-| 3 | `/transactions` | `TransactionsView.vue` | User / Admin | Transactions table with combined filtering (type, account, month) and actions |
-| 4 | `/transactions/new` | `TransactionFormView.vue` | User / Admin | Form to record new transactions |
-| 5 | `/transactions/:id/edit` | `TransactionFormView.vue` | User / Admin | Form to modify existing transactions |
-| 6 | `/accounts` | `AccountsView.vue` | User / Admin | Accounts summary with real-time balance calculations |
-| 7 | `/accounts/new` | `AccountFormView.vue` | User / Admin | Form to create a new financial account |
-| 8 | `/reports` | `ReportsView.vue` | User / Admin | Interactive Chart.js analytics by category, trend, and period |
-| 9 | `/activities` | `ActivitiesView.vue` | **Admin Only** | Administrative CRUD for expense/savings categories |
-| 10 | `/users` | `UsersView.vue` | **Admin Only** | Administrative user directory, role switcher, and activation toggle |
+FinZen is a Single Page Application (SPA) for **personal expense and finance management**. It lets a person centralize their financial life — accounts, transactions, and spending categories ("activities") — in one place, and turns that raw data into charts and reports that are easy to understand.
 
----
+### Scope (Deliverable 1)
 
-## 3. Layered Architecture (`View → Service → Store`)
+- The system is a **client-only SPA** built with Vue 3 + TypeScript. There is no remote backend/API in this deliverable.
+- Data is persisted in the browser's **`localStorage`**, wrapped by Pinia stores. On first load, the app seeds realistic fictitious data (users, accounts, activities, and transactions) so the app is immediately navigable.
+- Users can **authenticate**, manage **accounts** (checking, savings, cash, digital), record and edit **transactions** (income/expense), organize spending into **activities/categories**, and view **dashboards and reports** with Chart.js visualizations.
+- **Administrators** additionally manage **activities** (categories) and **users** (roles), which are restricted from regular users via route guards.
+- Out of scope for Deliverable 1: a remote database/API, multi-device sync, and notifications — these depend on `localStorage` being replaced by a real backend in a later deliverable.
 
-FinZen is built as a **Single Page Application (SPA)** with **Client-Side Rendering (CSR)** following strict layer separation:
+### Actors
 
-```
-┌────────────────────────────────────────────────────────┐
-│                        VIEW                            │
-│  (UI composition, local presentation state, templates) │
-└──────────────────────────┬─────────────────────────────┘
-                           │ calls static methods
-                           ▼
-┌────────────────────────────────────────────────────────┐
-│                       SERVICE                          │
-│  (Business logic, domain validations, sanitization)    │
-└──────────────────────────┬─────────────────────────────┘
-                           │ reads / updates
-                           ▼
-┌────────────────────────────────────────────────────────┐
-│                        STORE                           │
-│  (Pinia reactive state, no business logic)             │
-└──────────────────────────┬─────────────────────────────┘
-                           │ watches & syncs
-                           ▼
-┌────────────────────────────────────────────────────────┐
-│                    LOCALSTORAGE                        │
-│  (Client-side browser persistence & seeders bootstrap) │
-└────────────────────────────────────────────────────────┘
-```
+| Actor | Description |
+|---|---|
+| **Regular User** | Registered person who tracks their own accounts, transactions, and activities, and views their dashboard/reports. |
+| **Administrator** | A user with the `admin` role. Has all Regular User capabilities plus access to the Activities and Users management pages. |
+| **Browser / `localStorage`** | Not a human actor, but the only persistence layer in this deliverable — every read/write in the app ultimately goes through it. |
 
-### Persistence and Seeders Flow
-1. On application startup, `PiniaConfig` checks if `localStorage` contains state.
-2. **If empty**: It loads pre-configured `seeders` (`userseeder`, `accountseeder`, `activityseeder`, `transactionseeder`) with rich mock data.
-3. **If populated**: It hydrates stores from `localStorage`.
-4. State mutations in stores automatically sync back to `localStorage` via reactive watchers.
+### Benefit / Value Proposition
+
+Most people track their finances (if at all) across scattered notes, spreadsheets, or bank apps that don't talk to each other. FinZen gives a single, visual place to answer "where is my money going and am I on track?" — without requiring a signup to a third-party service, since Deliverable 1 runs entirely in the browser. For the course, it also serves as a controlled environment to practice a layered Vue 3 + TypeScript architecture (View → Service → Store) before a real backend is introduced.
 
 ---
 
-## 4. Reusable Components & Route Guards
+## 3. Domain Class Diagram
 
-### Reusable UI Components
-- **`TablaGenerica.vue`**: Configurable table component accepting dynamic `columns` and `rows` props with `#actions` scoped slot. Reused in Transactions, Activities, and Users views.
-- **`SelectorFiltro.vue`**: Generic dropdown/select filter with `v-model` support. Reused in Transactions and Reports.
-- **`GraficoChart.vue`**: Chart.js wrapper handling canvas lifecycle and responsive re-rendering. Reused in Dashboard and Reports.
-- **`StatCard.vue`**: Visual metric card for financial KPIs. Reused in Dashboard and Reports.
+The system is modeled around **four domain entities**, matching the interfaces in `src/interfaces/`. Persistence is flat (`localStorage`), so relationships are implemented with foreign keys (`userId`, `accountId`, `activityId`) rather than object references.
 
-### Route Guards
-- **Authentication Guard**: Unauthenticated users visiting private routes are intercepted and redirected to `/sign-in`.
-- **Role-Based Authorization Guard**: Non-admin users attempting to access `/activities` or `/users` are redirected to `/`.
+<img alt="Diagrama de Clases (Desarrollo Web)" src="https://github.com/user-attachments/assets/0931c15d-c288-4d97-99ee-1ddfe1138010" />
+
+
+**Notes**
+
+- `role` on `User` is either `"admin"` or `"user"`; `active` toggles whether the account can log in.
+- `type` on `Account` distinguishes `checking / savings / cash / digital`; `type` on `Activity` and `Transaction` distinguishes `income / expense` (or `expense / savings` for the Activity's own type).
+- There is **no direct `User ↔ Transaction` relationship** — a transaction is only reachable through its `Account` or `Activity`.
+- Every entity above is mirrored by a strict TypeScript interface (`src/interfaces/`) and a pair of derived DTOs (`Create[Entity]DTO`, `Update[Entity]DTO`) in `src/dtos/`.
+
+---
+
+## 4. Architecture Diagram (Front-end SPA)
+
+FinZen is deployed as a **static, client-only SPA**: the Vue build output is served by nginx inside a Docker container on a single GCP Compute Engine VM. There is no remote API — after the initial page load, all business logic runs in the browser, and the only persistence is `localStorage`, synchronized through Pinia.
+
+<img alt="finzen-architecture" src="https://github.com/user-attachments/assets/a10328d3-396b-40d9-b91f-294ce8be5cf6" />
+
+
+### Reading the diagram
+
+- **Client ↔ Server:** the browser sends an HTTPS request for the static SPA files; the server (nginx on the GCP VM) responds with the built Vue app. From then on, the browser handles everything — there is no further request/response cycle with a remote API.
+- **`src/router/`** maps URLs to **`src/views/`** (one view per page/route).
+- Views use **`src/components/shared/`** (reusable UI: `SelectorFilter.vue`, `StatCard.vue`, `ChartGraphic.vue`, `RadialProgress.vue`, `TableSkeleton.vue`, `EmptyState.vue`) and feature-specific components (e.g., `transactions/TransactionsTable.vue`).
+- Views call **`src/services/`** (`UserService`, `AccountService`, `ActivityService`, `TransactionService`) rather than touching Pinia stores directly.
+- Services read/write **`src/stores/`** (Pinia), which are the source of reactive state and are **synchronized with `localStorage`**.
+- **`src/auth/`** (`AuthService.ts`, `authstore.ts`, `guards.ts`) handles login, session state, and route guards, and reads the current user for ownership checks in services.
+- **`src/interfaces/`** define the domain contracts; **`src/dtos/`** derive `Create/Update` DTOs from those interfaces; both are consumed by services and stores.
+- **`src/utils/`** holds pure helpers (`formatters.ts`, `DateRange.ts`, `ReportAnalytics.ts`, `constants.ts`) used by views and components for formatting and aggregation, with no store/Vue dependencies.
+
+This layered separation (**View → Service → Store → `localStorage`**) is enforced by the [Programming Rules (Frontend)](Programming-Rules-(Frontend)).
