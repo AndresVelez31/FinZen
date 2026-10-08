@@ -33,7 +33,8 @@ Since Deliverable 2 the project is **full stack**:
   data are created by migrations.
 
 The API requires a valid access token on every route except `/api` and `/api/auth/*`, only
-returns the records of the authenticated user, and restricts user and activity administration to admins.
+returns the records of the authenticated user (activities are one catalog shared by every user), and
+restricts user and activity administration to admins.
 
 ## Technology stack
 
@@ -175,11 +176,12 @@ Open [http://localhost:5173](http://localhost:5173) in the browser.
 
 ## Demo data and credentials
 
-The `SeedDemoData` and `SeedDemoDataUntilDecember` migrations insert:
+The `SeedDemoData`, `SeedDemoDataUntilDecember` and `SharedActivityCatalog` migrations leave:
 
 - 2 users;
 - 8 accounts;
-- 14 activities;
+- 7 activities, one catalog managed by the administrator and shared by every user
+  (`SharedActivityCatalog` merged the demo user's former copies into it);
 - 125 transactions, from February to December 2026 (80 from `SeedDemoData` and 45 for October
   to December from `SeedDemoDataUntilDecember`).
 
@@ -221,6 +223,7 @@ The account form currently provides five account types: `Corriente`, `Ahorros`, 
 
 All routes live under `/api` and require `Authorization: Bearer <token>` unless marked public.
 Every list only contains the authenticated user's records; someone else's record answers `404`.
+Activities are the exception: they are one catalog that every user reads and only admins manage.
 
 | Method                      | Path                      | Access        | Description                                                                                           |
 | --------------------------- | ------------------------- | ------------- | ----------------------------------------------------------------------------------------------------- |
@@ -234,7 +237,7 @@ Every list only contains the authenticated user's records; someone else's record
 | `GET` / `PATCH` / `DELETE`  | `/api/accounts/:id`       | Authenticated | Read / update / delete (cascades transactions)                                                        |
 | `GET` / `POST`              | `/api/transactions`       | Authenticated | List (newest first) / create                                                                          |
 | `GET` / `PATCH` / `DELETE`  | `/api/transactions/:id`   | Authenticated | Read / update / delete                                                                                |
-| `GET`                       | `/api/activities[/:id]`   | Authenticated | List / read activities                                                                                |
+| `GET`                       | `/api/activities[/:id]`   | Authenticated | List / read the shared activity catalog                                                               |
 | `POST` / `PATCH` / `DELETE` | `/api/activities[/:id]`   | Administrator | Manage activities (delete cascades transactions)                                                      |
 | `GET`                       | `/api/users`              | Administrator | List users                                                                                            |
 | `PATCH`                     | `/api/users/:id`          | Administrator | Change `role` and/or `active` (not your own user)                                                     |

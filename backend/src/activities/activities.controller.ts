@@ -11,23 +11,20 @@ import { UpdateActivityDto } from './dto/update-activity.dto.js';
 import type { Activity } from './entities/activity.entity.js';
 
 // Exports
-// Every user reads their own activities (the transaction form needs them),
-// but only admins manage them, mirroring the admin-only /activities routes.
+// Every user reads the shared activity catalog (the transaction form needs it),
+// but only admins manage it, mirroring the admin-only /activities routes.
 @Controller('activities')
 export class ActivitiesController {
   constructor(private readonly activitiesService: ActivitiesService) {}
 
   @Get()
-  async findAllByUserId(@CurrentUser('id') userId: number): Promise<Activity[]> {
-    return await this.activitiesService.findAllByUserId(userId);
+  async findAll(): Promise<Activity[]> {
+    return await this.activitiesService.findAll();
   }
 
   @Get(':id')
-  async findOneByIdAndUserId(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: number,
-  ): Promise<Activity> {
-    return await this.activitiesService.findOneByIdAndUserId(Number(id), userId);
+  async findOne(@Param('id') id: string): Promise<Activity> {
+    return await this.activitiesService.findOne(Number(id));
   }
 
   @Roles(Role.Admin)
@@ -44,14 +41,13 @@ export class ActivitiesController {
   async update(
     @Param('id') id: string,
     @Body() updateActivityDto: UpdateActivityDto,
-    @CurrentUser('id') userId: number,
   ): Promise<Activity> {
-    return await this.activitiesService.update(Number(id), updateActivityDto, userId);
+    return await this.activitiesService.update(Number(id), updateActivityDto);
   }
 
   @Roles(Role.Admin)
   @Delete(':id')
-  async remove(@Param('id') id: string, @CurrentUser('id') userId: number): Promise<void> {
-    await this.activitiesService.remove(Number(id), userId);
+  async remove(@Param('id') id: string): Promise<void> {
+    await this.activitiesService.remove(Number(id));
   }
 }

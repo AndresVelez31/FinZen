@@ -18,22 +18,21 @@ export class ActivitiesService {
     private readonly activitiesValidator: ActivitiesValidator,
   ) {}
 
-  async findAllByUserId(userId: number): Promise<Activity[]> {
-    return await this.activitiesRepository.find({
-      where: { user: { id: userId } },
-      order: { id: 'ASC' },
-    });
+  // Activities are one catalog managed by the administrators and shared by every user, so
+  // unlike accounts and transactions they are not filtered by userId.
+  async findAll(): Promise<Activity[]> {
+    return await this.activitiesRepository.find({ order: { id: 'ASC' } });
   }
 
-  // Another user's activity behaves exactly like a missing one.
-  async findOneByIdAndUserId(id: number, userId: number): Promise<Activity> {
-    const activity = await this.activitiesRepository.findOneBy({ id, user: { id: userId } });
+  async findOne(id: number): Promise<Activity> {
+    const activity = await this.activitiesRepository.findOneBy({ id });
     if (!activity) {
       throw new NotFoundException('La actividad no existe o no está disponible.');
     }
     return activity;
   }
 
+  // userId is the administrator who creates the activity.
   async create(createActivityDto: CreateActivityDto, userId: number): Promise<Activity> {
     const fields = this.activitiesValidator.validate(createActivityDto);
     const activity = this.activitiesRepository.create({
@@ -44,15 +43,11 @@ export class ActivitiesService {
       user: { id: userId },
     });
     const savedActivity = await this.activitiesRepository.save(activity);
-    return await this.findOneByIdAndUserId(savedActivity.id, userId);
+    return await this.findOne(savedActivity.id);
   }
 
-  async update(
-    id: number,
-    updateActivityDto: UpdateActivityDto,
-    userId: number,
-  ): Promise<Activity> {
-    const activity = await this.findOneByIdAndUserId(id, userId);
+  async update(id: number, updateActivityDto: UpdateActivityDto): Promise<Activity> {
+    const activity = await this.findOne(id);
     const fields = this.activitiesValidator.validate({
       name: updateActivityDto.name ?? activity.name,
       color: updateActivityDto.color ?? activity.color,
@@ -65,8 +60,8 @@ export class ActivitiesService {
   }
 
   // The activity's transactions are removed by the database (onDelete: 'CASCADE').
-  async remove(id: number, userId: number): Promise<void> {
-    const activity = await this.findOneByIdAndUserId(id, userId);
+  async remove(id: number): Promise<void> {
+    const activity = await this.findOne(id);
     await this.activitiesRepository.remove(activity);
   }
 }

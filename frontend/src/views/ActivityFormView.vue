@@ -99,7 +99,7 @@ onMounted(async () => {
   }
 
   try {
-    const activity = await ActivityService.getByIdAndUserId(activityId.value);
+    const activity = await ActivityService.getById(activityId.value);
     form.value = {
       name: activity.name,
       color: activity.color,

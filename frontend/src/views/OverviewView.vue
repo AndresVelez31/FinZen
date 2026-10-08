@@ -85,7 +85,7 @@ const recentTransactions = computed(() =>
 onMounted(async () => {
   try {
     accounts.value = await AccountService.getAllByUserId();
-    activities.value = await ActivityService.getAllByUserId();
+    activities.value = await ActivityService.getAll();
     transactions.value = await TransactionService.getAllByUserId();
   } catch (error) {
     await Swal.fire({

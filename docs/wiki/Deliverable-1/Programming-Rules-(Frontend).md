@@ -31,7 +31,8 @@ The back-end rules are in [Programming Rules (Backend)](<Programming-Rules-(Back
    revokes the refresh token.
 8. Every function that returns a promise is `async` and uses `await`
    (`return await this.httpGet(...)`): `getAllByUserId`, `getByIdAndUserId`, `create`, `update`,
-   `delete` (`UserService` keeps `getAll` and `update`: it lists every user for the administrator).
+   `delete` (`UserService` keeps `getAll` and `update`: it lists every user for the administrator;
+   `ActivityService` uses `getAll` and `getById`: activities are one catalog shared by every user).
 9. Calculations over data a view already loaded (filters, totals, progress) live in one util per
    service (`AccountUtil`, `ActivityUtil`, `TransactionUtil`) and receive that data as parameters.
 

@@ -115,7 +115,7 @@ async function submit(): Promise<void> {
 onMounted(async () => {
   try {
     accounts.value = await AccountService.getAllByUserId();
-    activities.value = await ActivityService.getAllByUserId();
+    activities.value = await ActivityService.getAll();
 
     if (!editing.value) {
       form.value.accountId = accounts.value[0]?.id ?? null;

@@ -114,7 +114,7 @@ const savingsActivities = computed(() =>
 // Lifecycle
 onMounted(async () => {
   try {
-    activities.value = await ActivityService.getAllByUserId();
+    activities.value = await ActivityService.getAll();
     transactions.value = await TransactionService.getAllByUserId();
   } catch (error) {
     await Swal.fire({
