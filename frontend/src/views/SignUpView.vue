@@ -5,6 +5,7 @@ import { ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 
 // Internal imports
+import type { SignUpFormErrorsInterface } from '@/interfaces/SignUpFormErrorsInterface.js';
 import { AuthService } from '@/services/AuthService.js';
 
 // Variables
@@ -12,60 +13,60 @@ const router = useRouter();
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Reactive variables
-const name = ref('');
-const email = ref('');
-const password = ref('');
-const confirmPassword = ref('');
-const showPassword = ref(false);
+const form = ref({
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+});
+const errors = ref<SignUpFormErrorsInterface>({});
+// The API's answer (e.g. an e-mail that already exists), shown below the fields.
 const errorMessage = ref('');
-const loading = ref(false);
+const showPassword = ref(false);
+const saving = ref(false);
 
 // Actions
 // Mirrors the rules of the API (SignUpDto), so most mistakes are caught before the request.
 function validate(): boolean {
-  if (!name.value.trim()) {
-    errorMessage.value = 'Introduce tu nombre.';
-    return false;
+  const validationErrors: SignUpFormErrorsInterface = {};
+
+  if (!form.value.name.trim()) {
+    validationErrors.name = 'Introduce tu nombre.';
+  }
+  if (!EMAIL_PATTERN.test(form.value.email.trim())) {
+    validationErrors.email = 'Introduce un correo electrónico válido.';
+  }
+  if (form.value.password.length < 12 || form.value.password.length > 128) {
+    validationErrors.password = 'La contraseña debe tener entre 12 y 128 caracteres.';
+  }
+  if (form.value.password !== form.value.confirmPassword) {
+    validationErrors.confirmPassword = 'Las contraseñas no coinciden.';
   }
 
-  if (!EMAIL_PATTERN.test(email.value.trim())) {
-    errorMessage.value = 'Introduce un correo electrónico válido.';
-    return false;
-  }
-
-  if (password.value.length < 12 || password.value.length > 128) {
-    errorMessage.value = 'La contraseña debe tener entre 12 y 128 caracteres.';
-    return false;
-  }
-
-  if (password.value !== confirmPassword.value) {
-    errorMessage.value = 'Las contraseñas no coinciden.';
-    return false;
-  }
-
-  return true;
+  errors.value = validationErrors;
+  return Object.keys(validationErrors).length === 0;
 }
 
 async function submit(): Promise<void> {
   errorMessage.value = '';
 
-  if (!validate()) {
+  if (saving.value || !validate()) {
     return;
   }
 
-  loading.value = true;
+  saving.value = true;
 
   try {
     await AuthService.signUp({
-      name: name.value,
-      email: email.value,
-      password: password.value,
+      name: form.value.name,
+      email: form.value.email,
+      password: form.value.password,
     });
     await router.push({ name: 'overview' });
   } catch (error) {
     errorMessage.value = (error as Error).message;
   } finally {
-    loading.value = false;
+    saving.value = false;
   }
 }
 </script>
@@ -86,15 +87,16 @@ async function submit(): Promise<void> {
           <User :size="17" class="ii" />
           <input
             id="name"
-            v-model="name"
+            v-model="form.name"
             class="input"
             type="text"
             placeholder="Tu nombre"
             autocomplete="name"
-            :aria-invalid="Boolean(errorMessage)"
+            :aria-invalid="Boolean(errors.name)"
             required
           />
         </div>
+        <span v-if="errors.name" class="field-error">{{ errors.name }}</span>
       </div>
 
       <div class="field">
@@ -103,15 +105,16 @@ async function submit(): Promise<void> {
           <Mail :size="17" class="ii" />
           <input
             id="email"
-            v-model="email"
+            v-model="form.email"
             class="input"
             type="email"
             placeholder="tu@email.com"
             autocomplete="email"
-            :aria-invalid="Boolean(errorMessage)"
+            :aria-invalid="Boolean(errors.email)"
             required
           />
         </div>
+        <span v-if="errors.email" class="field-error">{{ errors.email }}</span>
       </div>
 
       <div class="field">
@@ -120,12 +123,12 @@ async function submit(): Promise<void> {
           <Lock :size="17" class="ii" />
           <input
             id="password"
-            v-model="password"
+            v-model="form.password"
             class="input"
             :type="showPassword ? 'text' : 'password'"
             placeholder="••••••••••••"
             autocomplete="new-password"
-            :aria-invalid="Boolean(errorMessage)"
+            :aria-invalid="Boolean(errors.password)"
             required
           />
           <button
@@ -138,7 +141,8 @@ async function submit(): Promise<void> {
             <Eye v-else :size="17" />
           </button>
         </div>
-        <span class="muted hint">Mínimo 12 caracteres.</span>
+        <span v-if="errors.password" class="field-error">{{ errors.password }}</span>
+        <span v-else class="muted hint">Mínimo 12 caracteres.</span>
       </div>
 
       <div class="field">
@@ -147,12 +151,12 @@ async function submit(): Promise<void> {
           <Lock :size="17" class="ii" />
           <input
             id="confirm-password"
-            v-model="confirmPassword"
+            v-model="form.confirmPassword"
             class="input"
             :type="showPassword ? 'text' : 'password'"
             placeholder="••••••••••••"
             autocomplete="new-password"
-            :aria-invalid="Boolean(errorMessage)"
+            :aria-invalid="Boolean(errors.confirmPassword)"
             required
           />
           <button
@@ -165,15 +169,16 @@ async function submit(): Promise<void> {
             <Eye v-else :size="17" />
           </button>
         </div>
+        <span v-if="errors.confirmPassword" class="field-error">{{ errors.confirmPassword }}</span>
       </div>
 
       <p v-if="errorMessage" class="error" role="alert" aria-live="polite">
         {{ errorMessage }}
       </p>
 
-      <button class="btn btn-primary submit" type="submit" :disabled="loading" :aria-busy="loading">
-        <span v-if="loading" class="spinner" aria-hidden="true"></span>
-        {{ loading ? 'Creando cuenta…' : 'Crear cuenta' }}
+      <button class="btn btn-primary submit" type="submit" :disabled="saving" :aria-busy="saving">
+        <span v-if="saving" class="spinner" aria-hidden="true"></span>
+        {{ saving ? 'Creando cuenta…' : 'Crear cuenta' }}
       </button>
     </form>
 
