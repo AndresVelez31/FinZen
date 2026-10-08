@@ -41,12 +41,8 @@ const navItems = computed<NavItemInterface[]>(() => [
   { name: 'accounts', label: 'Cuentas', icon: Wallet },
   { name: 'transactions', label: 'Transacciones', icon: ArrowLeftRight },
   { name: 'reports', label: 'Reportes', icon: PieChart },
-  ...(isAdminUser.value
-    ? [
-        { name: 'activities', label: 'Actividades', icon: Tags, tag: 'Admin' },
-        { name: 'users', label: 'Usuarios', icon: Users, tag: 'Admin' },
-      ]
-    : []),
+  { name: 'activities', label: 'Actividades', icon: Tags },
+  ...(isAdminUser.value ? [{ name: 'users', label: 'Usuarios', icon: Users, tag: 'Admin' }] : []),
 ]);
 
 const userInitials = computed<string>(() =>

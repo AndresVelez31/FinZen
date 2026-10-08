@@ -97,9 +97,9 @@ classDiagram
 `targetAmount: decimal`, `createdAt: datetime`, `updatedAt: datetime`, `userId: int`, `user: User`,
 `transactions: Transaction[]`.
 
-Las actividades son un **catálogo único** administrado por los administradores y compartido por
-todos los usuarios: `userId` guarda qué administrador la creó, pero no limita quién la ve ni quién la
-usa en sus transacciones.
+Cada usuario tiene sus propias actividades. Las de los administradores son la **plantilla**: al
+registrarse, el usuario recibe una copia de ellas y desde ahí las edita, amplía o borra sin afectar
+la plantilla ni a otros usuarios.
 
 ### Transaction
 `id: int`, `type: TransactionType` (`income` | `expense`), `amount: decimal`, `date: date`,

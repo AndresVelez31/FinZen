@@ -74,11 +74,11 @@ export class TransactionsService {
     await this.transactionsRepository.remove(transaction);
   }
 
-  // Both lookups throw NotFoundException: the account must belong to the current user, and the
-  // activity must exist in the shared catalog.
+  // Both lookups throw NotFoundException when the account or activity
+  // does not belong to the current user.
   private async checkOwnership(fields: CreateTransactionDto, userId: number): Promise<void> {
     await this.accountsService.findOneByIdAndUserId(fields.accountId, userId);
-    await this.activitiesService.findOne(fields.activityId);
+    await this.activitiesService.findOneByIdAndUserId(fields.activityId, userId);
   }
 
   // accountId/activityId are read-only @RelationId properties, so the

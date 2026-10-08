@@ -30,10 +30,7 @@ number.
    throws `NotFoundException`.
 9. A validator copies only the editable fields of a DTO: a request body can never set `id`, `user`
    or any other field that is not part of the DTO.
-10. Every query filters by the authenticated user (`where: { user: { id: userId } }`), except
-    activities: they are one catalog managed by the administrators and shared by every user, so
-    `ActivitiesService` reads them with `findAll` / `findOne` and a transaction may use any of them
-    (its account must still belong to the user).
+10. Every query filters by the authenticated user (`where: { user: { id: userId } }`).
 
 ## Entities and database
 
@@ -61,7 +58,9 @@ number.
 19. `POST /auth/sign-up` (`SignUpDto`: name, e-mail, password of 12 to 128 characters) creates
     a regular user and signs them in. The e-mail is trimmed, lowercased and normalized to NFC;
     an existing one answers `409` (`ConflictException`); the password is hashed with
-    `PasswordHasher.hash()` and the response is the token pair of `TokenService.issue()`.
+    `PasswordHasher.hash()`, the user and their copy of the activity template
+    (`ActivitiesService.copyTemplateToUser()`: the activities of the administrators) are saved in
+    one database transaction, and the response is the token pair of `TokenService.issue()`.
     `POST /auth/token` (`SignInDto`) signs in and returns an access token of 8 hours and a refresh token of 7
     days (`TokenService`, renewable up to 30 days after the sign-in). `POST /auth/token/refresh`
     exchanges the refresh token for a new pair (`401` if it is invalid, expired or reused; a reused
@@ -102,8 +101,8 @@ number.
 
 24. Services have the constructor, then the public methods in CRUD order (`findAllByUserId`,
     `findOneByIdAndUserId`, `create`, `update`, `remove`), then private helpers. Controller
-    methods mirror their service. `UsersService` / `UsersController` and `ActivitiesService` /
-    `ActivitiesController` keep `findAll` and `findOne` because they are not filtered by user.
+    methods mirror their service. `UsersService` and `UsersController` keep `findAll` and
+    `findOne` because the administrator lists every user.
 25. ES modules: relative imports end in `.js` (`'./accounts.service.js'`). `import type` for
     types, except the DTO classes used in `@Body()`, which are imported as values because Nest
     reads their metadata.

@@ -157,7 +157,7 @@ onMounted(async () => {
   try {
     transactions.value = await TransactionService.getAllByUserId();
     accounts.value = await AccountService.getAllByUserId();
-    activities.value = await ActivityService.getAll();
+    activities.value = await ActivityService.getAllByUserId();
   } catch (error) {
     await Swal.fire({
       title: 'No se pudieron cargar las transacciones',

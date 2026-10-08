@@ -31,8 +31,7 @@ The back-end rules are in [Programming Rules (Backend)](<Programming-Rules-(Back
    revokes the refresh token.
 8. Every function that returns a promise is `async` and uses `await`
    (`return await this.httpGet(...)`): `getAllByUserId`, `getByIdAndUserId`, `create`, `update`,
-   `delete` (`UserService` keeps `getAll` and `update`: it lists every user for the administrator;
-   `ActivityService` uses `getAll` and `getById`: activities are one catalog shared by every user).
+   `delete` (`UserService` keeps `getAll` and `update`: it lists every user for the administrator).
 9. Calculations over data a view already loaded (filters, totals, progress) live in one util per
    service (`AccountUtil`, `ActivityUtil`, `TransactionUtil`) and receive that data as parameters.
 
@@ -62,8 +61,8 @@ The back-end rules are in [Programming Rules (Backend)](<Programming-Rules-(Back
 
 ## Routing and security
 
-17. Every route has `meta.title`; private routes pass the auth guard and `/activities` and
-    `/users` also need the `admin` role. `/sign-in` and `/sign-up` are public.
+17. Every route has `meta.title`; private routes pass the auth guard and `/users` also needs the
+    `admin` role. `/sign-in` and `/sign-up` are public.
 18. Navigate with `router.push()` or `<RouterLink>`, never `window.location`.
 19. The browser only hides what the user cannot do; the API is the one that enforces it.
 

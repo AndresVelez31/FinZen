@@ -1,9 +1,10 @@
 // External imports
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 // Internal imports
+import { Role } from '../users/enums/role.enum.js';
 import { ActivitiesValidator } from './activities.validate.js';
 import { CreateActivityDto } from './dto/create-activity.dto.js';
 import { UpdateActivityDto } from './dto/update-activity.dto.js';
@@ -18,21 +19,22 @@ export class ActivitiesService {
     private readonly activitiesValidator: ActivitiesValidator,
   ) {}
 
-  // Activities are one catalog managed by the administrators and shared by every user, so
-  // unlike accounts and transactions they are not filtered by userId.
-  async findAll(): Promise<Activity[]> {
-    return await this.activitiesRepository.find({ order: { id: 'ASC' } });
+  async findAllByUserId(userId: number): Promise<Activity[]> {
+    return await this.activitiesRepository.find({
+      where: { user: { id: userId } },
+      order: { id: 'ASC' },
+    });
   }
 
-  async findOne(id: number): Promise<Activity> {
-    const activity = await this.activitiesRepository.findOneBy({ id });
+  // Another user's activity behaves exactly like a missing one.
+  async findOneByIdAndUserId(id: number, userId: number): Promise<Activity> {
+    const activity = await this.activitiesRepository.findOneBy({ id, user: { id: userId } });
     if (!activity) {
       throw new NotFoundException('La actividad no existe o no está disponible.');
     }
     return activity;
   }
 
-  // userId is the administrator who creates the activity.
   async create(createActivityDto: CreateActivityDto, userId: number): Promise<Activity> {
     const fields = this.activitiesValidator.validate(createActivityDto);
     const activity = this.activitiesRepository.create({
@@ -43,11 +45,15 @@ export class ActivitiesService {
       user: { id: userId },
     });
     const savedActivity = await this.activitiesRepository.save(activity);
-    return await this.findOne(savedActivity.id);
+    return await this.findOneByIdAndUserId(savedActivity.id, userId);
   }
 
-  async update(id: number, updateActivityDto: UpdateActivityDto): Promise<Activity> {
-    const activity = await this.findOne(id);
+  async update(
+    id: number,
+    updateActivityDto: UpdateActivityDto,
+    userId: number,
+  ): Promise<Activity> {
+    const activity = await this.findOneByIdAndUserId(id, userId);
     const fields = this.activitiesValidator.validate({
       name: updateActivityDto.name ?? activity.name,
       color: updateActivityDto.color ?? activity.color,
@@ -59,9 +65,30 @@ export class ActivitiesService {
     return await this.activitiesRepository.save(activity);
   }
 
+  // The administrators' activities are the template: every new user starts with a copy of them
+  // and then owns and edits those copies. It runs inside the sign-up transaction, so a user is
+  // never left without activities.
+  async copyTemplateToUser(userId: number, manager: EntityManager): Promise<void> {
+    const repository = manager.getRepository(Activity);
+    const template = await repository.find({
+      where: { user: { role: Role.Admin } },
+      order: { id: 'ASC' },
+    });
+    const copies = template.map((activity) =>
+      repository.create({
+        name: activity.name,
+        color: activity.color,
+        type: activity.type,
+        targetAmount: activity.targetAmount,
+        user: { id: userId },
+      }),
+    );
+    await repository.save(copies);
+  }
+
   // The activity's transactions are removed by the database (onDelete: 'CASCADE').
-  async remove(id: number): Promise<void> {
-    const activity = await this.findOne(id);
+  async remove(id: number, userId: number): Promise<void> {
+    const activity = await this.findOneByIdAndUserId(id, userId);
     await this.activitiesRepository.remove(activity);
   }
 }

@@ -66,7 +66,7 @@ async function deleteActivity(activity: ActivityInterface): Promise<void> {
 // Lifecycle
 onMounted(async () => {
   try {
-    activities.value = await ActivityService.getAll();
+    activities.value = await ActivityService.getAllByUserId();
     transactions.value = await TransactionService.getAllByUserId();
   } catch (error) {
     await Swal.fire({
