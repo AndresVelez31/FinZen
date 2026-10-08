@@ -5,7 +5,6 @@ import { ref } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 
 // Internal imports
-import AuthLayoutComponent from '@/components/auth/AuthLayoutComponent.vue';
 import { AuthService } from '@/services/AuthService.js';
 
 // Variables
@@ -72,7 +71,7 @@ async function submit(): Promise<void> {
 </script>
 
 <template>
-  <AuthLayoutComponent>
+  <div class="auth-form">
     <div class="form-brand">
       <div class="hero-mark"><Wallet :size="20" /></div>
       <span>FinZen</span>
@@ -182,5 +181,5 @@ async function submit(): Promise<void> {
       ¿Ya tienes cuenta?
       <RouterLink :to="{ name: 'sign-in' }">Inicia sesión</RouterLink>
     </p>
-  </AuthLayoutComponent>
+  </div>
 </template>

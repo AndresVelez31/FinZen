@@ -4,6 +4,7 @@ import { computed, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 
 // Internal imports
+import AuthLayoutComponent from '@/components/auth/AuthLayoutComponent.vue';
 import AppLayoutComponent from '@/components/layout/AppLayoutComponent.vue';
 import { useThemeStore } from '@/stores/themestore.js';
 
@@ -12,7 +13,7 @@ const route = useRoute();
 const themeStore = useThemeStore();
 
 // Computed
-const isBlank = computed(() => route.meta.layout === 'blank');
+const isAuth = computed(() => route.meta.layout === 'auth');
 
 // Watchers
 watchEffect(() => {
@@ -21,11 +22,7 @@ watchEffect(() => {
 </script>
 
 <template>
-  <RouterView v-if="isBlank" v-slot="{ Component }">
-    <transition name="fade" mode="out-in">
-      <component :is="Component" />
-    </transition>
-  </RouterView>
+  <AuthLayoutComponent v-if="isAuth" />
 
   <AppLayoutComponent v-else />
 </template>
