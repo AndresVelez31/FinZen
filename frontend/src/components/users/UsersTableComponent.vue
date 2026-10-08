@@ -35,55 +35,62 @@ const emit = defineEmits<{
           <th>Rol</th>
           <th>Estado</th>
           <th>Registro</th>
-          <th style="text-align: right; width: 120px">Acciones</th>
+          <th class="right">Acciones</th>
         </tr>
       </thead>
 
       <tbody>
         <template v-if="props.users.length">
           <tr v-for="user in props.users" :key="user.id">
-            <td>
+            <td class="c-user">
               <div class="u">
                 <span class="u-avatar" :class="{ admin: user.role === 'admin' }">
                   {{ FormattersUtil.extractInitials(user.name) }}
                 </span>
-                <div class="u-name">
-                  {{ user.name }}
-                  <span v-if="user.id === props.currentUserId" class="badge badge-green"> Tú </span>
+                <div class="u-text">
+                  <div class="u-name">
+                    {{ user.name }}
+                    <span v-if="user.id === props.currentUserId" class="badge badge-green">
+                      Tú
+                    </span>
+                  </div>
+                  <span class="u-email-inline soft">{{ user.email }}</span>
                 </div>
               </div>
             </td>
-            <td>{{ user.email }}</td>
-            <td>
+            <td class="c-email">{{ user.email }}</td>
+            <td class="c-role">
               <span class="badge" :class="user.role === 'admin' ? 'badge-indigo' : 'badge-gray'">
                 <component :is="user.role === 'admin' ? ShieldCheck : User" :size="12" />
                 {{ user.role === 'admin' ? 'Administrador' : 'Usuario' }}
               </span>
             </td>
-            <td>
+            <td class="c-status">
               <span class="badge" :class="user.active ? 'badge-green' : 'badge-gray'">
                 {{ user.active ? 'Activo' : 'Inactivo' }}
               </span>
             </td>
-            <td>{{ FormattersUtil.formatDate(user.createdAt) }}</td>
-            <td style="text-align: right">
-              <div class="row-actions">
-                <div class="user-actions">
-                  <button
-                    class="btn btn-ghost btn-sm"
-                    :disabled="user.id === props.currentUserId"
-                    @click="emit('changeRole', user)"
-                  >
-                    {{ user.role === 'admin' ? 'A usuario' : 'A admin' }}
-                  </button>
-                  <button
-                    class="btn btn-ghost btn-sm"
-                    :disabled="user.id === props.currentUserId"
-                    @click="emit('toggleActive', user)"
-                  >
-                    {{ user.active ? 'Desactivar' : 'Activar' }}
-                  </button>
-                </div>
+            <td class="c-date num">
+              <span class="date-label soft">Registro · </span
+              >{{ FormattersUtil.formatDate(user.createdAt) }}
+            </td>
+            <td class="right c-actions">
+              <div class="user-actions">
+                <button
+                  class="btn btn-ghost btn-sm"
+                  :disabled="user.id === props.currentUserId"
+                  @click="emit('changeRole', user)"
+                >
+                  {{ user.role === 'admin' ? 'A usuario' : 'A admin' }}
+                </button>
+                <button
+                  class="btn btn-sm"
+                  :class="user.active ? 'btn-danger' : 'btn-ghost'"
+                  :disabled="user.id === props.currentUserId"
+                  @click="emit('toggleActive', user)"
+                >
+                  {{ user.active ? 'Desactivar' : 'Activar' }}
+                </button>
               </div>
             </td>
           </tr>
@@ -103,6 +110,7 @@ const emit = defineEmits<{
 <style scoped>
 .table-wrap {
   overflow-x: auto;
+  container-type: inline-size;
 }
 .table {
   width: 100%;
@@ -135,10 +143,8 @@ tbody tr:hover {
 tbody tr:last-child td {
   border-bottom: none;
 }
-.row-actions {
-  display: inline-flex;
-  gap: 6px;
-  justify-content: flex-end;
+.right {
+  text-align: right;
 }
 .u {
   display: flex;
@@ -160,19 +166,78 @@ tbody tr:last-child td {
 .u-avatar.admin {
   background: var(--accent);
 }
+.u-text {
+  min-width: 0;
+}
 .u-name {
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.btn[disabled] {
-  opacity: 0.4;
-  cursor: not-allowed;
+.u-email-inline,
+.date-label {
+  display: none;
+}
+.c-date {
+  white-space: nowrap;
 }
 .user-actions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  display: inline-flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* Narrow space (phones, tablets with the sidebar): one card per user, with both actions sharing the bottom row */
+@container (max-width: 760px) {
+  .table,
+  .table tbody {
+    display: block;
+  }
+  .table thead,
+  .c-email {
+    display: none;
+  }
+  tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 8px;
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr:last-child {
+    border-bottom: none;
+  }
+  tbody tr:hover {
+    background: transparent;
+  }
+  tbody td {
+    padding: 0;
+    border: none;
+  }
+  .c-user,
+  .c-date,
+  .c-actions {
+    flex-basis: 100%;
+  }
+  .u-email-inline {
+    display: block;
+    font-size: 0.8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .c-date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  .date-label {
+    display: inline;
+  }
+  .user-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
 }
 </style>

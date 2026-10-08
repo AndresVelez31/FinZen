@@ -19,24 +19,27 @@ const props = defineProps<{
       <thead>
         <tr>
           <th>Actividad</th>
-          <th style="text-align: right">Presupuesto</th>
-          <th style="text-align: right">Gasto real</th>
-          <th style="text-align: right">Diferencia</th>
+          <th class="right">Presupuesto</th>
+          <th class="right">Gasto real</th>
+          <th class="right">Diferencia</th>
         </tr>
       </thead>
 
       <tbody>
         <template v-if="props.rows.length">
           <tr v-for="row in props.rows" :key="row.activityId">
-            <td>
+            <td class="c-name">
               <div class="rn">
-                <span class="dot" :style="{ background: row.color }"></span
-                >{{ row.name }}
+                <span class="dot" :style="{ background: row.color }"></span>{{ row.name }}
               </div>
             </td>
-            <td style="text-align: right">{{ FormattersUtil.formatToCOP(row.budget) }}</td>
-            <td style="text-align: right">{{ FormattersUtil.formatToCOP(row.spent) }}</td>
-            <td style="text-align: right">
+            <td class="right num" data-label="Presupuesto">
+              {{ FormattersUtil.formatToCOP(row.budget) }}
+            </td>
+            <td class="right num" data-label="Gasto real">
+              {{ FormattersUtil.formatToCOP(row.spent) }}
+            </td>
+            <td class="right num" data-label="Diferencia">
               <span :class="row.diff >= 0 ? 'pos' : 'neg'">
                 {{ row.diff >= 0 ? '+' : '' }}{{ FormattersUtil.formatToCOP(row.diff) }}
               </span>
@@ -58,6 +61,7 @@ const props = defineProps<{
 <style scoped>
 .table-wrap {
   overflow-x: auto;
+  container-type: inline-size;
 }
 .table {
   width: 100%;
@@ -90,6 +94,9 @@ tbody tr:hover {
 tbody tr:last-child td {
   border-bottom: none;
 }
+.right {
+  text-align: right;
+}
 .rn {
   display: flex;
   align-items: center;
@@ -111,5 +118,45 @@ html.dark .pos {
 .neg {
   color: var(--danger);
   font-weight: 700;
+}
+
+/* Narrow space (phones, tablets with the sidebar): the activity on top and its three figures side by side, each with its label */
+@container (max-width: 540px) {
+  .table,
+  .table tbody {
+    display: block;
+  }
+  .table thead {
+    display: none;
+  }
+  tbody tr {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px 10px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr:last-child {
+    border-bottom: none;
+  }
+  tbody td {
+    padding: 0;
+    border: none;
+    text-align: left;
+    font-size: 0.85rem;
+  }
+  .c-name {
+    grid-column: 1 / -1;
+  }
+  td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+    margin-bottom: 2px;
+  }
 }
 </style>

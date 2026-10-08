@@ -128,7 +128,7 @@ onMounted(async () => {
 
 <template>
   <div class="fade-up">
-    <div class="head">
+    <div class="page-head">
       <div>
         <h2 class="page-title">Reportes</h2>
         <p class="muted">Analiza tu evolución financiera y el cumplimiento de presupuestos.</p>
@@ -223,14 +223,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 22px;
-  flex-wrap: wrap;
-}
 .period {
   display: flex;
   gap: 12px;
@@ -287,6 +279,29 @@ onMounted(async () => {
 @media (max-width: 900px) {
   .grid-charts {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .period {
+    width: 100%;
+    padding: 12px;
+  }
+  .period > * {
+    flex: 1;
+  }
+  .grid-charts {
+    gap: 14px;
+  }
+  .panel {
+    padding: 18px 16px;
+  }
+  .savings {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .saving-top {
+    font-size: 0.8rem;
   }
 }
 </style>

@@ -6,6 +6,8 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // Internal imports
+import DatePicker from '@/components/shared/DatePickerComponent.vue';
+import MoneyInput from '@/components/shared/MoneyInputComponent.vue';
 import type { CreateTransactionDTO } from '@/dtos/CreateTransactionDTO.js';
 import type { UpdateTransactionDTO } from '@/dtos/UpdateTransactionDTO.js';
 import type { AccountInterface } from '@/interfaces/AccountInterface.js';
@@ -28,7 +30,8 @@ const form = ref({
   amount: '',
   accountId: null as number | null,
   activityId: null as number | null,
-  date: new Date().toISOString().slice(0, 10),
+  // Today in the user's time zone (toISOString alone is UTC, already "tomorrow" in Colombia after 7 p.m.).
+  date: new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10),
   description: '',
 });
 const errors = ref<TransactionFormErrorsInterface>({});
@@ -176,20 +179,8 @@ onMounted(async () => {
 
       <div class="field">
         <label for="amount">Importe</label>
-        <div class="amount-wrap">
-          <span class="currency">$</span>
-          <input
-            id="amount"
-            v-model="form.amount"
-            class="input amount"
-            type="number"
-            step="1000"
-            min="0"
-            placeholder="0"
-            :disabled="saving"
-          />
-        </div>
-        <span v-if="errors.amount" class="err">{{ errors.amount }}</span>
+        <MoneyInput id="amount" v-model="form.amount" :invalid="Boolean(errors.amount)" :disabled="saving" />
+        <span v-if="errors.amount" class="field-error">{{ errors.amount }}</span>
       </div>
 
       <div class="row-2">
@@ -201,7 +192,7 @@ onMounted(async () => {
               {{ account.name }} ({{ account.type }})
             </option>
           </select>
-          <span v-if="errors.accountId" class="err">{{ errors.accountId }}</span>
+          <span v-if="errors.accountId" class="field-error">{{ errors.accountId }}</span>
         </div>
 
         <div class="field">
@@ -212,14 +203,14 @@ onMounted(async () => {
               {{ activity.name }} ({{ activity.type === 'expense' ? 'Gasto' : 'Ahorro' }})
             </option>
           </select>
-          <span v-if="errors.activityId" class="err">{{ errors.activityId }}</span>
+          <span v-if="errors.activityId" class="field-error">{{ errors.activityId }}</span>
         </div>
       </div>
 
       <div class="field">
         <label for="date">Fecha</label>
-        <input id="date" v-model="form.date" class="input" type="date" :disabled="saving" />
-        <span v-if="errors.date" class="err">{{ errors.date }}</span>
+        <DatePicker id="date" v-model="form.date" :invalid="Boolean(errors.date)" :disabled="saving" />
+        <span v-if="errors.date" class="field-error">{{ errors.date }}</span>
       </div>
 
       <div class="field">
@@ -232,7 +223,7 @@ onMounted(async () => {
           placeholder="Ej: Compra en supermercado"
           :disabled="saving"
         ></textarea>
-        <span v-if="errors.description" class="err">{{ errors.description }}</span>
+        <span v-if="errors.description" class="field-error">{{ errors.description }}</span>
       </div>
 
       <div class="actions">
@@ -305,32 +296,10 @@ onMounted(async () => {
 html.dark .type-opt.income.active {
   color: var(--primary);
 }
-.amount-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.currency {
-  position: absolute;
-  left: 14px;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-.amount {
-  padding-left: 34px;
-  font-size: 1.3rem;
-  font-weight: 700;
-  font-family: var(--font-head);
-}
 .row-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-}
-.err {
-  color: var(--danger);
-  font-size: 0.78rem;
 }
 .actions {
   display: flex;
@@ -341,6 +310,16 @@ html.dark .type-opt.income.active {
 @media (max-width: 560px) {
   .row-2 {
     grid-template-columns: 1fr;
+  }
+  .form {
+    padding: 20px 18px;
+    gap: 16px;
+  }
+  .actions {
+    flex-direction: column-reverse;
+  }
+  .actions .btn {
+    width: 100%;
   }
 }
 </style>

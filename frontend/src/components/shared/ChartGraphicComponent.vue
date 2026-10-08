@@ -27,6 +27,11 @@ const props = withDefaults(
 );
 
 // Variables
+// Axis labels in the app's locale and short: "500 k", "1,5 M" instead of "1,500,000".
+const compactNumber = new Intl.NumberFormat('es-CO', {
+  notation: 'compact',
+  maximumFractionDigits: 1,
+});
 let chartInstance: Chart | null = null;
 let themeObserver: MutationObserver | null = null;
 
@@ -50,6 +55,7 @@ function baseOptions() {
   return {
     responsive: true,
     maintainAspectRatio: false,
+    locale: 'es-CO',
     plugins: {
       title: props.title
         ? {
@@ -85,12 +91,17 @@ function baseOptions() {
       ? {}
       : {
           x: {
-            ticks: { color: colors.text, font: { size: 11 } },
+            ticks: { color: colors.text, font: { size: 11 }, maxRotation: 45, autoSkipPadding: 6 },
             grid: { color: colors.grid, drawBorder: false },
             border: { display: false },
           },
           y: {
-            ticks: { color: colors.text, font: { size: 11 } },
+            ticks: {
+              color: colors.text,
+              font: { size: 11 },
+              callback: (value: number | string) =>
+                typeof value === 'number' ? compactNumber.format(value) : value,
+            },
             grid: { color: colors.grid, drawBorder: false },
             border: { display: false },
           },
