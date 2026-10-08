@@ -20,7 +20,7 @@ declare module 'vue-router' {
     title: string;
     public?: boolean;
     admin?: boolean;
-    layout?: 'blank';
+    layout?: 'auth';
   }
 }
 
@@ -34,7 +34,7 @@ const router = createRouter({
       meta: {
         title: 'Iniciar sesión | FinZen',
         public: true,
-        layout: 'blank',
+        layout: 'auth',
       },
     },
     {
@@ -44,7 +44,7 @@ const router = createRouter({
       meta: {
         title: 'Crear cuenta | FinZen',
         public: true,
-        layout: 'blank',
+        layout: 'auth',
       },
     },
     // Old URLs keep working
