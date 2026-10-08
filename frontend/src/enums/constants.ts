@@ -4,6 +4,7 @@ import { Landmark, PiggyBank, Smartphone, Wallet } from 'lucide-vue-next';
 // Internal imports
 import type { AccountTypeOptionInterface } from '@/interfaces/AccountTypeOptionInterface.js';
 import type { FilterOptionInterface } from '@/interfaces/FilterOptionInterface.js';
+import type { TransactionFiltersInterface } from '@/interfaces/TransactionFiltersInterface.js';
 
 // Exports
 export const MONTH_OPTIONS: FilterOptionInterface[] = [
@@ -25,6 +26,16 @@ export const TRANSACTION_TYPE_OPTIONS: FilterOptionInterface[] = [
   { value: 'income', label: 'Ingreso' },
   { value: 'expense', label: 'Gasto' },
 ];
+
+// No filter applied; copy it ({ ...EMPTY_TRANSACTION_FILTERS }) instead of editing it.
+export const EMPTY_TRANSACTION_FILTERS: Readonly<TransactionFiltersInterface> = {
+  activityId: '',
+  accountId: '',
+  type: '',
+  month: '',
+  from: '',
+  to: '',
+};
 
 export const USER_ROLE_OPTIONS: FilterOptionInterface[] = [
   { value: 'admin', label: 'Administrador' },
