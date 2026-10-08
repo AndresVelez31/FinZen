@@ -47,3 +47,13 @@ describe('FormattersUtil.formatDate', () => {
     expect(FormattersUtil.formatDate('2026-01-05')).toBe('5 de enero de 2026');
   });
 });
+
+describe('FormattersUtil.formatShortDate', () => {
+  it('formats an ISO date as a short Spanish date using UTC', () => {
+    expect(FormattersUtil.formatShortDate('2026-01-05')).toBe('5 ene 2026');
+  });
+
+  it('drops the dot of the abbreviated month', () => {
+    expect(FormattersUtil.formatShortDate('2026-12-28')).toBe('28 dic 2026');
+  });
+});

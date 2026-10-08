@@ -1,12 +1,14 @@
 <script setup lang="ts">
 // External imports
-import { Filter, Plus, RotateCcw } from 'lucide-vue-next';
+import { ChevronDown, Plus, RotateCcw, SlidersHorizontal } from 'lucide-vue-next';
 import Swal from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 // Internal imports
 import ChartGraphic from '@/components/shared/ChartGraphicComponent.vue';
+import DatePicker from '@/components/shared/DatePickerComponent.vue';
+import PaginatedList from '@/components/shared/PaginatedListComponent.vue';
 import SelectorFilter from '@/components/shared/SelectorFilterComponent.vue';
 import TransactionsTable from '@/components/transactions/TransactionsTableComponent.vue';
 import { MONTH_OPTIONS, TRANSACTION_TYPE_OPTIONS } from '@/enums/constants.js';
@@ -28,6 +30,8 @@ const router = useRouter();
 const transactions = ref<TransactionInterface[]>([]);
 const accounts = ref<AccountInterface[]>([]);
 const activities = ref<ActivityInterface[]>([]);
+// Only matters on phones, where the filters start folded so the list is visible first.
+const filtersOpen = ref(false);
 
 // Selectors
 const activityOptions = computed<FilterOptionInterface[]>(() =>
@@ -60,12 +64,24 @@ const filteredTransactions = computed(() =>
   }),
 );
 
-const filteredRows = computed<TransactionRowInterface[]>(() =>
+const filteredTransactionRows = computed<TransactionRowInterface[]>(() =>
   TransactionUtil.attachAccountAndActivity(
     filteredTransactions.value,
     accounts.value,
     activities.value,
   ),
+);
+
+// Changes with any filter; used as the list's key so a new filter starts again from page 1.
+const filterSelection = computed(() =>
+  [
+    filterActivity.value,
+    filterAccount.value,
+    filterType.value,
+    filterMonth.value,
+    filterFrom.value,
+    filterTo.value,
+  ].join('|'),
 );
 
 const activeFilters = computed(
@@ -170,12 +186,13 @@ onMounted(async () => {
 
 <template>
   <div class="fade-up">
-    <div class="head">
+    <div class="page-head">
       <div>
         <h2 class="page-title">Transacciones</h2>
-        <p class="muted">
-          {{ filteredRows.length }} movimientos · Ingresos {{ FormattersUtil.formatToCOP(totals.income) }} · Gastos
-          {{ FormattersUtil.formatToCOP(totals.expense) }}
+        <p class="summary">
+          <span class="muted">{{ filteredTransactionRows.length }} movimientos</span>
+          <span class="summary-pill in num">+{{ FormattersUtil.formatToCOP(totals.income) }}</span>
+          <span class="summary-pill out num">−{{ FormattersUtil.formatToCOP(totals.expense) }}</span>
         </p>
       </div>
       <button class="btn btn-primary" @click="router.push({ name: 'transactions.create' })">
@@ -184,12 +201,26 @@ onMounted(async () => {
     </div>
 
     <!-- Filters -->
-    <div class="card filters">
-      <div class="filters-title">
-        <Filter :size="17" /> <span>Filtros</span>
-        <span v-if="activeFilters" class="badge badge-green">{{ activeFilters }} activos</span>
+    <section class="card filters" :class="{ open: filtersOpen }">
+      <div class="filters-head">
+        <button
+          type="button"
+          class="filters-toggle"
+          :aria-expanded="filtersOpen"
+          aria-controls="transaction-filters"
+          @click="filtersOpen = !filtersOpen"
+        >
+          <SlidersHorizontal :size="17" />
+          <span>Filtros</span>
+          <span v-if="activeFilters" class="filters-count">{{ activeFilters }}</span>
+          <ChevronDown :size="17" class="filters-chevron" />
+        </button>
+        <button v-if="activeFilters" type="button" class="btn btn-ghost btn-sm" @click="resetFilters">
+          <RotateCcw :size="14" />
+          Limpiar
+        </button>
       </div>
-      <div class="filters-grid">
+      <div id="transaction-filters" class="filters-grid">
         <SelectorFilter
           label="Actividad"
           v-model="filterActivity"
@@ -207,21 +238,22 @@ onMounted(async () => {
         <SelectorFilter label="Tipo" v-model="filterType" :options="TRANSACTION_TYPE_OPTIONS" placeholder="Todos" />
         <SelectorFilter label="Mes" v-model="filterMonth" :options="MONTH_OPTIONS" placeholder="Todos" />
         <div class="field">
-          <label>Desde</label>
-          <input v-model="filterFrom" type="date" class="input" />
+          <label for="filter-from">Desde</label>
+          <DatePicker
+            id="filter-from"
+            v-model="filterFrom"
+            placeholder="Cualquiera"
+            clearable
+            :max="filterTo"
+          />
         </div>
 
         <div class="field">
-          <label>Hasta</label>
-          <input v-model="filterTo" type="date" class="input" />
+          <label for="filter-to">Hasta</label>
+          <DatePicker id="filter-to" v-model="filterTo" placeholder="Cualquiera" clearable :min="filterFrom" />
         </div>
-
-        <button class="btn btn-ghost reset" @click="resetFilters">
-          <RotateCcw :size="15" />
-          Limpiar
-        </button>
       </div>
-    </div>
+    </section>
 
     <!-- Chart -->
     <section class="card panel">
@@ -243,40 +275,125 @@ onMounted(async () => {
     </section>
 
     <!-- Table -->
-    <TransactionsTable :rows="filteredRows" @edit="editTransaction" @delete="deleteTransaction" />
+    <PaginatedList
+      :key="filterSelection"
+      v-slot="{ items: pagedTransactions }"
+      :items="filteredTransactionRows"
+      :page-size="10"
+      item-label="movimientos"
+    >
+      <TransactionsTable
+        :rows="pagedTransactions"
+        @edit="editTransaction"
+        @delete="deleteTransaction"
+      />
+    </PaginatedList>
   </div>
 </template>
 
 <style scoped>
-.head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-.filters {
-  padding: 18px 20px;
-  margin-bottom: 20px;
-}
-.filters-title {
+.summary {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
+  margin-top: 4px;
+  font-size: 0.9rem;
+}
+.summary-pill {
+  padding: 2px 10px;
+  border-radius: 999px;
   font-weight: 700;
-  font-size: 0.92rem;
+  font-size: 0.82rem;
+}
+.summary-pill.in {
+  background: color-mix(in srgb, var(--primary) 13%, transparent);
+  color: var(--primary-strong);
+}
+html.dark .summary-pill.in {
+  color: var(--primary);
+}
+.summary-pill.out {
+  background: color-mix(in srgb, var(--danger) 11%, transparent);
+  color: var(--danger);
+}
+.filters {
+  padding: 16px 20px 20px;
+  margin-bottom: 20px;
+}
+.filters-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 34px;
   margin-bottom: 14px;
+}
+.filters-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  background: transparent;
   color: var(--text);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: default;
+}
+.filters-count {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--primary-contrast);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.filters-chevron {
+  display: none;
+  color: var(--text-soft);
+  transition: transform 0.22s var(--ease-out);
 }
 .filters-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 14px;
   align-items: end;
 }
-.reset {
-  height: 44px;
+
+@media (max-width: 720px) {
+  .filters {
+    padding: 4px 16px;
+  }
+  .filters-head {
+    min-height: 52px;
+    margin-bottom: 0;
+  }
+  .filters-toggle {
+    flex: 1;
+    min-height: 44px;
+    cursor: pointer;
+  }
+  .filters-chevron {
+    display: block;
+    margin-left: auto;
+  }
+  .filters.open .filters-chevron {
+    transform: rotate(180deg);
+  }
+  .filters-grid {
+    display: none;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding: 4px 0 16px;
+  }
+  .filters.open .filters-grid {
+    display: grid;
+  }
 }
 .panel {
   padding: 22px;
@@ -295,5 +412,10 @@ onMounted(async () => {
   height: 200px;
   display: grid;
   place-items: center;
+}
+@media (max-width: 560px) {
+  .panel {
+    padding: 18px 16px;
+  }
 }
 </style>

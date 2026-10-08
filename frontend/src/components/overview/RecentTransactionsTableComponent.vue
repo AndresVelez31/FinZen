@@ -14,14 +14,15 @@ const props = defineProps<{
 </script>
 
 <template>
-  <div class="table-wrap card">
+  <!-- Sits inside the overview panel, so it has no card of its own -->
+  <div class="table-wrap">
     <table class="table">
       <thead>
         <tr>
           <th>Descripción</th>
           <th>Actividad</th>
           <th>Fecha</th>
-          <th style="text-align: right">Importe</th>
+          <th class="right">Importe</th>
         </tr>
       </thead>
 
@@ -31,19 +32,29 @@ const props = defineProps<{
             <td>
               <div class="tx-desc">
                 <span class="dot" :style="{ background: transaction.activityColor }"></span>
-                <div>
+                <div class="tx-text">
                   <div class="tx-name">{{ transaction.description }}</div>
-                  <div class="soft tx-acc">{{ transaction.accountName }}</div>
+                  <div class="soft tx-acc">
+                    {{ transaction.accountName
+                    }}<span class="tx-meta">
+                      · {{ transaction.activityName }} ·
+                      {{ FormattersUtil.formatShortDate(transaction.date) }}</span
+                    >
+                  </div>
                 </div>
               </div>
             </td>
-            <td>
+            <td class="c-wide">
               <span class="chip badge-gray">{{ transaction.activityName }}</span>
             </td>
-            <td>{{ FormattersUtil.formatDate(transaction.date) }}</td>
-            <td style="text-align: right">
-              <span :class="transaction.type === 'income' ? 'amt-in' : 'amt-out'">
-                {{ transaction.type === 'income' ? '+' : '−' }}{{ FormattersUtil.formatToCOP(transaction.amount) }}
+            <td class="c-wide num nowrap">{{ FormattersUtil.formatDate(transaction.date) }}</td>
+            <td class="right c-amount">
+              <span
+                class="num nowrap"
+                :class="transaction.type === 'income' ? 'amt-in' : 'amt-out'"
+              >
+                {{ transaction.type === 'income' ? '+' : '−'
+                }}{{ FormattersUtil.formatToCOP(transaction.amount) }}
               </span>
             </td>
           </tr>
@@ -63,6 +74,7 @@ const props = defineProps<{
 <style scoped>
 .table-wrap {
   overflow-x: auto;
+  container-type: inline-size;
 }
 .table {
   width: 100%;
@@ -95,6 +107,15 @@ tbody tr:hover {
 tbody tr:last-child td {
   border-bottom: none;
 }
+/* Edges line up with the panel title instead of being indented twice */
+thead th:first-child,
+tbody td:first-child {
+  padding-left: 0;
+}
+thead th:last-child,
+tbody td:last-child {
+  padding-right: 0;
+}
 .tx-desc {
   display: flex;
   align-items: center;
@@ -112,6 +133,15 @@ tbody tr:last-child td {
 .tx-acc {
   font-size: 0.76rem;
 }
+.tx-meta {
+  display: none;
+}
+.right {
+  text-align: right;
+}
+.nowrap {
+  white-space: nowrap;
+}
 .amt-in {
   color: var(--primary-strong);
   font-weight: 700;
@@ -122,5 +152,29 @@ html.dark .amt-in {
 .amt-out {
   color: var(--text);
   font-weight: 700;
+}
+
+/* Narrow space (phones, tablets with the sidebar): description on the left, amount on the right, the rest folded into one line */
+@container (max-width: 540px) {
+  .table thead,
+  .c-wide {
+    display: none;
+  }
+  tbody td {
+    padding: 12px 0;
+  }
+  .c-amount {
+    vertical-align: top;
+    padding-left: 12px;
+  }
+  .tx-desc {
+    align-items: flex-start;
+  }
+  .dot {
+    margin-top: 7px;
+  }
+  .tx-meta {
+    display: inline;
+  }
 }
 </style>

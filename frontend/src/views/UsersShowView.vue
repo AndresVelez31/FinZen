@@ -6,6 +6,7 @@ import type { SweetAlertOptions } from 'sweetalert2';
 import { computed, onMounted, ref } from 'vue';
 
 // Internal imports
+import PaginatedList from '@/components/shared/PaginatedListComponent.vue';
 import SelectorFilter from '@/components/shared/SelectorFilterComponent.vue';
 import StatCard from '@/components/shared/StatCardComponent.vue';
 import UsersTable from '@/components/users/UsersTableComponent.vue';
@@ -105,7 +106,7 @@ onMounted(async () => {
 
 <template>
   <div class="fade-up">
-    <div class="head">
+    <div class="page-head">
       <div>
         <h2 class="page-title">Usuarios</h2>
         <p class="muted">Administra los usuarios registrados en la plataforma.</p>
@@ -127,19 +128,25 @@ onMounted(async () => {
       />
     </div>
 
-    <UsersTable
-      :users="filteredUsers"
-      :current-user-id="currentUser?.id ?? null"
-      @change-role="changeRole"
-      @toggle-active="toggleActive"
-    />
+    <!-- The key restarts the list on page 1 when the role filter changes -->
+    <PaginatedList
+      :key="filterRole"
+      v-slot="{ items: pagedUsers }"
+      :items="filteredUsers"
+      :page-size="10"
+      item-label="usuarios"
+    >
+      <UsersTable
+        :users="pagedUsers"
+        :current-user-id="currentUser?.id ?? null"
+        @change-role="changeRole"
+        @toggle-active="toggleActive"
+      />
+    </PaginatedList>
   </div>
 </template>
 
 <style scoped>
-.head {
-  margin-bottom: 20px;
-}
 .mb {
   margin-bottom: 20px;
 }
@@ -149,5 +156,16 @@ onMounted(async () => {
   display: flex;
   gap: 14px;
   flex-wrap: wrap;
+}
+.toolbar > * {
+  flex: 0 1 260px;
+}
+@media (max-width: 560px) {
+  .toolbar {
+    padding: 14px 16px;
+  }
+  .toolbar > * {
+    flex: 1;
+  }
 }
 </style>

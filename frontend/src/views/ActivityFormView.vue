@@ -6,6 +6,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // Internal imports
+import MoneyInput from '@/components/shared/MoneyInputComponent.vue';
 import type { CreateActivityDTO } from '@/dtos/CreateActivityDTO.js';
 import type { UpdateActivityDTO } from '@/dtos/UpdateActivityDTO.js';
 import { ACTIVITY_COLORS } from '@/enums/constants.js';
@@ -127,7 +128,7 @@ onMounted(async () => {
       <div class="field">
         <label for="name">Nombre</label>
         <input id="name" v-model="form.name" class="input" placeholder="Ej: Alimentación" :disabled="saving" />
-        <span v-if="errors.name" class="err">{{ errors.name }}</span>
+        <span v-if="errors.name" class="field-error">{{ errors.name }}</span>
       </div>
 
       <div class="field">
@@ -158,20 +159,13 @@ onMounted(async () => {
         <label for="targetAmount">{{
           form.type === 'expense' ? 'Presupuesto mensual' : 'Meta de ahorro'
         }}</label>
-        <div class="amount-wrap">
-          <span class="currency">$</span>
-          <input
-            id="targetAmount"
-            v-model="form.targetAmount"
-            class="input amount"
-            type="number"
-            min="0"
-            step="1000"
-            placeholder="0"
-            :disabled="saving"
-          />
-        </div>
-        <span v-if="errors.targetAmount" class="err">{{ errors.targetAmount }}</span>
+        <MoneyInput
+          id="targetAmount"
+          v-model="form.targetAmount"
+          :invalid="Boolean(errors.targetAmount)"
+          :disabled="saving"
+        />
+        <span v-if="errors.targetAmount" class="field-error">{{ errors.targetAmount }}</span>
       </div>
 
       <div class="field">
@@ -265,24 +259,6 @@ onMounted(async () => {
   background: var(--primary-soft);
   color: var(--primary-strong);
 }
-.amount-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-.currency {
-  position: absolute;
-  left: 14px;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-.amount {
-  padding-left: 34px;
-  font-size: 1.3rem;
-  font-weight: 700;
-  font-family: var(--font-head);
-}
 .colors {
   display: flex;
   flex-wrap: wrap;
@@ -312,10 +288,6 @@ onMounted(async () => {
   cursor: pointer;
   padding: 2px;
 }
-.err {
-  color: var(--danger);
-  font-size: 0.78rem;
-}
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -323,8 +295,15 @@ onMounted(async () => {
   margin-top: 6px;
 }
 @media (max-width: 560px) {
-  .type-toggle {
-    grid-template-columns: 1fr;
+  .form {
+    padding: 20px 18px;
+    gap: 16px;
+  }
+  .actions {
+    flex-direction: column-reverse;
+  }
+  .actions .btn {
+    width: 100%;
   }
 }
 </style>

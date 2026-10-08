@@ -99,7 +99,7 @@ onMounted(async () => {
 
 <template>
   <div class="fade-up">
-    <div class="head">
+    <div class="page-head">
       <div>
         <h2 class="page-title">Hola, {{ currentUser?.name?.split(' ')[0] }}</h2>
         <p class="muted">Este es el resumen de tus finanzas de este mes.</p>
@@ -168,14 +168,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 22px;
-  flex-wrap: wrap;
-}
 .grid-kpi {
   margin-bottom: 20px;
 }
@@ -218,6 +210,18 @@ html.dark .link {
 @media (max-width: 900px) {
   .grid-main {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .grid-main {
+    gap: 14px;
+  }
+  .panel {
+    padding: 18px 16px;
+  }
+  .empty-chart {
+    height: 200px;
   }
 }
 </style>

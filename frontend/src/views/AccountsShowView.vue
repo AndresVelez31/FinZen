@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { onMounted, ref } from 'vue';
 
 // Internal imports
+import PaginatedList from '@/components/shared/PaginatedListComponent.vue';
 import type { AccountInterface } from '@/interfaces/AccountInterface.js';
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 import { AccountService } from '@/services/AccountService.js';
@@ -72,7 +73,7 @@ onMounted(async () => {
 
 <template>
   <div class="fade-up">
-    <div class="head">
+    <div class="page-head">
       <div>
         <h2 class="page-title">Cuentas</h2>
 
@@ -90,61 +91,70 @@ onMounted(async () => {
       </RouterLink>
     </div>
 
-    <div v-if="accounts.length > 0" class="grid">
-      <article
-        v-for="account in accounts"
-        :key="account.id"
-        class="card acc"
-      >
-        <div class="acc-top">
-          <div class="acc-icon">
-            <Wallet :size="20" />
+    <!-- 9 per page: three rows of the three-column grid -->
+    <PaginatedList
+      v-if="accounts.length > 0"
+      v-slot="{ items: pagedAccounts }"
+      :items="accounts"
+      :page-size="9"
+      item-label="cuentas"
+    >
+      <div class="grid">
+        <article
+          v-for="account in pagedAccounts"
+          :key="account.id"
+          class="card acc"
+        >
+          <div class="acc-top">
+            <div class="acc-icon">
+              <Wallet :size="20" />
+            </div>
+
+            <div class="acc-titles">
+              <h3>{{ account.name }}</h3>
+
+              <span class="soft">
+                {{ account.type }}
+              </span>
+            </div>
+
+            <div class="action-pair">
+              <RouterLink
+                :to="`/accounts/${account.id}/edit`"
+                class="btn btn-ghost btn-icon"
+                aria-label="Editar cuenta"
+              >
+                <Pencil :size="15" />
+              </RouterLink>
+
+              <button
+                class="btn btn-danger btn-icon"
+                aria-label="Eliminar cuenta"
+                @click="deleteAccount(account.id)"
+              >
+                <Trash2 :size="15" />
+              </button>
+            </div>
           </div>
 
-          <div class="acc-titles">
-            <h3>{{ account.name }}</h3>
-
+          <div class="acc-balance">
             <span class="soft">
+              Saldo actual
+            </span>
+
+            <strong>
+              {{ FormattersUtil.formatToCOP(getBalance(account)) }}
+            </strong>
+          </div>
+
+          <div class="acc-foot">
+            <span class="badge badge-gray">
               {{ account.type }}
             </span>
           </div>
-
-          <div class="acc-actions">
-            <RouterLink
-              :to="`/accounts/${account.id}/edit`"
-              class="btn btn-ghost btn-icon"
-              aria-label="Editar cuenta"
-            >
-              <Pencil :size="15" />
-            </RouterLink>
-
-            <button
-              class="btn btn-danger btn-icon"
-              aria-label="Eliminar cuenta"
-              @click="deleteAccount(account.id)"
-            >
-              <Trash2 :size="15" />
-            </button>
-          </div>
-        </div>
-
-        <div class="acc-balance">
-          <span class="soft">
-            Saldo actual
-          </span>
-
-          <strong>
-            {{ FormattersUtil.formatToCOP(getBalance(account)) }}
-          </strong>
-        </div>
-
-        <div class="acc-foot">
-          <span class="badge badge-gray">
-            {{ account.type }}
-          </span>
-        </div>
-      </article>
-    </div>
+        </article>
+      </div>
+    </PaginatedList>
 
     <div v-else-if="!loading" class="card empty-state">
       <div class="empty-icon">
@@ -169,14 +179,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 22px;
-  flex-wrap: wrap;
-}
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -188,9 +190,11 @@ onMounted(async () => {
     transform 0.18s ease,
     box-shadow 0.18s ease;
 }
-.acc:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
+@media (hover: hover) {
+  .acc:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
 }
 .acc-top {
   display: flex;
@@ -217,10 +221,6 @@ html.dark .acc-icon {
 .acc-titles h3 {
   font-size: 1.05rem;
   margin-bottom: 2px;
-}
-.acc-actions {
-  display: flex;
-  gap: 4px;
 }
 .acc-balance {
   display: flex;
@@ -260,5 +260,18 @@ html.dark .acc-icon {
 }
 .empty-state .btn {
   margin-top: 16px;
+}
+
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .acc {
+    padding: 16px;
+  }
+  .acc-balance {
+    margin: 14px 0 12px;
+  }
 }
 </style>

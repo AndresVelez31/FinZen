@@ -24,6 +24,22 @@ export class FormattersUtil {
   }
 
   /**
+   * Formats an ISO date string as a short Spanish date for tight spaces (e.g. "5 ene 2026").
+   */
+  public static formatShortDate(dateStr: string): string {
+    const parts = new Intl.DateTimeFormat('es-CO', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      timeZone: 'UTC',
+    }).formatToParts(new Date(dateStr));
+    return parts
+      .filter((part) => part.type !== 'literal')
+      .map((part) => part.value.replace('.', ''))
+      .join(' ');
+  }
+
+  /**
    * Extracts the "YYYY-MM" month key from an ISO date string, used to group by month.
    */
   public static extractMonthKey(dateStr: string): string {

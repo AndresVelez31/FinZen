@@ -128,13 +128,53 @@ html.dark .stat-trend.up {
   color: var(--danger);
 }
 
+.stat-value {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Phones: a short row (icon, label, value) so three cards don't fill the whole screen */
 @media (max-width: 560px) {
   .stat {
-    padding: 16px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'icon title'
+      'icon value'
+      'icon trend';
+    column-gap: 14px;
+    align-items: center;
+    padding: 14px 16px;
+  }
+
+  .stat-top {
+    display: contents;
+  }
+
+  .stat-title {
+    grid-area: title;
+  }
+
+  .stat-icon {
+    grid-area: icon;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
   }
 
   .stat-value {
-    font-size: 1.45rem;
+    grid-area: value;
+    font-size: 1.35rem;
+    line-height: 1.25;
+  }
+
+  .stat-trend {
+    grid-area: trend;
+    margin-top: 0;
+    font-size: 0.76rem;
+  }
+
+  .stat:hover {
+    transform: none;
   }
 }
 </style>

@@ -6,6 +6,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 // Internal imports
+import MoneyInput from '@/components/shared/MoneyInputComponent.vue';
 import type { CreateAccountDTO } from '@/dtos/CreateAccountDTO.js';
 import type { UpdateAccountDTO } from '@/dtos/UpdateAccountDTO.js';
 import { ACCOUNT_TYPE_OPTIONS } from '@/enums/constants.js';
@@ -131,7 +132,7 @@ onMounted(async () => {
       <div class="field">
         <label for="name">Nombre de la cuenta</label>
         <input id="name" class="input" v-model="form.name" placeholder="Ej: Bancolombia" :disabled="saving" />
-        <span v-if="errors.name" class="err">{{ errors.name }}</span>
+        <span v-if="errors.name" class="field-error">{{ errors.name }}</span>
       </div>
 
       <div class="field">
@@ -152,26 +153,13 @@ onMounted(async () => {
             {{ type.label }}
           </button>
         </div>
-        <span v-if="errors.type" class="err">{{ errors.type }}</span>
+        <span v-if="errors.type" class="field-error">{{ errors.type }}</span>
       </div>
 
       <div class="field">
         <label for="balance">Saldo inicial</label>
-        <div class="amount-wrap">
-          <span class="currency">$</span>
-
-          <input
-            id="balance"
-            v-model="form.balance"
-            class="input amount"
-            type="number"
-            min="0"
-            step="1000"
-            placeholder="0"
-            :disabled="saving"
-          />
-        </div>
-        <span v-if="errors.balance" class="err">{{ errors.balance }}</span>
+        <MoneyInput id="balance" v-model="form.balance" :invalid="Boolean(errors.balance)" :disabled="saving" />
+        <span v-if="errors.balance" class="field-error">{{ errors.balance }}</span>
       </div>
 
       <div class="actions">
@@ -248,32 +236,6 @@ html.dark .type-opt.active {
   color: var(--primary);
 }
 
-.amount-wrap {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.currency {
-  position: absolute;
-  left: 14px;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-
-.amount {
-  padding-left: 34px;
-  font-size: 1.3rem;
-  font-weight: 700;
-  font-family: var(--font-head);
-}
-
-.err {
-  color: var(--danger);
-  font-size: 0.78rem;
-}
-
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -282,12 +244,17 @@ html.dark .type-opt.active {
 }
 
 @media (max-width: 560px) {
-  .type-grid {
-    grid-template-columns: 1fr;
+  .form {
+    padding: 20px 18px;
+    gap: 16px;
   }
 
   .actions {
-    flex-direction: column;
+    flex-direction: column-reverse;
+  }
+
+  .actions .btn {
+    width: 100%;
   }
 }
 </style>

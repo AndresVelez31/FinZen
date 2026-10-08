@@ -29,55 +29,67 @@ const emit = defineEmits<{
           <th>Cuenta</th>
           <th>Fecha</th>
           <th>Tipo</th>
-          <th style="text-align: right">Importe</th>
-          <th style="text-align: right; width: 120px">Acciones</th>
+          <th class="right">Importe</th>
+          <th class="right actions-col">Acciones</th>
         </tr>
       </thead>
 
       <tbody>
         <template v-if="props.rows.length">
           <tr v-for="transaction in props.rows" :key="transaction.id">
-            <td>
+            <td class="c-desc">
               <div class="tx-desc">
                 <span class="dot" :style="{ background: transaction.activityColor }"></span>
-                <span class="tx-name">{{ transaction.description }}</span>
+                <div class="tx-text">
+                  <span class="tx-name">{{ transaction.description }}</span>
+                  <!-- On phones the other columns fold into this line -->
+                  <span class="tx-meta soft">
+                    {{ transaction.activityName }} · {{ transaction.accountName }} ·
+                    {{ FormattersUtil.formatShortDate(transaction.date) }}
+                  </span>
+                </div>
               </div>
             </td>
-            <td>
+            <td class="c-wide">
               <span class="chip badge-gray">{{ transaction.activityName }}</span>
             </td>
-            <td>{{ transaction.accountName }}</td>
-            <td>{{ FormattersUtil.formatDate(transaction.date) }}</td>
-            <td>
-              <span class="badge" :class="transaction.type === 'income' ? 'badge-green' : 'badge-red'">
+            <td class="c-wide">{{ transaction.accountName }}</td>
+            <td class="c-wide num nowrap">{{ FormattersUtil.formatDate(transaction.date) }}</td>
+            <td class="c-wide">
+              <span
+                class="badge"
+                :class="transaction.type === 'income' ? 'badge-green' : 'badge-red'"
+              >
                 {{ transaction.type === 'income' ? 'Ingreso' : 'Gasto' }}
               </span>
             </td>
-            <td style="text-align: right">
-              <span :class="transaction.type === 'income' ? 'amt-in' : 'amt-out'">
-                {{ transaction.type === 'income' ? '+' : '−' }}{{ FormattersUtil.formatToCOP(transaction.amount) }}
+            <td class="right c-amount">
+              <span
+                class="num nowrap"
+                :class="transaction.type === 'income' ? 'amt-in' : 'amt-out'"
+              >
+                {{ transaction.type === 'income' ? '+' : '−'
+                }}{{ FormattersUtil.formatToCOP(transaction.amount) }}
               </span>
             </td>
-            <td style="text-align: right">
-              <div class="row-actions">
-                <div>
-                  <button
-                    class="btn btn-ghost btn-icon"
-                    @click="emit('edit', transaction)"
-                    aria-label="Editar"
-                    title="Editar"
-                  >
-                    <Pencil :size="15" />
-                  </button>
-                  <button
-                    class="btn btn-danger btn-icon"
-                    @click="emit('delete', transaction)"
-                    aria-label="Eliminar"
-                    title="Eliminar"
-                  >
-                    <Trash2 :size="15" />
-                  </button>
-                </div>
+            <td class="right c-actions">
+              <div class="action-pair">
+                <button
+                  class="btn btn-ghost btn-icon"
+                  @click="emit('edit', transaction)"
+                  :aria-label="`Editar ${transaction.description}`"
+                  title="Editar"
+                >
+                  <Pencil :size="15" />
+                </button>
+                <button
+                  class="btn btn-danger btn-icon"
+                  @click="emit('delete', transaction)"
+                  :aria-label="`Eliminar ${transaction.description}`"
+                  title="Eliminar"
+                >
+                  <Trash2 :size="15" />
+                </button>
               </div>
             </td>
           </tr>
@@ -97,6 +109,7 @@ const emit = defineEmits<{
 <style scoped>
 .table-wrap {
   overflow-x: auto;
+  container-type: inline-size;
 }
 .table {
   width: 100%;
@@ -129,15 +142,28 @@ tbody tr:hover {
 tbody tr:last-child td {
   border-bottom: none;
 }
-.row-actions {
-  display: inline-flex;
-  gap: 6px;
-  justify-content: flex-end;
+.right {
+  text-align: right;
+}
+.nowrap {
+  white-space: nowrap;
+}
+.actions-col {
+  width: 120px;
 }
 .tx-desc {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+.tx-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.tx-meta {
+  display: none;
+  font-size: 0.78rem;
 }
 .dot {
   width: 9px;
@@ -157,5 +183,57 @@ html.dark .amt-in {
 }
 .amt-out {
   font-weight: 700;
+}
+
+/* Narrow space (phones, tablets with the sidebar): each transaction becomes a two-column card instead of a scrolling table */
+@container (max-width: 820px) {
+  .table,
+  .table tbody {
+    display: block;
+  }
+  .table thead,
+  .c-wide {
+    display: none;
+  }
+  tbody tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'desc amount'
+      'desc actions';
+    gap: 6px 14px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr:last-child {
+    border-bottom: none;
+  }
+  tbody tr:hover {
+    background: transparent;
+  }
+  tbody td {
+    padding: 0;
+    border: none;
+  }
+  .c-desc {
+    grid-area: desc;
+    align-self: center;
+  }
+  .tx-desc {
+    align-items: flex-start;
+  }
+  .dot {
+    margin-top: 7px;
+  }
+  .tx-meta {
+    display: block;
+    margin-top: 2px;
+  }
+  .c-amount {
+    grid-area: amount;
+  }
+  .c-actions {
+    grid-area: actions;
+  }
 }
 </style>

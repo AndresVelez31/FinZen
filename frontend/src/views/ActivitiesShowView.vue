@@ -6,6 +6,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 // Internal imports
+import PaginatedList from '@/components/shared/PaginatedListComponent.vue';
 import type { ActivityInterface } from '@/interfaces/ActivityInterface.js';
 import type { TransactionInterface } from '@/interfaces/TransactionInterface.js';
 import { ActivityService } from '@/services/ActivityService.js';
@@ -82,7 +83,7 @@ onMounted(async () => {
 
 <template>
   <div class="fade-up">
-    <div class="head">
+    <div class="page-head">
       <div>
         <h2 class="page-title">Actividades</h2>
         <p class="muted">Gestiona tus categorías de gasto y metas de ahorro.</p>
@@ -92,57 +93,66 @@ onMounted(async () => {
       </button>
     </div>
 
-    <div v-if="activitiesProgress.length" class="grid">
-      <article v-for="activity in activitiesProgress" :key="activity.id" class="card act" :style="{ '--c': activity.color }">
-        <div class="act-top">
-          <span class="act-dot"></span>
-          <div class="act-titles">
-            <h3>{{ activity.name }}</h3>
-            <span class="badge" :class="activity.type === 'expense' ? 'badge-red' : 'badge-green'">
-              <component :is="activity.type === 'expense' ? Target : PiggyBank" :size="12" />
-              {{ activity.type === 'expense' ? 'Gasto' : 'Ahorro' }}
-            </span>
+    <!-- 9 per page: three rows of the three-column grid -->
+    <PaginatedList
+      v-if="activitiesProgress.length"
+      v-slot="{ items: pagedActivities }"
+      :items="activitiesProgress"
+      :page-size="9"
+      item-label="actividades"
+    >
+      <div class="grid">
+        <article v-for="activity in pagedActivities" :key="activity.id" class="card act" :style="{ '--c': activity.color }">
+          <div class="act-top">
+            <span class="act-dot"></span>
+            <div class="act-titles">
+              <h3>{{ activity.name }}</h3>
+              <span class="badge" :class="activity.type === 'expense' ? 'badge-red' : 'badge-green'">
+                <component :is="activity.type === 'expense' ? Target : PiggyBank" :size="12" />
+                {{ activity.type === 'expense' ? 'Gasto' : 'Ahorro' }}
+              </span>
+            </div>
+            <div class="action-pair">
+              <button
+                class="btn btn-ghost btn-icon"
+                @click="router.push({ name: 'activities.edit', params: { id: activity.id } })"
+                aria-label="Editar"
+              >
+                <Pencil :size="15" />
+              </button>
+              <button class="btn btn-danger btn-icon" @click="deleteActivity(activity)" aria-label="Eliminar">
+                <Trash2 :size="15" />
+              </button>
+            </div>
           </div>
-          <div class="act-actions">
-            <button
-              class="btn btn-ghost btn-icon"
-              @click="router.push({ name: 'activities.edit', params: { id: activity.id } })"
-              aria-label="Editar"
-            >
-              <Pencil :size="15" />
-            </button>
-            <button class="btn btn-danger btn-icon" @click="deleteActivity(activity)" aria-label="Eliminar">
-              <Trash2 :size="15" />
-            </button>
-          </div>
-        </div>
 
-        <div class="act-meta">
-          <span class="soft">{{
-            activity.type === 'expense' ? 'Presupuesto mensual' : 'Meta de ahorro'
-          }}</span>
-          <strong>{{ FormattersUtil.formatToCOP(activity.targetAmount) }}</strong>
-        </div>
+          <div class="act-meta">
+            <span class="soft">{{
+              activity.type === 'expense' ? 'Presupuesto mensual' : 'Meta de ahorro'
+            }}</span>
+            <strong>{{ FormattersUtil.formatToCOP(activity.targetAmount) }}</strong>
+          </div>
 
-        <div class="progress">
-          <div class="bar">
-            <span
-              :style="{
-                width: activity.percent + '%',
-                background: activity.over ? 'var(--danger)' : activity.color,
-              }"
-            ></span>
+          <div class="progress">
+            <div class="bar">
+              <span
+                :style="{
+                  width: activity.percent + '%',
+                  background: activity.over ? 'var(--danger)' : activity.color,
+                }"
+              ></span>
+            </div>
+            <div class="progress-foot">
+              <span :class="{ over: activity.over }"
+                >{{ FormattersUtil.formatToCOP(activity.used) }}
+                {{ activity.type === 'expense' ? 'gastado' : 'ahorrado' }}</span
+              >
+              <span class="soft">{{ activity.percent }}%</span>
+            </div>
           </div>
-          <div class="progress-foot">
-            <span :class="{ over: activity.over }"
-              >{{ FormattersUtil.formatToCOP(activity.used) }}
-              {{ activity.type === 'expense' ? 'gastado' : 'ahorrado' }}</span
-            >
-            <span class="soft">{{ activity.percent }}%</span>
-          </div>
-        </div>
-      </article>
-    </div>
+        </article>
+      </div>
+    </PaginatedList>
 
     <div v-else-if="!loading" class="card empty-state">
       <div class="empty-icon"><Target :size="26" /></div>
@@ -156,14 +166,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 22px;
-  flex-wrap: wrap;
-}
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -175,9 +177,11 @@ onMounted(async () => {
     transform 0.18s ease,
     box-shadow 0.18s ease;
 }
-.act:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
+@media (hover: hover) {
+  .act:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
 }
 .act-top {
   display: flex;
@@ -199,10 +203,6 @@ onMounted(async () => {
 .act-titles h3 {
   font-size: 1.05rem;
   margin-bottom: 6px;
-}
-.act-actions {
-  display: flex;
-  gap: 4px;
 }
 .act-meta {
   display: flex;
@@ -256,5 +256,15 @@ onMounted(async () => {
 }
 .empty-state .btn {
   margin-top: 16px;
+}
+
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .act {
+    padding: 16px;
+  }
 }
 </style>

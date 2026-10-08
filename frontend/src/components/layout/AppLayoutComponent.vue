@@ -7,8 +7,10 @@ import {
   Menu,
   Moon,
   PieChart,
+  ShieldCheck,
   Sun,
   Tags,
+  UserRound,
   Users,
   Wallet,
   X,
@@ -51,6 +53,11 @@ const navItems = computed<NavItemInterface[]>(() => [
 
 const userInitials = computed<string>(() =>
   FormattersUtil.extractInitials(currentUser.value?.name ?? '?'),
+);
+
+// Route titles carry the app name for the browser tab ("Cuentas | FinZen"); the bar shows only the page.
+const pageTitle = computed(() =>
+  String(route.meta.title || 'Resumen').replace(/\s*\|\s*FinZen$/, ''),
 );
 
 // Actions
@@ -127,22 +134,19 @@ watch(isAuthenticated, (authenticated) => {
 
       <div class="sidebar-foot">
         <div class="user-card">
-          <div class="avatar">{{ userInitials }}</div>
-          <div class="user-meta">
-            <div class="user-name">{{ currentUser?.name }}</div>
-            <div class="user-role">
-              <span class="chip" :class="isAdminUser ? 'badge-indigo' : 'badge-gray'">{{
-                isAdminUser ? 'Administrador' : 'Usuario'
-              }}</span>
+          <div class="profile">
+            <div class="avatar" :class="{ admin: isAdminUser }">{{ userInitials }}</div>
+            <div class="user-meta">
+              <div class="user-name" :title="currentUser?.name">{{ currentUser?.name }}</div>
+              <div class="user-role" :class="{ admin: isAdminUser }">
+                <component :is="isAdminUser ? ShieldCheck : UserRound" :size="13" />
+                {{ isAdminUser ? 'Administrador' : 'Usuario' }}
+              </div>
             </div>
           </div>
-          <button
-            class="btn btn-ghost btn-icon"
-            @click="handleSignOut"
-            aria-label="Cerrar sesión"
-            title="Cerrar sesión"
-          >
-            <LogOut :size="17" />
+          <button type="button" class="signout" @click="handleSignOut">
+            <LogOut :size="16" />
+            Cerrar sesión
           </button>
         </div>
       </div>
@@ -156,7 +160,7 @@ watch(isAuthenticated, (authenticated) => {
         <button class="menu-btn" @click="isMobileMenuOpen = true" aria-label="Abrir menú">
           <Menu :size="22" />
         </button>
-        <h1 class="topbar-title">{{ route.meta.title || 'Resumen' }}</h1>
+        <h1 class="topbar-title">{{ pageTitle }}</h1>
         <div class="topbar-actions">
           <button
             class="btn btn-ghost btn-icon"
@@ -185,6 +189,7 @@ watch(isAuthenticated, (authenticated) => {
 .shell {
   display: flex;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Sidebar */
@@ -198,6 +203,7 @@ watch(isAuthenticated, (authenticated) => {
   position: sticky;
   top: 0;
   height: 100vh;
+  height: 100dvh;
 }
 .brand {
   display: flex;
@@ -238,6 +244,7 @@ watch(isAuthenticated, (authenticated) => {
   gap: 4px;
   padding: 8px 12px;
   flex: 1;
+  overflow-y: auto;
 }
 .nav-item {
   display: flex;
@@ -285,23 +292,34 @@ html.dark .nav-item.active {
 }
 .user-card {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 10px;
-  padding: 8px;
-  border-radius: 14px;
+  padding: 12px;
+  border-radius: 16px;
   background: var(--surface-2);
 }
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
 .avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: var(--accent);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--text-soft) 80%, var(--text));
   color: #fff;
   display: grid;
   place-items: center;
-  font-weight: 700;
+  font-family: var(--font-head);
+  font-weight: 800;
   font-size: 0.85rem;
+  letter-spacing: 0.02em;
   flex-shrink: 0;
+}
+.avatar.admin {
+  background: var(--accent);
 }
 .user-meta {
   min-width: 0;
@@ -309,13 +327,53 @@ html.dark .nav-item.active {
 }
 .user-name {
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  line-height: 1.3;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .user-role {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   margin-top: 2px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.user-role.admin {
+  color: var(--accent);
+}
+.signout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+.signout:hover {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+}
+.signout:focus-visible,
+.nav-item:focus-visible,
+.menu-btn:focus-visible,
+.close-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 /* Main */
@@ -340,6 +398,10 @@ html.dark .nav-item.active {
 .topbar-title {
   font-size: 1.25rem;
   font-weight: 700;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .topbar-actions {
   margin-left: auto;
@@ -348,9 +410,17 @@ html.dark .nav-item.active {
 }
 .menu-btn {
   display: none;
-  background: transparent;
+  width: 40px;
+  height: 40px;
+  margin-left: -8px;
+  place-items: center;
   border: none;
+  border-radius: 10px;
+  background: transparent;
   color: var(--text);
+}
+.menu-btn:hover {
+  background: var(--surface-2);
 }
 .content {
   padding: 26px;
@@ -374,21 +444,42 @@ html.dark .nav-item.active {
   .sidebar.open {
     transform: translateX(0);
   }
+  .sidebar {
+    width: min(84vw, 300px);
+    overscroll-behavior: contain;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
   .close-btn {
-    display: block;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
   }
   .menu-btn {
-    display: block;
+    display: grid;
   }
   .overlay {
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(5, 10, 12, 0.45);
     z-index: 50;
   }
+  .nav-item {
+    min-height: 46px;
+  }
+  .topbar {
+    gap: 10px;
+    padding: 10px 16px;
+    padding-top: max(10px, env(safe-area-inset-top));
+  }
+  .topbar-title {
+    font-size: 1.08rem;
+  }
   .content {
-    padding: 18px 16px;
+    padding: 18px 16px calc(28px + env(safe-area-inset-bottom));
   }
 }
 </style>
