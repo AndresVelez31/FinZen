@@ -124,7 +124,7 @@ export class BaseService {
     }
 
     // A 401 with a token means it expired and could not be renewed: the session
-    // ends and AppLayout goes back to the sign-in page. A wrong password at sign-in
+    // ends and AppLayoutComponent goes back to the sign-in page. A wrong password at sign-in
     // sends no token.
     if (error.response.status === 401 && useAuthStore().accessToken) {
       BaseService.clearSession();

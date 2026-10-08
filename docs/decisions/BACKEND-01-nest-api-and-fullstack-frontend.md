@@ -59,7 +59,7 @@ says the project must keep a migration history.
 
 - `BaseService` wraps axios like the Tutorial 07 services: base URL from `VITE_API_BASE_URL`,
   `Authorization` header, the only `try/catch`, and conversion of any failure into an `Error`
-  with the API message. A `401` with a token clears the session and `AppLayout` sends the user
+  with the API message. A `401` with a token clears the session and `AppLayoutComponent` sends the user
   to `/sign-in`.
 - Every service `extends BaseService` and only does CRUD with the API through its
   `private static readonly PATH`; every method is `async` and uses `return await`, in the

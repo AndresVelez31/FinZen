@@ -25,7 +25,7 @@ Accepted
   together share one renewal. If the renewal fails, the original `401` ends the session.
 - **Real logout.** `POST /auth/token/revoke` revokes the refresh token and answers `204` even for
   an unknown token (RFC 7009). `AuthService.logout()` clears the local session first, so the user
-  is signed out whatever happens, and then calls the route. `AppLayout` does not show a failed
+  is signed out whatever happens, and then calls the route. `AppLayoutComponent` does not show a failed
   revoke.
 - **Validation.** A global `ValidationPipe` with `class-validator` and `class-transformer` checks
   `SignInDto` (called `LoginDto` when this was decided) and `RefreshTokenDto`. Its `exceptionFactory` answers `400` with the first constraint
