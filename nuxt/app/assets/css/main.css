@@ -1,0 +1,64 @@
+/* FinZen identity on top of Bootstrap 5.3: emerald palette, Manrope headings, Inter body. */
+:root {
+  --bs-primary: #10b981;
+  --bs-primary-rgb: 16, 185, 129;
+  --bs-link-color: #059669;
+  --bs-link-color-rgb: 5, 150, 105;
+  --bs-link-hover-color: #047857;
+  --bs-link-hover-color-rgb: 4, 120, 87;
+  --bs-body-font-family: 'Inter', system-ui, sans-serif;
+  --bs-body-bg: #f6f7f9;
+  --bs-body-color: #0f1720;
+  --bs-border-radius-lg: 16px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.navbar-brand {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+}
+
+.btn-primary {
+  --bs-btn-bg: #10b981;
+  --bs-btn-border-color: #10b981;
+  --bs-btn-hover-bg: #059669;
+  --bs-btn-hover-border-color: #059669;
+  --bs-btn-active-bg: #059669;
+  --bs-btn-active-border-color: #059669;
+  --bs-btn-disabled-bg: #10b981;
+  --bs-btn-disabled-border-color: #10b981;
+}
+
+.btn-outline-primary {
+  --bs-btn-color: #059669;
+  --bs-btn-border-color: #10b981;
+  --bs-btn-hover-bg: #10b981;
+  --bs-btn-hover-border-color: #10b981;
+  --bs-btn-active-bg: #059669;
+  --bs-btn-active-border-color: #059669;
+}
+
+.card {
+  --bs-card-border-radius: 16px;
+  --bs-card-inner-border-radius: 15px;
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 1px 3px rgba(16, 24, 40, 0.06);
+}
+
+.form-control:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+}
+
+.accordion {
+  --bs-accordion-active-bg: #d1fae5;
+  --bs-accordion-active-color: #065f46;
+  --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25);
+}
