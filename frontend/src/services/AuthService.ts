@@ -50,6 +50,15 @@ export class AuthService extends BaseService {
     }
   }
 
+  // Forgets the tokens and the user. Used by signOut() and by AppLayoutComponent when
+  // BaseService drops tokens that expired and could not be renewed.
+  public static clearSession(): void {
+    const authStore = useAuthStore();
+    authStore.accessToken = null;
+    authStore.refreshToken = null;
+    authStore.currentUser = null;
+  }
+
   public static getCurrentUser(): UserInterface | null {
     return useAuthStore().currentUser;
   }

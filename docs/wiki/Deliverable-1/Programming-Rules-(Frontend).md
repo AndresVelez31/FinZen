@@ -27,8 +27,9 @@ The back-end rules are in [Programming Rules (Backend)](<Programming-Rules-(Back
    `Authorization` header. Services never repeat them. A `401` with both tokens renews them once
    with the refresh token (one renewal shared by concurrent requests, because a refresh token is
    single use) and retries the request; if the renewal fails, or any other `401` with a token
-   arrives, the session ends. `AuthService.signOut()` ends the local session first and then
-   revokes the refresh token.
+   arrives, it drops the tokens. `BaseService` only handles the tokens a request needs: the
+   session (start, end with `clearSession()`, current user) belongs to `AuthService`.
+   `AuthService.signOut()` ends the local session first and then revokes the refresh token.
 8. Every function that returns a promise is `async` and uses `await`
    (`return await this.httpGet(...)`): `getAllByUserId`, `getByIdAndUserId`, `create`, `update`,
    `delete` (`UserService` keeps `getAll` and `update`: it lists every user for the administrator).
