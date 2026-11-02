@@ -33,6 +33,10 @@ Since Deliverable 2 the project is **full stack**:
 - `backend/` — NestJS REST API under `/api`, with TypeORM over SQLite. The schema and the demo
   data are created by migrations.
 
+`nuxt/` is a separate Nuxt 4 mini project for the hybrid-rendering deliverable (SSG blog, SSR accounts
+served by Nuxt's own server layer, CSR tools); see [nuxt/README.md](nuxt/README.md). It runs on
+port 3001 in `docker-compose.yml`.
+
 The API requires a valid access token on every route except `/api` and `/api/auth/*`, only
 returns the records of the authenticated user, and restricts user administration to admins.
 
