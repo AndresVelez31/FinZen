@@ -10,6 +10,8 @@ import { useAuthStore } from '@/stores/authstore.js';
 // Superclass of every service. The API URL, the Authorization header, the renewal
 // of an expired access token (once, with the refresh token) and the only try/catch
 // around axios live here, so the services that extend it never repeat them.
+// It only handles the tokens a request needs; the session itself (start, end, current
+// user) belongs to AuthService, which extends this class.
 export class BaseService {
   private static readonly API_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
   private static readonly REFRESH_PATH = '/auth/token/refresh';
@@ -44,15 +46,6 @@ export class BaseService {
     );
   }
 
-  // Session
-
-  protected static clearSession(): void {
-    const authStore = useAuthStore();
-    authStore.accessToken = null;
-    authStore.refreshToken = null;
-    authStore.currentUser = null;
-  }
-
   // Helpers
 
   // Runs the request. When the access token expired, it renews the tokens and
@@ -61,7 +54,7 @@ export class BaseService {
     try {
       return (await request()).data;
     } catch (error) {
-      if (BaseService.isExpiredSession(error) && (await BaseService.renewTokens())) {
+      if (BaseService.isExpiredAccessToken(error) && (await BaseService.renewTokens())) {
         try {
           return (await request()).data;
         } catch (retryError) {
@@ -72,8 +65,8 @@ export class BaseService {
     }
   }
 
-  // A 401 while the session holds both tokens: the access token may have expired.
-  private static isExpiredSession(error: unknown): boolean {
+  // A 401 while both tokens are stored: the access token may have expired.
+  private static isExpiredAccessToken(error: unknown): boolean {
     const authStore = useAuthStore();
     return (
       axios.isAxiosError(error) &&
@@ -110,6 +103,15 @@ export class BaseService {
     }
   }
 
+  // The tokens no longer work and could not be renewed. Without them
+  // AuthService.isAuthenticated() turns false, and AppLayoutComponent ends the session
+  // (AuthService.clearSession()) and goes back to the sign-in page.
+  private static discardTokens(): void {
+    const authStore = useAuthStore();
+    authStore.accessToken = null;
+    authStore.refreshToken = null;
+  }
+
   // Sends the access token, when there is one, in the Authorization header.
   private static getConfig() {
     const accessToken = useAuthStore().accessToken;
@@ -123,11 +125,10 @@ export class BaseService {
       return new Error('No fue posible conectar con el servidor.');
     }
 
-    // A 401 with a token means it expired and could not be renewed: the session
-    // ends and AppLayoutComponent goes back to the sign-in page. A wrong password at sign-in
-    // sends no token.
+    // A 401 with a token means it expired and could not be renewed. A wrong password at
+    // sign-in sends no token.
     if (error.response.status === 401 && useAuthStore().accessToken) {
-      BaseService.clearSession();
+      BaseService.discardTokens();
       return new Error('Tu sesión expiró. Inicia sesión nuevamente.');
     }
 

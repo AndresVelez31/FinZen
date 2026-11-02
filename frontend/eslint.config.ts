@@ -1,9 +1,11 @@
+// External imports
 import js from '@eslint/js';
+import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 import eslintConfigPrettier from 'eslint-config-prettier/flat';
 import oxlint from 'eslint-plugin-oxlint';
 import pluginVue from 'eslint-plugin-vue';
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 
+// Exports
 export default defineConfigWithVueTs(
   {
     name: 'app/files-to-lint',
