@@ -21,11 +21,10 @@ nuxt/
 │   ├── data/                    # ARTICLES and FAQS (fixed data)
 │   ├── enums/constants.ts       # NAV_ITEMS and SECTION_CARDS
 │   ├── interfaces/              # One interface per file
-│   ├── layouts/default.vue      # Navigation bar and footer
 │   ├── pages/                   # index, blog/, accounts/, tools/
 │   ├── services/AccountService.ts  # $fetch to /api/accounts
 │   ├── utils/                   # Pure utils (articles, calculator, formatting)
-│   ├── app.vue
+│   ├── app.vue                  # Navigation bar, footer and <NuxtPage />
 │   └── error.vue
 ├── server/
 │   ├── accounts/                # account.entity, accounts.data, accounts.validate, accounts.service
