@@ -1,45 +1,45 @@
-# FinZen · Proyecto híbrido (Nuxt 4)
+# FinZen · Hybrid project (Nuxt 4)
 
-Mini versión de FinZen para el Entregable 2 (Proyecto Híbrido). Es un proyecto Nuxt 4 con tres
-secciones que usan estrategias de renderizado distintas, configuradas con `routeRules` en
-`nuxt.config.ts`. Los estilos usan Bootstrap 5.3.3 (CDN) con la identidad esmeralda de FinZen.
+Mini version of FinZen for Deliverable 2 (Hybrid Project). It is a Nuxt 4 project with three
+sections that use different rendering strategies, configured with `routeRules` in
+`nuxt.config.ts`. The styles use Bootstrap 5.3.3 (CDN) with FinZen's emerald identity.
 
-## Secciones y renderizado
+## Sections and rendering
 
-| Ruta                                          | Contenido                                       | Renderizado        |
-| --------------------------------------------- | ----------------------------------------------- | ------------------ |
-| `/blog`, `/blog/[slug]`                       | 3 artículos escritos en el código del front end | SSG (`prerender`)  |
-| `/accounts`, `/accounts/[id]`                 | Cuentas servidas por `GET /api/accounts[/:id]`  | SSR (`ssr: true`)  |
-| `/tools`, `/tools/savings-calculator`, `/tools/faq` | Calculadora de ahorro y preguntas frecuentes | CSR (`ssr: false`) |
+| Route                                               | Content                                         | Rendering          |
+| --------------------------------------------------- | ----------------------------------------------- | ------------------ |
+| `/blog`, `/blog/[slug]`                             | 3 articles written in the front-end code        | SSG (`prerender`)  |
+| `/accounts`, `/accounts/[id]`                       | Accounts served by `GET /api/accounts[/:id]`    | SSR (`ssr: true`)  |
+| `/tools`, `/tools/savings-calculator`, `/tools/faq` | Savings calculator and frequently asked questions | CSR (`ssr: false`) |
 
-## Estructura
+## Structure
 
 ```text
 nuxt/
 ├── app/
-│   ├── assets/css/main.css      # Identidad FinZen sobre Bootstrap
-│   ├── data/                    # ARTICLES y FAQS (datos fijos)
-│   ├── enums/constants.ts       # NAV_ITEMS y SECTION_CARDS
-│   ├── interfaces/              # Una interfaz por archivo
-│   ├── layouts/default.vue      # Barra de navegación y pie
+│   ├── assets/css/main.css      # FinZen identity on top of Bootstrap
+│   ├── data/                    # ARTICLES and FAQS (fixed data)
+│   ├── enums/constants.ts       # NAV_ITEMS and SECTION_CARDS
+│   ├── interfaces/              # One interface per file
+│   ├── layouts/default.vue      # Navigation bar and footer
 │   ├── pages/                   # index, blog/, accounts/, tools/
-│   ├── services/AccountService.ts  # $fetch hacia /api/accounts
-│   ├── utils/                   # Utils puros (artículos, calculadora, formato)
+│   ├── services/AccountService.ts  # $fetch to /api/accounts
+│   ├── utils/                   # Pure utils (articles, calculator, formatting)
 │   ├── app.vue
 │   └── error.vue
 ├── server/
 │   ├── accounts/                # account.entity, accounts.data, accounts.validate, accounts.service
-│   └── api/accounts/            # Route handlers (los "controllers")
+│   └── api/accounts/            # Route handlers (the "controllers")
 ├── nuxt.config.ts
 ├── Dockerfile
 └── package.json
 ```
 
-Flujo: la página llama a `AccountService` (View → Service → `$fetch`) y el route handler del
-servidor (controller) valida con `AccountsValidator`, consulta `AccountsService` y este lee
-`ACCOUNTS` (datos fijos, sin base de datos).
+Flow: the page calls `AccountService` (View → Service → `$fetch`) and the server route handler
+(controller) validates with `AccountsValidator`, queries `AccountsService`, and this one reads
+`ACCOUNTS` (fixed data, no database).
 
-## Comandos
+## Commands
 
 ```bash
 cd nuxt
@@ -51,5 +51,5 @@ npm run preview
 
 ## Docker / VM
 
-Desde la raíz del repositorio, `docker compose up -d --build nuxt` publica la aplicación en
-`http://<IP>:3001`. El firewall de GCP debe permitir `tcp:3001`.
+From the repository root, `docker compose up -d --build nuxt` publishes the application at
+`http://<IP>:3001`. The GCP firewall must allow `tcp:3001`.
