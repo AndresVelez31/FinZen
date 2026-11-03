@@ -38,6 +38,9 @@ Accepted
 - **Styling.** Bootstrap 5.3.3 from the CDN (as in the course tutorial) with a small
   `main.css` that overrides the Bootstrap variables with FinZen's emerald palette, Manrope headings
   and Inter body text.
+- **Single layout in `app.vue`.** The navigation bar and footer live in `app.vue` around
+  `<NuxtPage />`, with no `layouts/` folder: the Nuxt docs recommend `app.vue` when the app has
+  only one layout, and the course tutorial does the same.
 
 ## Consequences
 
